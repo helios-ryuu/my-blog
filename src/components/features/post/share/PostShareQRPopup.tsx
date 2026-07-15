@@ -1,0 +1,259 @@
+"use client";
+
+import { useRef, useEffect, useState } from "react";
+import { Download, Copy, X, Check } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { toPng } from "html-to-image";
+import Image from "next/image";
+
+import { useTranslations } from "next-intl";
+import { TagList } from "@/components/ui";
+import { useToast } from "@/components/ui/Toast";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+import StatColumns from "../card/PostStatColumns";
+import PostCategoryBadge from "../card/PostCategoryBadge";
+import type { Level } from "@/types/post";
+import type { PostCategory } from "@/types/database";
+
+interface ShareQRPopupProps {
+    image?: string;
+    title: string;
+    description: string;
+    date?: string;
+    readingTime?: string;
+    level?: Level;
+    tags?: string[];
+    category?: PostCategory;
+    postUrl: string;
+    onClose: () => void;
+}
+
+export default function ShareQRPopup({
+    image,
+    title,
+    description,
+    date,
+    readingTime,
+    level,
+    tags,
+    category,
+    postUrl,
+    onClose,
+}: ShareQRPopupProps) {
+    const cardRef = useRef<HTMLDivElement>(null);
+    const [copied, setCopied] = useState(false);
+    const [downloading, setDownloading] = useState(false);
+    const { showToast } = useToast();
+    const t = useTranslations("post");
+
+    const toastShownRef = useRef(false);
+
+    useEscapeKey(onClose);
+
+    useEffect(() => {
+        if (!toastShownRef.current) {
+            showToast("info", t("qrReady"));
+            toastShownRef.current = true;
+        }
+    }, [showToast, t]);
+    // Helper to wait for all images to load
+    const waitForImages = async (element: HTMLElement): Promise<void> => {
+        const images = element.querySelectorAll('img');
+        const promises = Array.from(images).map((img) => {
+            if (img.complete) return Promise.resolve();
+            return new Promise<void>((resolve) => {
+                img.onload = () => resolve();
+                img.onerror = () => resolve(); // Resolve even on error to prevent hang
+            });
+        });
+        await Promise.all(promises);
+        // Extra delay to ensure rendering is complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+    };
+
+    const handleDownload = async () => {
+        if (!cardRef.current || downloading) return;
+        setDownloading(true);
+        try {
+            // Wait for all images to load before capturing
+            await waitForImages(cardRef.current);
+
+            const dataUrl = await toPng(cardRef.current, {
+                quality: 1,
+                pixelRatio: 2,
+            });
+            const link = document.createElement("a");
+            link.download = `${title.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-share.png`;
+            link.href = dataUrl;
+            link.click();
+            showToast("success", t("imageDownloaded"));
+        } catch (err) {
+            console.error("Failed to generate image:", err);
+            showToast("error", t("imageDownloadFailed"));
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+    const handleCopyToClipboard = async () => {
+        if (!cardRef.current || copied) return;
+        try {
+            // Wait for all images to load before capturing
+            await waitForImages(cardRef.current);
+
+            const dataUrl = await toPng(cardRef.current, {
+                quality: 1,
+                pixelRatio: 2,
+            });
+            const blob = await (await fetch(dataUrl)).blob();
+            await navigator.clipboard.write([
+                new ClipboardItem({ "image/png": blob }),
+            ]);
+            setCopied(true);
+            showToast("success", t("imageCopied"));
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error("Failed to copy image:", err);
+            showToast("error", t("imageCopyFailed"));
+        }
+    };
+
+    return (
+        <div
+            className="fixed inset-0 z-200 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            onClick={onClose}
+            onTouchMove={onClose}
+        >
+            {/* Action Buttons */}
+            <div className="absolute top-4 right-4 flex gap-2">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload();
+                    }}
+                    disabled={downloading}
+                    className="p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-accent/40 hover:border-accent cursor-pointer transition-colors disabled:opacity-50"
+                    title="Download image"
+                >
+                    <Download className="w-5 h-5" strokeWidth={3} />
+                </button>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyToClipboard();
+                    }}
+                    className="hidden sm:block p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-accent/40 hover:border-accent cursor-pointer transition-colors"
+                    title="Copy to clipboard"
+                >
+                    {copied ? <Check className="w-5 h-5 text-green-500" strokeWidth={3} /> : <Copy className="w-5 h-5" strokeWidth={3} />}
+                </button>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                    }}
+                    className="p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-red-500/40 hover:border-red-500 cursor-pointer transition-colors"
+                    title="Close"
+                >
+                    <X className="w-5 h-5" strokeWidth={3} />
+                </button>
+            </div>
+
+            {/* Card Preview */}
+            <div
+                ref={cardRef}
+                key={postUrl}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-84 p-3 rounded-xl border border-(--border-color) bg-(--post-card)"
+            >
+                {/* Image */}
+                {image && (
+                    <div className="relative w-full h-44 md:h-42 mb-4 rounded-xl overflow-hidden">
+                        <div className="absolute -inset-1 blur-xl opacity-16 transform-gpu">
+                            <Image
+                                src={image}
+                                alt=""
+                                fill
+                                className="object-cover"
+                                unoptimized
+                            />
+                        </div>
+                        <div className="relative w-full h-full z-10">
+                            <Image
+                                src={image}
+                                alt={title}
+                                fill
+                                className="object-cover"
+                                unoptimized
+                            />
+                            <div className="absolute inset-0 bg-linear-to-t from-background/25 via-transparent to-transparent" />
+                        </div>
+                    </div>
+                )}
+
+                {/* Category */}
+                {category && (
+                    <div className="mt-2 mb-1">
+                        <PostCategoryBadge category={category} />
+                    </div>
+                )}
+
+                {/* Title */}
+                {title && (
+                    <h2 className="font-semibold text-lg tracking-wide line-clamp-2 leading-tight">{title}</h2>
+                )}
+
+                {/* Description */}
+                {description && (
+                    <p className="text-xs text-foreground/70 mt-1 line-clamp-4">{description}</p>
+                )}
+
+                {/* Tags */}
+                {tags && (
+                    <div className="mt-2">
+                        <TagList tags={tags} variant="compact" />
+                    </div>
+                )}
+
+                {/* QR Code Section */}
+                <div className="flex items-center justify-between mt-4 pt-2 border-t border-(--border-color)">
+                    <div className="flex items-center ml-8 gap-2 text-xs text-foreground/60">
+                        <Image src="/favicon.ico" alt="Toán Mô Hình Hà Nội" width={26} height={26} className="rounded-sm" unoptimized />
+                        <span className="font-medium text-accent/80 tracking-widest text-[10px]">FIND OUT MORE:</span>
+                    </div>
+                    <div className="bg-[#fcfcfc] mr-12 p-1 rounded text-[#1a1a1a]">
+                        <QRCodeSVG
+                            value={postUrl}
+                            size={56}
+                            level="M"
+                            bgColor="transparent"
+                            fgColor="currentColor"
+                        />
+                    </div>
+                </div>
+
+                {/* Delimiter */}
+                <div className="w-full border-t border-(--border-color) mt-2 mb-2" />
+
+                {/* Stats */}
+                <StatColumns stats={[
+                    ...(date ? [{ label: "Date", value: date }] : []),
+                    ...(readingTime ? [{ label: "Read", value: readingTime }] : []),
+                    ...(level ? [{
+                        label: "Level",
+                        value: (
+                            <span className={`
+                                ${level === 'beginner' ? 'bg-green-500/20 text-green-500 px-1.5 py-0.5 rounded-[4px]' : ''}
+                                ${level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded-[4px]' : ''}
+                                ${level === 'advanced' ? 'bg-red-500/20 text-red-500 px-1.5 py-0.5 rounded-[4px]' : ''}
+                            `}>
+                                {level.charAt(0).toUpperCase() + level.slice(1)}
+                            </span>
+                        )
+                    }] : []),
+                ]} />
+
+            </div>
+        </div>
+    );
+}
