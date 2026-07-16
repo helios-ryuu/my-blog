@@ -23,7 +23,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     return (
         <div className="relative flex min-h-screen flex-col md:h-screen md:overflow-hidden">
             {isHomePage && (
-                <div className="pointer-events-none absolute inset-0 z-0 opacity-90">
+                <div className="pointer-events-none absolute inset-0 z-0 opacity-65">
                     <PixelBlast
                         variant="square"
                         pixelSize={4}

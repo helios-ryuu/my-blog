@@ -59,7 +59,7 @@ export default function DatabaseTab() {
             </div>
 
             <DataTable
-                title={t("dbPosts")}
+                title="post"
                 isLoading={isLoading}
                 data={data.post}
                 columns={[
@@ -78,7 +78,7 @@ export default function DatabaseTab() {
             />
 
             <DataTable
-                title={t("dbCategories")}
+                title="category"
                 isLoading={isLoading}
                 data={data.category}
                 columns={[
@@ -94,7 +94,7 @@ export default function DatabaseTab() {
             />
 
             <DataTable
-                title={t("dbSeries")}
+                title="series"
                 isLoading={isLoading}
                 data={data.series}
                 columns={[
@@ -108,7 +108,7 @@ export default function DatabaseTab() {
             />
 
             <DataTable
-                title={t("dbTags")}
+                title="tag"
                 isLoading={isLoading}
                 data={data.tag}
                 columns={[
@@ -120,7 +120,7 @@ export default function DatabaseTab() {
             />
 
             <DataTable
-                title={t("dbPostTags")}
+                title="post_tags"
                 isLoading={isLoading}
                 data={data.post_tags}
                 columns={[
@@ -130,7 +130,7 @@ export default function DatabaseTab() {
             />
 
             <DataTable
-                title={t("dbSiteSettings")}
+                title="site_settings"
                 isLoading={isLoading}
                 data={data.site_settings}
                 columns={[
