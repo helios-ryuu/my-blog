@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { FormField, FormInput, FormMessage } from "../common/FormFields";
 import { Button } from "../common/Button";
 import { slugify } from "@/hooks/usePostFormValidation";
+import { useTranslations } from "next-intl";
 
 interface AddTagFormProps {
     onSuccess: (tag: { id: number; name: string; slug: string }) => void;
@@ -12,6 +13,8 @@ interface AddTagFormProps {
 }
 
 export default function AddTagForm({ onSuccess, onClose }: AddTagFormProps) {
+    const t = useTranslations("admin");
+    const tCommon = useTranslations("common");
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
     const [error, setError] = useState("");
@@ -19,10 +22,10 @@ export default function AddTagForm({ onSuccess, onClose }: AddTagFormProps) {
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        if (!name.trim()) return setError("Name is required");
+        if (!name.trim()) return setError(t("tagNameRequired"));
         const finalSlug = slug.trim() || slugify(name);
-        if (!/^[a-z0-9-]+$/.test(finalSlug)) {
-            return setError("Slug must be lowercase letters, digits, or hyphens");
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(finalSlug)) {
+            return setError(t("tagSlugInvalid"));
         }
 
         setIsLoading(true);
@@ -34,11 +37,11 @@ export default function AddTagForm({ onSuccess, onClose }: AddTagFormProps) {
                 body: JSON.stringify({ name: name.trim(), slug: finalSlug }),
             });
             const json = await res.json();
-            if (!json.success) throw new Error(json.message || "Failed to create tag");
+            if (!json.success) throw new Error(json.message || t("createTagError"));
             onSuccess(json.data);
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Unknown error");
+            setError(err instanceof Error ? err.message : t("unknownError"));
         } finally {
             setIsLoading(false);
         }
@@ -48,14 +51,14 @@ export default function AddTagForm({ onSuccess, onClose }: AddTagFormProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
             <div className="w-full max-w-md rounded-lg border border-(--border-color) bg-background p-6 shadow-xl">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Add New Tag</h2>
-                    <button onClick={onClose} className="text-foreground/60 hover:text-foreground">
+                    <h2 className="text-lg font-semibold">{t("addTagTitle")}</h2>
+                    <button type="button" onClick={onClose} aria-label={tCommon("close")} className="text-foreground/60 hover:text-foreground">
                         <X size={18} />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <FormField label="Name" required>
+                    <FormField label={t("tagName")} required>
                         <FormInput
                             name="name"
                             value={name}
@@ -67,21 +70,21 @@ export default function AddTagForm({ onSuccess, onClose }: AddTagFormProps) {
                         />
                     </FormField>
 
-                    <FormField label="Slug" hint="auto-generated if empty">
+                    <FormField label={t("fieldSlug")} hint={t("tagSlugHint")}>
                         <FormInput
                             name="slug"
                             value={slug}
                             onChange={(e) => setSlug(e.target.value)}
-                            placeholder="vd: toan-cao-cap"
+                            placeholder={t("tagSlugPlaceholder")}
                         />
                     </FormField>
 
                     {error && <FormMessage type="error" message={error} />}
 
                     <div className="flex justify-end gap-2 pt-2">
-                        <Button type="button" variant="cancel" onClick={onClose}>Cancel</Button>
-                        <Button type="submit" variant="primary" isLoading={isLoading} loadingText="Saving...">
-                            Create Tag
+                        <Button type="button" variant="cancel" onClick={onClose}>{tCommon("cancel")}</Button>
+                        <Button type="submit" variant="primary" isLoading={isLoading} loadingText={t("creatingTag")}>
+                            {t("createTagButton")}
                         </Button>
                     </div>
                 </form>

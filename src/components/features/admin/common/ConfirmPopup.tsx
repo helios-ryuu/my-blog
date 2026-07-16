@@ -7,6 +7,7 @@ import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 import { LucideIcon } from "lucide-react";
 import { ButtonVariant } from "./Button";
+import { useTranslations } from "next-intl";
 
 type ConfirmVariant = "info" | "warning" | "danger";
 
@@ -59,14 +60,16 @@ export default function ConfirmPopup({
     title,
     message,
     itemName,
-    confirmText = "Confirm",
-    cancelText = "Cancel",
+    confirmText,
+    cancelText,
     hideCancelButton = false,
     icon: CustomIcon,
     onConfirm,
     onCancel,
     children,
 }: ConfirmPopupProps) {
+    const tCommon = useTranslations("common");
+    const tDelete = useTranslations("deletePopup");
     const [isLoading, setIsLoading] = useState(false);
     const [confirmInput, setConfirmInput] = useState("");
 
@@ -134,14 +137,14 @@ export default function ConfirmPopup({
                     <div className="mb-6">
                         <div className="mb-2">
                             <label className="block text-sm text-foreground/60">
-                                Type <span className="font-bold text-red-500">{itemName}</span> to confirm:
+                                {tDelete("typeToConfirm", { name: itemName })}
                             </label>
                         </div>
                         <input
                             type="text"
                             value={confirmInput}
                             onChange={(e) => setConfirmInput(e.target.value)}
-                            placeholder="Enter name to confirm"
+                            placeholder={tDelete("confirmPlaceholder")}
                             className="w-full px-3 py-2 rounded-md border border-(--border-color) bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
                             autoFocus
                         />
@@ -151,7 +154,7 @@ export default function ConfirmPopup({
                 {/* Warning for danger actions */}
                 {variant === "danger" && (
                     <p className="text-sm text-red-500 mb-6">
-                        ⚠️ This action cannot be undone.
+                        {tDelete("warning")}
                     </p>
                 )}
 
@@ -163,7 +166,7 @@ export default function ConfirmPopup({
                             onClick={onCancel}
                             disabled={isLoading}
                         >
-                            {cancelText}
+                            {cancelText ?? tCommon("cancel")}
                         </Button>
                     )}
                     <Button
@@ -172,7 +175,7 @@ export default function ConfirmPopup({
                         disabled={isLoading || !inputMatches}
                         isLoading={isLoading}
                     >
-                        {confirmText}
+                        {confirmText ?? tCommon("confirm")}
                     </Button>
                 </div>
             </div>

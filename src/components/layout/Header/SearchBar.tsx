@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-type SearchItemType = "home" | "posts" | "contests" | "post" | "contest" | "tag";
+type SearchItemType = "home" | "posts" | "post" | "tag";
 
 interface SearchItem {
     type: SearchItemType;
@@ -17,186 +17,117 @@ interface SearchItem {
 
 export default function SearchBar() {
     const t = useTranslations("search");
+    const router = useRouter();
     const [query, setQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
-    const [posts, setPosts] = useState<SearchItem[]>([]);
-    const [contests, setContests] = useState<SearchItem[]>([]);
-    const [tags, setTags] = useState<SearchItem[]>([]);
+    const [items, setItems] = useState<{ posts: SearchItem[]; tags: SearchItem[] }>({ posts: [], tags: [] });
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef<HTMLInputElement>(null);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-    const router = useRouter();
+    const rootRef = useRef<HTMLDivElement>(null);
 
     const staticRoutes = useMemo<SearchItem[]>(() => [
         { type: "home", title: t("home"), path: "/" },
         { type: "posts", title: t("allPosts"), path: "/post" },
-        { type: "contests", title: t("allContests"), path: "/contests" },
     ], [t]);
 
     useEffect(() => {
         fetch("/api/search")
-            .then((res) => res.json())
-            .then((json) => {
-                if (json.success) {
-                    setPosts(json.data.posts || []);
-                    setContests(json.data.contests || []);
-                    setTags(json.data.tags || []);
-                }
+            .then((response) => response.json())
+            .then((result) => {
+                if (result.success) setItems({ posts: result.data.posts || [], tags: result.data.tags || [] });
             })
-            .catch(console.error);
+            .catch(() => undefined);
     }, []);
 
-    const filterResults = useCallback((searchQuery: string) => {
-        if (searchQuery.startsWith("#")) {
-            const tagQuery = searchQuery.slice(1).toLowerCase().trim();
-            if (!tagQuery) return tags;
-
-            const matchingTags = tags.filter((tag) => tag.title.toLowerCase().includes(tagQuery));
-            const matchingPosts = posts.filter((post) =>
-                post.tags?.some((tag) => tag.toLowerCase().includes(tagQuery)),
+    const results = useMemo(() => {
+        const normalized = query.trim().toLowerCase();
+        if (!normalized) return [];
+        if (normalized.startsWith("#")) {
+            const tagQuery = normalized.slice(1);
+            return [...items.tags, ...items.posts].filter((item) =>
+                item.title.toLowerCase().includes(tagQuery) || item.tags?.some((tag) => tag.toLowerCase().includes(tagQuery)),
             );
-
-            return [...matchingTags, ...matchingPosts];
         }
-
-        const allItems = [...staticRoutes, ...posts, ...contests];
-        if (!searchQuery.trim()) return allItems;
-
-        const lowerQuery = searchQuery.toLowerCase();
-        return allItems.filter((item) =>
-            item.title.toLowerCase().includes(lowerQuery) ||
-            item.description?.toLowerCase().includes(lowerQuery) ||
-            t(`type.${item.type}`).toLowerCase().includes(lowerQuery),
+        return [...staticRoutes, ...items.posts, ...items.tags].filter((item) =>
+            item.title.toLowerCase().includes(normalized) || item.description?.toLowerCase().includes(normalized),
         );
-    }, [contests, posts, staticRoutes, tags, t]);
+    }, [items, query, staticRoutes]);
 
-    const results = useMemo(() => filterResults(query), [query, filterResults]);
+    const goTo = useCallback((path: string) => {
+        router.push(path);
+        setQuery("");
+        setIsOpen(false);
+    }, [router]);
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target as Node) &&
-                inputRef.current &&
-                !inputRef.current.contains(event.target as Node)
-            ) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        function closeOnOutsideClick(event: MouseEvent) {
+            if (rootRef.current && !rootRef.current.contains(event.target as Node)) setIsOpen(false);
+        }
+        document.addEventListener("mousedown", closeOnOutsideClick);
+        return () => document.removeEventListener("mousedown", closeOnOutsideClick);
     }, []);
 
-    const goToResult = (path: string) => {
-        router.push(path);
-        setIsOpen(false);
-        setQuery("");
-    };
-
-    const handleKeyDown = (event: React.KeyboardEvent) => {
-        if (!isOpen) return;
-
-        switch (event.key) {
-            case "ArrowDown":
-                event.preventDefault();
-                setSelectedIndex((prev) => (prev < results.length - 1 ? prev + 1 : prev));
-                break;
-            case "ArrowUp":
-                event.preventDefault();
-                setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
-                break;
-            case "Enter":
-                event.preventDefault();
-                if (selectedIndex >= 0 && results[selectedIndex]) {
-                    goToResult(results[selectedIndex].path);
-                }
-                break;
-            case "Escape":
-                setIsOpen(false);
-                inputRef.current?.blur();
-                break;
-        }
-    };
-
-    const handleFocus = () => {
-        setIsFocused(true);
-        if (query.trim()) setIsOpen(true);
-    };
-
-    const handleBlur = () => {
-        setTimeout(() => {
-            setIsFocused(false);
-            setQuery("");
+    function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setSelectedIndex((index) => Math.min(index + 1, results.length - 1));
+        } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setSelectedIndex((index) => Math.max(index - 1, -1));
+        } else if (event.key === "Enter" && selectedIndex >= 0) {
+            event.preventDefault();
+            goTo(results[selectedIndex].path);
+        } else if (event.key === "Escape") {
             setIsOpen(false);
-        }, 150);
-    };
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        setQuery(value);
-        setSelectedIndex(-1);
-        setIsOpen(!!value.trim());
-    };
+            inputRef.current?.blur();
+        }
+    }
 
     return (
-        <div className="relative w-full max-w-140">
+        <div ref={rootRef} className="relative w-full max-w-140">
             <div className="relative">
                 <input
                     ref={inputRef}
-                    type="text"
                     value={query}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
+                    onChange={(event) => {
+                        setQuery(event.target.value);
+                        setSelectedIndex(-1);
+                        setIsOpen(Boolean(event.target.value.trim()));
+                    }}
+                    onFocus={() => {
+                        setIsFocused(true);
+                        setIsOpen(Boolean(query.trim()));
+                    }}
+                    onBlur={() => setIsFocused(false)}
                     onKeyDown={handleKeyDown}
-                    placeholder=""
-                    className="w-full px-4 py-0.5 bg-background-hover/40 border border-(--border-color) rounded-sm text-sm text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-left"
+                    aria-label={t("placeholder")}
+                    className="w-full rounded-sm border border-(--border-color) bg-background-hover/40 px-4 py-0.5 text-left text-sm text-foreground outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent"
                 />
                 {!isFocused && !query && (
-                    <div className="absolute inset-0 flex items-center justify-center gap-2 pointer-events-none text-(--foreground-dim) text-sm">
-                        <Search strokeWidth={3} className="w-4 h-4" />
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2 text-sm text-(--foreground-dim)">
+                        <Search strokeWidth={3} className="h-4 w-4" />
                         <span className="text-xs">{t("placeholder")}</span>
                     </div>
                 )}
             </div>
-
             {isOpen && (
-                <div
-                    ref={dropdownRef}
-                    className="absolute top-full left-0 right-0 mt-2 bg-background border border-(--border-color) rounded-lg shadow-lg max-h-80 overflow-y-auto z-50"
-                >
-                    {results.length > 0 ? (
-                        <ul className="py-2">
-                            {results.map((item, index) => (
-                                <li key={`${item.type}-${item.path}`}>
-                                    <button
-                                        type="button"
-                                        onPointerDown={(event) => {
-                                            if (event.pointerType === "mouse" && event.button !== 0) return;
-                                            event.preventDefault();
-                                            goToResult(item.path);
-                                        }}
-                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-background-hover transition-colors flex items-center gap-2 ${
-                                            selectedIndex === index
-                                                ? "bg-background-hover text-accent"
-                                                : "text-foreground"
-                                        }`}
-                                    >
-                                        <span className="text-(--foreground-dim) font-medium min-w-[72px]">
-                                            {t(`type.${item.type}`)}:
-                                        </span>
-                                        <span className="truncate">{item.title}</span>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <div className="px-4 py-6 text-center text-(--foreground-dim) text-sm">
-                            {t("noResults")}
-                        </div>
-                    )}
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-80 overflow-y-auto rounded-lg border border-(--border-color) bg-background py-2 shadow-lg">
+                    {results.length ? results.map((item, index) => (
+                        <button
+                            key={`${item.type}-${item.path}`}
+                            type="button"
+                            onPointerDown={(event) => {
+                                if (event.pointerType === "mouse" && event.button !== 0) return;
+                                event.preventDefault();
+                                goTo(item.path);
+                            }}
+                            className={`flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-background-hover ${selectedIndex === index ? "bg-background-hover text-accent" : "text-foreground"}`}
+                        >
+                            <span className="min-w-18 shrink-0 font-medium text-(--foreground-dim)">{t(`type.${item.type}`)}:</span>
+                            <span className="truncate">{item.title}</span>
+                        </button>
+                    )) : <p className="px-4 py-6 text-center text-sm text-(--foreground-dim)">{t("noResults")}</p>}
                 </div>
             )}
         </div>

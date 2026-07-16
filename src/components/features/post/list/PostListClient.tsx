@@ -9,16 +9,21 @@ import MultiSelect from "@/components/ui/MultiSelect";
 import { Button } from "@/components/ui";
 import { ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { PostMeta, Level } from "@/types/post";
-import type { PostCategory } from "@/types/database";
+import type { PostMeta } from "@/types/post";
+import {
+    POST_LEVELS,
+    POST_LEVEL_LABEL_KEYS,
+    type DbCategory,
+    type PostLevel,
+    type PostType,
+} from "@/types/database";
 
 type ViewMode = "card" | "list";
 
 interface PostListClientProps {
     posts: PostMeta[];
     allTags: string[];
-    allLevels: Level[];
-    allCategories?: PostCategory[];
+    allCategories: DbCategory[];
 }
 
 const variants = {
@@ -33,17 +38,7 @@ const variants = {
     }),
 };
 
-// Helper: Level weight
-const getLevelWeight = (level?: Level): number => {
-    switch (level) {
-        case 'beginner': return 1;
-        case 'intermediate': return 2;
-        case 'advanced': return 3;
-        default: return 0;
-    }
-};
-
-export default function PostListClient({ posts, allTags, allLevels, allCategories }: PostListClientProps) {
+export default function PostListClient({ posts, allTags, allCategories }: PostListClientProps) {
     const t = useTranslations("post");
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -53,13 +48,13 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
         return tag ? tag.split(",").map(s => s.trim()).filter(Boolean) : [];
     }, [searchParams]);
 
+    const selectedCategory = searchParams.get("category") || "";
     const selectedLevels = useMemo(() => {
-        const l = searchParams.get("level");
-        return l ? l.split(",").map(s => s.trim()).filter(Boolean) : [];
+        const level = searchParams.get("level");
+        return level ? level.split(",").filter((item): item is PostLevel => POST_LEVELS.includes(item as PostLevel)) : [];
     }, [searchParams]);
-
-    const selectedCategory = (searchParams.get("category") || "") as PostCategory | "";
     const selectedSort = searchParams.get("sort") || "newest";
+    const selectedType = (searchParams.get("type") as PostType | null) || "";
     const viewMode = (searchParams.get("view") as ViewMode) || "card";
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -89,17 +84,19 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
         return () => window.removeEventListener("resize", handleResize);
     }, [viewMode]);
 
-    const updateUrl = (newParams: Partial<{ tags: string[], levels: string[], category: string, sort: string, view: ViewMode }>) => {
+    const updateUrl = (newParams: Partial<{ tags: string[], levels: PostLevel[], category: string, type: PostType | "", sort: string, view: ViewMode }>) => {
         const tag = newParams.tags !== undefined ? newParams.tags : selectedTags;
-        const l = newParams.levels !== undefined ? newParams.levels : selectedLevels;
+        const levels = newParams.levels !== undefined ? newParams.levels : selectedLevels;
         const c = newParams.category !== undefined ? newParams.category : selectedCategory;
         const s = newParams.sort !== undefined ? newParams.sort : selectedSort;
+        const type = newParams.type !== undefined ? newParams.type : selectedType;
         const v = newParams.view !== undefined ? newParams.view : viewMode;
 
         const params = new URLSearchParams();
         if (tag.length > 0) params.set("tag", tag.join(","));
-        if (l.length > 0) params.set("level", l.join(","));
+        if (levels.length > 0) params.set("level", levels.join(","));
         if (c) params.set("category", c);
+        if (type) params.set("type", type);
         if (s !== "newest") params.set("sort", s);
         if (v !== "card") params.set("view", v);
 
@@ -112,19 +109,20 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
         updateUrl({ tags: newTags });
     };
 
-    const handleLevelsChange = (values: string[]) => {
-        const newLevels = values.includes("") ? [] : values;
-        updateUrl({ levels: newLevels });
-    };
-
     const handleCategoryChange = (value: string) => {
         updateUrl({ category: value });
+    };
+
+    const handleLevelsChange = (values: string[]) => {
+        updateUrl({ levels: values.filter((value): value is PostLevel => POST_LEVELS.includes(value as PostLevel)) });
     };
 
     const handleSortChange = (value: string) => {
         const newSort = value === "" ? "newest" : value;
         updateUrl({ sort: newSort });
     };
+
+    const handleTypeChange = (value: string) => updateUrl({ type: value as PostType | "" });
 
     // Filter and sort posts
     const filteredPosts = useMemo(() => {
@@ -137,14 +135,13 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
                 )
             );
         }
-        if (selectedLevels.length > 0) {
-            result = result.filter((post) =>
-                post.level && selectedLevels.includes(post.level)
-            );
-        }
         if (selectedCategory) {
             result = result.filter((post) => post.category === selectedCategory);
         }
+        if (selectedLevels.length > 0) {
+            result = result.filter((post) => selectedLevels.includes(post.level));
+        }
+        if (selectedType) result = result.filter((post) => post.type === selectedType);
 
         result.sort((a, b) => {
             switch (selectedSort) {
@@ -156,27 +153,27 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
                     return a.title.localeCompare(b.title);
                 case "z-a":
                     return b.title.localeCompare(a.title);
-                case "easiest":
-                    return getLevelWeight(a.level) - getLevelWeight(b.level);
-                case "most-advanced":
-                    return getLevelWeight(b.level) - getLevelWeight(a.level);
+                case "level-asc":
+                    return POST_LEVELS.indexOf(a.level) - POST_LEVELS.indexOf(b.level);
+                case "level-desc":
+                    return POST_LEVELS.indexOf(b.level) - POST_LEVELS.indexOf(a.level);
                 default:
                     return 0;
             }
         });
 
         return result;
-    }, [posts, selectedTags, selectedLevels, selectedCategory, selectedSort]);
+    }, [posts, selectedTags, selectedCategory, selectedLevels, selectedSort, selectedType]);
 
     const clearFilters = () => {
-        updateUrl({ tags: [], levels: [], category: "", sort: "newest" });
+        updateUrl({ tags: [], levels: [], category: "", type: "", sort: "newest" });
     };
 
-    const hasActiveFilters = selectedTags.length > 0 || selectedLevels.length > 0 || selectedCategory !== "" || selectedSort !== "newest";
+    const hasActiveFilters = selectedTags.length > 0 || selectedLevels.length > 0 || selectedCategory !== "" || selectedType !== "" || selectedSort !== "newest";
 
-    const categoryLabel = (c: PostCategory) => {
-        const key = `category${c.charAt(0).toUpperCase()}${c.slice(1)}` as "categoryNews" | "categoryAnnouncement" | "categoryTutorial" | "categoryResult";
-        return t(key);
+    const categoryLabel = (slug: string) => {
+        const category = allCategories.find((item) => item.slug === slug);
+        return category ? (category.icon ? `${category.icon} ${category.name}` : category.name) : slug;
     };
 
     const tagOptions = [
@@ -184,20 +181,17 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
         ...allTags.map((tag) => ({ value: tag, label: tag }))
     ];
 
-    const levelOptions = [
-        { value: "", label: t("filterAll") },
-        ...allLevels.map((level) => ({
-            value: level,
-            label: level.charAt(0).toUpperCase() + level.slice(1),
-        }))
-    ];
-
     const categoryOptions = [
         { value: "", label: t("filterAll") },
-        ...((allCategories ?? (["news", "announcement", "tutorial", "result"] as PostCategory[])).map((c) => ({
-            value: c,
-            label: categoryLabel(c),
+        ...(allCategories.map((category) => ({
+            value: category.slug,
+            label: category.icon ? `${category.icon} ${category.name}` : category.name,
         }))),
+    ];
+
+    const levelOptions = [
+        { value: "", label: t("filterAll") },
+        ...POST_LEVELS.map((level) => ({ value: level, label: t(POST_LEVEL_LABEL_KEYS[level]) })),
     ];
 
     const sortOptions = [
@@ -205,8 +199,14 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
         { value: "oldest", label: t("sortOldest") },
         { value: "a-z", label: t("sortAZ") },
         { value: "z-a", label: t("sortZA") },
-        { value: "easiest", label: t("sortEasiest") },
-        { value: "most-advanced", label: t("sortMostAdvanced") },
+        { value: "level-asc", label: t("sortEasiest") },
+        { value: "level-desc", label: t("sortMostAdvanced") },
+    ];
+
+    const typeOptions = [
+        { value: "", label: t("filterAll") },
+        { value: "standalone", label: t("typeStandalone") },
+        { value: "series", label: t("typeSeries") },
     ];
 
     const viewOptions = [
@@ -265,6 +265,18 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
                         </div>
 
                         <div className="grid grid-cols-[3.5rem_1fr] sm:flex items-center gap-2">
+                            <label className="text-xs text-(--foreground-dim) shrink-0">{t("filterType")}:</label>
+                            <Select
+                                value={selectedType}
+                                onValueChange={handleTypeChange}
+                                options={typeOptions}
+                                placeholder={t("filterAll")}
+                                className="flex-1 cursor-pointer text-xs"
+                                isActive={selectedType !== ""}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-[3.5rem_1fr] sm:flex items-center gap-2">
                             <label className="text-xs text-(--foreground-dim) shrink-0">{t("filterSort")}:</label>
                             <Select
                                 value={selectedSort}
@@ -316,7 +328,7 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
                     <> — <span className="text-accent">{selectedTags.join(", ")}</span></>
                 )}
                 {selectedLevels.length > 0 && (
-                    <> — <span className="text-accent">{selectedLevels.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join(", ")}</span></>
+                    <> — <span className="text-accent">{selectedLevels.map((level) => t(POST_LEVEL_LABEL_KEYS[level])).join(", ")}</span></>
                 )}
             </p>
 
@@ -327,13 +339,14 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
             <div className={`mt-4 relative overflow-hidden ${!isMobile ? 'min-h-[300px]' : ''}`}>
                 {viewMode === "list" ? (
                     <div className="flex flex-col gap-2 overflow-x-auto pb-2">
-                        <div className="min-w-[1000px]">
-                            <div className="grid grid-cols-[4fr_3fr_90px_80px_95px_120px] gap-4 px-4 py-2 text-xs font-semibold text-(--foreground-dim) border-b border-(--border-color) mb-4">
+                        <div className="min-w-[1180px]">
+                            <div className="grid grid-cols-[4fr_3fr_90px_90px_120px_120px_120px] gap-4 px-4 py-2 text-xs font-semibold text-(--foreground-dim) border-b border-(--border-color) mb-4">
                                 {renderHeader(t("colTitle"))}
-                                <span>Tags</span>
+                                <span>{t("filterTag")}</span>
                                 {renderHeader(t("colDate"))}
-                                {renderHeader(t("colRead"))}
-                                {renderHeader(t("filterLevel"))}
+                                {renderHeader(t("read"))}
+                                {renderHeader(t("level"))}
+                                {renderHeader(t("filterType"))}
                                 {renderHeader(t("filterCategory"))}
                             </div>
                             <AnimatePresence initial={false} mode="wait" custom={direction}>
@@ -361,6 +374,11 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
                                                 level={post.level}
                                                 tags={post.tags}
                                                 category={post.category}
+                                                categoryName={post.categoryName}
+                                                categoryIcon={post.categoryIcon}
+                                                type={post.type}
+                                                series={post.series}
+                                                seriesOrder={post.seriesOrder}
                                                 onClick={() => router.push(`/post/${post.slug}`)}
                                             />
                                         ))}
@@ -382,6 +400,11 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
                                 level={post.level}
                                 tags={post.tags}
                                 category={post.category}
+                                categoryName={post.categoryName}
+                                categoryIcon={post.categoryIcon}
+                                type={post.type}
+                                series={post.series}
+                                seriesOrder={post.seriesOrder}
                                 onClick={() => router.push(`/post/${post.slug}`)}
                             />
                         ))}
@@ -412,6 +435,11 @@ export default function PostListClient({ posts, allTags, allLevels, allCategorie
                                         level={post.level}
                                         tags={post.tags}
                                         category={post.category}
+                                        categoryName={post.categoryName}
+                                        categoryIcon={post.categoryIcon}
+                                        type={post.type}
+                                        series={post.series}
+                                        seriesOrder={post.seriesOrder}
                                         onClick={() => router.push(`/post/${post.slug}`)}
                                     />
                                 ))}

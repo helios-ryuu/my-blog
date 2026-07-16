@@ -1,148 +1,90 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
-import IconButton from "@/components/ui/IconButton";
-import { Sun, Moon, Slash, SquareChevronDown, SquareChevronUp } from "lucide-react";
-import { useMobileMenu } from "@/contexts/MobileMenuContext";
+import Link from "next/link";
+import { Moon, Slash, Sun } from "lucide-react";
 import { usePathname } from "next/navigation";
-import MobileDropdown from "@/components/layout/MobileDropdown";
-import SearchBar from "@/components/layout/Header/SearchBar";
+import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import AuthSection from "@/components/layout/Header/AuthSection";
 import LanguageSwitcher from "@/components/layout/Header/LanguageSwitcher";
+import SearchBar from "@/components/layout/Header/SearchBar";
+import { IconButton } from "@/components/ui";
+import { menuItems } from "@/config/navigation";
+import { SITE_NAME, SOCIAL_LINKS } from "@/config/site";
 import { useMounted } from "@/hooks";
-import { useTranslations } from "next-intl";
 
-interface HeaderProps {
-    noBorder?: boolean;
-    showMobileMenu?: boolean;
-    transparent?: boolean;
-    isHomePage?: boolean;
-}
-
-export default function Header({ noBorder = false, showMobileMenu = true, transparent = false, isHomePage = false }: HeaderProps) {
+export default function Header() {
     const mounted = useMounted();
-    const { resolvedTheme, setTheme } = useTheme();
-    const { isMobileOpen, setIsMobileOpen } = useMobileMenu();
     const pathname = usePathname();
+    const tCommon = useTranslations("common");
     const tNav = useTranslations("nav");
-
-    // Use "dark" as fallback during SSR, actual theme after mount
-    const theme = (mounted ? resolvedTheme : "dark") as "light" | "dark";
-    const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
-    const toggleMobileMenu = () => setIsMobileOpen(!isMobileOpen);
+    const { resolvedTheme, setTheme } = useTheme();
+    const theme = mounted && resolvedTheme === "light" ? "light" : "dark";
     const instagramIcon = theme === "light" ? "/Instagram-black.svg" : "/Instagram-white.svg";
-
     const isPostEditor = pathname === "/admin/posts/new" || /^\/admin\/posts\/[^/]+\/edit$/.test(pathname);
-
-    const routes = [
-        { path: "/post", label: tNav("posts") },
-        { path: "/contests", label: tNav("contests") },
-        { path: "/contest", label: tNav("contests") },
-        { path: "/faq/admin", label: tNav("adminFaq") },
-        { path: "/faq", label: tNav("faq") },
-        { path: "/contest-management", label: tNav("contestManagement") },
-        { path: "/admin/accounts", label: tNav("accounts") },
-        { path: "/admin/bucket", label: tNav("bucket") },
-        { path: "/admin", label: tNav("adminWorkspace") },
-    ];
-    const currentRoute = routes
-        .sort((a, b) => b.path.length - a.path.length)
-        .find(r => pathname.startsWith(r.path));
+    const currentRoute = menuItems
+        .filter((item) => item.href !== "/" && (pathname === item.href || pathname.startsWith(`${item.href}/`)))
+        .sort((a, b) => b.href.length - a.href.length)[0];
 
     return (
-        <header className={`relative flex-none flex h-10 items-center border-b ${transparent ? "bg-transparent" : "bg-background"} ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
-            {/* Mobile menu button with dropdown */}
-            {showMobileMenu && (
-                <div className="md:hidden relative flex items-center justify-center h-full px-3 z-50">
-                    <IconButton onClick={toggleMobileMenu} className={` ${isMobileOpen ? "text-accent bg-accent-hover/20" : "text-(--foreground-dim)"}`}>
-                        {isMobileOpen ? <SquareChevronUp strokeWidth={3} /> : <SquareChevronDown strokeWidth={3} />}
-                    </IconButton>
-                    <MobileDropdown />
-                </div>
-            )}
-
-            {/* Logo & Breadcrumb - Fixed width for balance */}
-            <div className="hidden md:flex flex-none items-center h-full text-foreground w-80">
-                <Link href="/" className="ml-16 mr-2">
-                    <Image src="/favicon.ico" alt="Toán Mô Hình Hà Nội" width={24} height={24} className="w-6 h-6" />
+        <header className="relative flex h-10 shrink-0 items-center border-b border-(--border-color) bg-background">
+            <div className="hidden h-full w-80 shrink-0 items-center text-foreground md:flex">
+                <Link href="/" aria-label={SITE_NAME} className="ml-16 mr-2 transition-opacity hover:opacity-75">
+                    <Image src="/favicon.ico" alt="" width={24} height={24} className="h-6 w-6" priority />
                 </Link>
                 {currentRoute && (
                     <>
-                        <Slash className="w-4 h-4 text-(--foreground-dim)" />
-                        <Link href={currentRoute.path} className="px-2 text-foreground hover:text-accent transition-colors text-sm">
-                            {currentRoute.label}
+                        <Slash className="h-4 w-4 text-(--foreground-dim)" />
+                        <Link href={currentRoute.href} className="truncate px-2 text-sm text-foreground transition-colors hover:text-accent">
+                            {tNav(currentRoute.labelKey)}
                         </Link>
                     </>
                 )}
             </div>
 
-            {/* Mobile */}
-            <div className="md:hidden flex flex-none items-center h-full text-foreground">
-                <Link href="/" className={`mr-2 ${isHomePage ? "ml-6" : "ml-2"}`}>
-                    <Image src="/favicon.ico" alt="Toán Mô Hình Hà Nội" width={24} height={24} className="w-5 h-5" />
+            <div className="flex h-full min-w-9 shrink-0 items-center pl-2 text-foreground md:hidden">
+                <Link href="/" aria-label={SITE_NAME} className="transition-opacity hover:opacity-75">
+                    <Image src="/favicon.ico" alt="" width={20} height={20} className="h-5 w-5" priority />
                 </Link>
-                {currentRoute && (
-                    <>
-                        <Slash className="w-4 h-4 text-(--foreground-dim)" />
-                        <Link href={currentRoute.path} className="px-2 text-foreground hover:text-accent transition-colors">
-                            {currentRoute.label}
-                        </Link>
-                    </>
-                )}
             </div>
 
-            {/* Search Bar - Center, flex-1 to expand */}
-            <div className="hidden md:flex flex-1 justify-center px-4">
+            <div className="hidden min-w-0 flex-1 justify-center px-4 md:flex">
                 <SearchBar />
             </div>
 
-            {/* Right side - icons stay aligned right; auth section can grow without squishing icons */}
-            <div className="flex flex-1 md:flex-none items-center justify-end h-full pr-5 gap-2 md:min-w-52">
-                <div className="flex items-center gap-1 mr-1">
-                    <button
-                        type="button"
+            <div className="ml-auto flex h-full shrink-0 items-center justify-end gap-1 pr-2 md:min-w-52 md:gap-2 md:pr-5">
+                <div className="flex items-center gap-0.5 md:gap-1">
+                    <a
+                        href={SOCIAL_LINKS.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         aria-label="Facebook"
-                        onClick={() => {
-                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                            const webUrl = "https://www.facebook.com/toanmohinh.hanoi";
-                            const appUrl = `fb://facewebmodal/f?href=${encodeURIComponent(webUrl)}`;
-                            if (isMobile) {
-                                window.location.href = appUrl;
-                                setTimeout(() => window.open(webUrl, "_blank"), 500);
-                            } else {
-                                window.open(webUrl, "_blank");
-                            }
-                        }}
-                        className="flex-none w-8 h-8 inline-flex items-center justify-center rounded-md cursor-pointer hover:bg-background-hover text-foreground transition-colors"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground transition-colors hover:bg-background-hover hover:text-accent"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="w-5 h-5"
-                            aria-hidden="true"
-                        >
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
                             <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.49-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.79 8.43-4.94 8.43-9.94Z" />
                         </svg>
-                    </button>
-                    <button
-                        type="button"
+                    </a>
+                    <a
+                        href={SOCIAL_LINKS.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         aria-label="Instagram"
-                        onClick={() => window.open("https://www.instagram.com/archive.toanmohinh/", "_blank")}
-                        className="flex-none w-8 h-8 inline-flex items-center justify-center rounded-md cursor-pointer hover:bg-background-hover text-foreground transition-colors"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-background-hover"
                     >
                         <Image src={instagramIcon} alt="" width={20} height={20} className="h-5 w-5" aria-hidden="true" />
-                    </button>
+                    </a>
                 </div>
                 <LanguageSwitcher />
-                <div className="ml-1 min-w-0">
-                    <AuthSection />
-                </div>
-                {!isPostEditor && (
-                    <IconButton onClick={toggleTheme} className={`flex-none text-(--foreground-dim) bg-background-hover ${theme === "light" ? "hover:text-blue-500" : "hover:text-yellow-500"}`}>
-                        {theme === "light" ? <Moon strokeWidth={3} /> : <Sun strokeWidth={3} />}
+                <AuthSection />
+                {mounted && !isPostEditor && (
+                    <IconButton
+                        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                        className={`bg-background-hover text-(--foreground-dim) ${theme === "light" ? "hover:text-blue-500" : "hover:text-yellow-500"}`}
+                        aria-label={theme === "light" ? tCommon("useDarkTheme") : tCommon("useLightTheme")}
+                    >
+                        {theme === "light" ? <Moon strokeWidth={2.5} /> : <Sun strokeWidth={2.5} />}
                     </IconButton>
                 )}
             </div>

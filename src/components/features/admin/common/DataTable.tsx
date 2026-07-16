@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Column {
     key: string;
@@ -17,6 +18,8 @@ interface DataTableProps {
 }
 
 export default function DataTable({ title, columns, data, isLoading }: DataTableProps) {
+    const locale = useLocale();
+    const t = useTranslations("common");
     const [isExpanded, setIsExpanded] = useState(false);
     const [sortKey, setSortKey] = useState<string | null>(null);
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -55,7 +58,7 @@ export default function DataTable({ title, columns, data, isLoading }: DataTable
             >
                 <div className="flex items-center gap-3">
                     <h3 className="font-semibold text-foreground">{title}</h3>
-                    <span className="text-sm text-foreground/50">({data.length} records)</span>
+                    <span className="text-sm text-foreground/50">({t("records", { count: data.length })})</span>
                 </div>
                 {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </button>
@@ -63,9 +66,9 @@ export default function DataTable({ title, columns, data, isLoading }: DataTable
             {isExpanded && (
                 <div className="border-t border-(--border-color)">
                     {isLoading ? (
-                        <div className="p-8 text-center text-foreground/50">Loading...</div>
+                        <div className="p-8 text-center text-foreground/50">{t("loading")}</div>
                     ) : data.length === 0 ? (
-                        <div className="p-8 text-center text-foreground/50">No data</div>
+                        <div className="p-8 text-center text-foreground/50">{t("noData")}</div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
@@ -96,7 +99,7 @@ export default function DataTable({ title, columns, data, isLoading }: DataTable
                                                 <td key={col.key} className="px-3 py-2 text-foreground/80">
                                                     {col.render
                                                         ? col.render(row[col.key], row)
-                                                        : formatValue(row[col.key])}
+                                                        : formatValue(row[col.key], locale)}
                                                 </td>
                                             ))}
                                         </tr>
@@ -111,7 +114,7 @@ export default function DataTable({ title, columns, data, isLoading }: DataTable
     );
 }
 
-function formatValue(value: unknown): React.ReactNode {
+function formatValue(value: unknown, locale: string): React.ReactNode {
     if (value === null || value === undefined) {
         return <span className="text-foreground/30">null</span>;
     }
@@ -123,7 +126,7 @@ function formatValue(value: unknown): React.ReactNode {
         );
     }
     if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}/)) {
-        return new Date(value).toLocaleDateString("vi-VN", {
+        return new Date(value).toLocaleDateString(locale, {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",

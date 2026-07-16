@@ -12,18 +12,23 @@ import { useToast } from "@/components/ui/Toast";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import StatColumns from "../card/PostStatColumns";
 import PostCategoryBadge from "../card/PostCategoryBadge";
-import type { Level } from "@/types/post";
-import type { PostCategory } from "@/types/database";
+import PostLevelBadge from "../card/PostLevelBadge";
+import PostTypeBadge from "../card/PostTypeBadge";
+import type { PostCategory, PostLevel, PostType } from "@/types/database";
 
 interface ShareQRPopupProps {
     image?: string;
     title: string;
     description: string;
     date?: string;
-    readingTime?: string;
-    level?: Level;
+    readingTime: number;
+    level: PostLevel;
     tags?: string[];
     category?: PostCategory;
+    categoryName?: string;
+    categoryIcon?: string | null;
+    type: PostType;
+    seriesOrder?: number | null;
     postUrl: string;
     onClose: () => void;
 }
@@ -37,6 +42,10 @@ export default function ShareQRPopup({
     level,
     tags,
     category,
+    categoryName,
+    categoryIcon,
+    type,
+    seriesOrder,
     postUrl,
     onClose,
 }: ShareQRPopupProps) {
@@ -45,6 +54,7 @@ export default function ShareQRPopup({
     const [downloading, setDownloading] = useState(false);
     const { showToast } = useToast();
     const t = useTranslations("post");
+    const tCommon = useTranslations("common");
 
     const toastShownRef = useRef(false);
 
@@ -133,7 +143,7 @@ export default function ShareQRPopup({
                     }}
                     disabled={downloading}
                     className="p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-accent/40 hover:border-accent cursor-pointer transition-colors disabled:opacity-50"
-                    title="Download image"
+                    title={t("downloadImage")}
                 >
                     <Download className="w-5 h-5" strokeWidth={3} />
                 </button>
@@ -143,7 +153,7 @@ export default function ShareQRPopup({
                         handleCopyToClipboard();
                     }}
                     className="hidden sm:block p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-accent/40 hover:border-accent cursor-pointer transition-colors"
-                    title="Copy to clipboard"
+                    title={t("copyImage")}
                 >
                     {copied ? <Check className="w-5 h-5 text-green-500" strokeWidth={3} /> : <Copy className="w-5 h-5" strokeWidth={3} />}
                 </button>
@@ -153,7 +163,7 @@ export default function ShareQRPopup({
                         onClose();
                     }}
                     className="p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-red-500/40 hover:border-red-500 cursor-pointer transition-colors"
-                    title="Close"
+                    title={tCommon("close")}
                 >
                     <X className="w-5 h-5" strokeWidth={3} />
                 </button>
@@ -164,7 +174,7 @@ export default function ShareQRPopup({
                 ref={cardRef}
                 key={postUrl}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-84 p-3 rounded-xl border border-(--border-color) bg-(--post-card)"
+                className="w-full max-w-94 p-3 rounded-xl border border-(--border-color) bg-(--post-card)"
             >
                 {/* Image */}
                 {image && (
@@ -194,7 +204,7 @@ export default function ShareQRPopup({
                 {/* Category */}
                 {category && (
                     <div className="mt-2 mb-1">
-                        <PostCategoryBadge category={category} />
+                        <PostCategoryBadge category={category} name={categoryName} icon={categoryIcon} />
                     </div>
                 )}
 
@@ -218,13 +228,13 @@ export default function ShareQRPopup({
                 {/* QR Code Section */}
                 <div className="flex items-center justify-between mt-4 pt-2 border-t border-(--border-color)">
                     <div className="flex items-center ml-8 gap-2 text-xs text-foreground/60">
-                        <Image src="/favicon.ico" alt="Toán Mô Hình Hà Nội" width={26} height={26} className="rounded-sm" unoptimized />
-                        <span className="font-medium text-accent/80 tracking-widest text-[10px]">FIND OUT MORE:</span>
+                        <Image src="/favicon.ico" alt="Helios Blog" width={26} height={26} className="rounded-sm" unoptimized />
+                        <span className="font-medium text-accent/80 tracking-widest text-[10px]">{t("findOutMore")}</span>
                     </div>
                     <div className="bg-[#fcfcfc] mr-12 p-1 rounded text-[#1a1a1a]">
                         <QRCodeSVG
                             value={postUrl}
-                            size={56}
+                            size={74}
                             level="M"
                             bgColor="transparent"
                             fgColor="currentColor"
@@ -237,21 +247,11 @@ export default function ShareQRPopup({
 
                 {/* Stats */}
                 <StatColumns stats={[
-                    ...(date ? [{ label: "Date", value: date }] : []),
-                    ...(readingTime ? [{ label: "Read", value: readingTime }] : []),
-                    ...(level ? [{
-                        label: "Level",
-                        value: (
-                            <span className={`
-                                ${level === 'beginner' ? 'bg-green-500/20 text-green-500 px-1.5 py-0.5 rounded-[4px]' : ''}
-                                ${level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded-[4px]' : ''}
-                                ${level === 'advanced' ? 'bg-red-500/20 text-red-500 px-1.5 py-0.5 rounded-[4px]' : ''}
-                            `}>
-                                {level.charAt(0).toUpperCase() + level.slice(1)}
-                            </span>
-                        )
-                    }] : []),
+                    ...(date ? [{ label: t("date"), value: date }] : []),
+                    { label: t("read"), value: t("readingMinutes", { count: readingTime }) },
+                    { label: t("level"), value: <PostLevelBadge level={level} /> },
                 ]} />
+                <PostTypeBadge type={type} order={seriesOrder} fullWidth className="mt-2" />
 
             </div>
         </div>

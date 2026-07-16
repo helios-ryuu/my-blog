@@ -1,21 +1,36 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { DbPost, DbPostWithRelations, DbTag, PostCategory } from "@/types/database";
+import {
+    type DbPost,
+    type DbPostSummary,
+    type DbPostSummaryWithRelations,
+    type DbPostWithRelations,
+    type DbSeries,
+    type DbTag,
+    type PostCategory,
+    type PostLevel,
+    type PostType,
+} from "@/types/database";
 
-const POST_FIELDS = "id, slug, title, description, content, image_url, category, published, published_at, created_at, updated_at";
+const POST_FIELDS = "id, slug, title, description, content, image_url, category, level, reading_time, series_id, series_order, published, published_at, created_at, updated_at";
+const POST_SUMMARY_FIELDS = "id, slug, title, description, image_url, category, level, reading_time, series_id, series_order, published, published_at, created_at, updated_at";
 
-interface ListOptions {
+export interface ListOptions {
     page?: number;
     pageSize?: number;
     tag?: string;
     category?: PostCategory;
+    level?: PostLevel;
     q?: string;
     publishedOnly?: boolean;
+    published?: boolean;
+    type?: PostType;
+    seriesId?: number;
 }
 
-async function attachTags(
+async function attachTags<T extends DbPost | DbPostSummary>(
     supabase: SupabaseClient,
-    posts: DbPost[],
-): Promise<DbPostWithRelations[]> {
+    posts: T[],
+): Promise<Array<T & { tags: DbTag[] }>> {
     if (posts.length === 0) return [];
     const ids = posts.map((p) => p.id);
     const { data, error } = await supabase
@@ -35,10 +50,33 @@ async function attachTags(
     return posts.map((p) => ({ ...p, tags: byPost.get(p.id) ?? [] }));
 }
 
+async function attachRelations<T extends DbPost | DbPostSummary>(
+    supabase: SupabaseClient,
+    posts: T[],
+): Promise<Array<T & { tags: DbTag[]; series: DbSeries | null; type: PostType }>> {
+    if (posts.length === 0) return [];
+    const withTags = await attachTags(supabase, posts);
+    const seriesIds = [...new Set(posts.flatMap((post) => post.series_id ? [post.series_id] : []))];
+    const byId = new Map<number, DbSeries>();
+    if (seriesIds.length > 0) {
+        const { data, error } = await supabase
+            .from("series")
+            .select("id, name, slug, description, created_at, updated_at")
+            .in("id", seriesIds);
+        if (error) throw new Error(error.message);
+        for (const series of (data ?? []) as DbSeries[]) byId.set(series.id, series);
+    }
+    return withTags.map((post) => ({
+        ...post,
+        series: post.series_id ? byId.get(post.series_id) ?? null : null,
+        type: post.series_id ? "series" : "standalone",
+    }));
+}
+
 export async function listPosts(
     supabase: SupabaseClient,
     opts: ListOptions = {},
-): Promise<{ items: DbPostWithRelations[]; total: number; page: number; pageSize: number }> {
+): Promise<{ items: DbPostSummaryWithRelations[]; total: number; page: number; pageSize: number }> {
     const page = Math.max(1, opts.page ?? 1);
     const pageSize = Math.min(50, Math.max(1, opts.pageSize ?? 10));
     const from = (page - 1) * pageSize;
@@ -46,15 +84,28 @@ export async function listPosts(
 
     let query = supabase
         .from("post")
-        .select(POST_FIELDS, { count: "exact" })
+        .select(POST_SUMMARY_FIELDS, { count: "exact" })
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
 
     if (opts.publishedOnly !== false) query = query.eq("published", true);
+    else if (opts.published !== undefined) query = query.eq("published", opts.published);
     if (opts.category) query = query.eq("category", opts.category);
+    if (opts.level) query = query.eq("level", opts.level);
+    if (opts.type === "standalone") query = query.is("series_id", null);
+    if (opts.type === "series") query = query.not("series_id", "is", null);
+    if (opts.seriesId) query = query.eq("series_id", opts.seriesId);
     if (opts.q) {
-        const escaped = opts.q.replace(/[%,()]/g, " ").trim();
-        if (escaped) query = query.or(`title.ilike.%${escaped}%,description.ilike.%${escaped}%`);
+        const escaped = opts.q.replace(/[%,()\"]/g, " ").trim();
+        if (escaped) {
+            const filters = [
+                `title.ilike.%${escaped}%`,
+                `slug.ilike.%${escaped}%`,
+                `description.ilike.%${escaped}%`,
+            ];
+            if (/^\d+$/.test(escaped)) filters.push(`id.eq.${escaped}`);
+            query = query.or(filters.join(","));
+        }
     }
 
     if (opts.tag) {
@@ -70,7 +121,7 @@ export async function listPosts(
     const { data, error, count } = await query.range(from, to);
     if (error) throw new Error(error.message);
 
-    const items = await attachTags(supabase, (data ?? []) as DbPost[]);
+    const items = await attachRelations(supabase, (data ?? []) as DbPostSummary[]);
     return { items, total: count ?? 0, page, pageSize };
 }
 
@@ -84,8 +135,8 @@ export async function getPostBySlug(
     const { data, error } = await query.maybeSingle();
     if (error) throw new Error(error.message);
     if (!data) return null;
-    const [withTags] = await attachTags(supabase, [data as DbPost]);
-    return withTags;
+    const [withRelations] = await attachRelations(supabase, [data as DbPost]);
+    return withRelations;
 }
 
 export async function getPostById(
@@ -95,8 +146,23 @@ export async function getPostById(
     const { data, error } = await supabase.from("post").select(POST_FIELDS).eq("id", id).maybeSingle();
     if (error) throw new Error(error.message);
     if (!data) return null;
-    const [withTags] = await attachTags(supabase, [data as DbPost]);
-    return withTags;
+    const [withRelations] = await attachRelations(supabase, [data as DbPost]);
+    return withRelations;
+}
+
+export async function getPublishedSeriesPosts(
+    supabase: SupabaseClient,
+    seriesId: number,
+): Promise<DbPostSummaryWithRelations[]> {
+    const { data, error } = await supabase
+        .from("post")
+        .select(POST_SUMMARY_FIELDS)
+        .eq("published", true)
+        .eq("series_id", seriesId)
+        .order("series_order")
+        .limit(500);
+    if (error) throw new Error(error.message);
+    return attachRelations(supabase, (data ?? []) as DbPostSummary[]);
 }
 
 export interface PostInput {
@@ -106,6 +172,10 @@ export interface PostInput {
     content: string;
     image_url?: string | null;
     category?: PostCategory;
+    level?: PostLevel;
+    reading_time?: number;
+    series_id?: number | null;
+    series_order?: number | null;
     published?: boolean;
     tag_ids?: number[];
 }
@@ -121,7 +191,11 @@ export async function createPost(
         description: input.description,
         content: input.content,
         image_url: input.image_url ?? null,
-        category: input.category ?? "news",
+        category: input.category ?? "articles",
+        level: input.level ?? "beginner",
+        reading_time: input.reading_time ?? 5,
+        series_id: input.series_id ?? null,
+        series_order: input.series_order ?? null,
         published,
         published_at: published ? new Date().toISOString() : null,
     };

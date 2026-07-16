@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import { TagList } from "@/components/ui";
 import PostCardContextMenu from "./PostCardContextMenu";
 import PostCategoryBadge from "./PostCategoryBadge";
+import PostLevelBadge from "./PostLevelBadge";
+import PostTypeBadge from "./PostTypeBadge";
 import ShareQRPopup from "../share/PostShareQRPopup";
 import { usePostShareInteractions } from "@/hooks/usePostShareInteractions";
 import type { PostItemProps } from "@/types/post";
+import { useTranslations } from "next-intl";
 
 export default function PostListItem({
     slug,
@@ -19,9 +22,14 @@ export default function PostListItem({
     level,
     tags,
     category,
+    categoryName,
+    categoryIcon,
+    type,
+    seriesOrder,
     onClick,
     className = ""
 }: PostItemProps) {
+    const t = useTranslations("post");
     const router = useRouter();
     const {
         contextMenu, showQRPopup, linkCopied, postUrl,
@@ -48,7 +56,7 @@ export default function PostListItem({
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 className={`
-                    grid grid-cols-[4fr_3fr_90px_80px_95px_120px] gap-4 px-4 py-2
+                    grid grid-cols-[4fr_3fr_90px_90px_120px_120px_120px] gap-4 px-4 py-2
                     rounded-xl border border-(--border-color) bg-(--post-card)
                     hover:border-(--border-color-hover) hover:bg-(--post-card-hover)
                     cursor-pointer transition-colors items-center select-none
@@ -60,15 +68,11 @@ export default function PostListItem({
                     <TagList tags={tags || []} variant="compact" className="mt-0" />
                 </div>
                 <span className="text-xs text-(--foreground-dim)">{date}</span>
-                <span className="text-xs text-(--foreground-dim) whitespace-nowrap">{readingTime}</span>
-                <span className={`text-xs px-1.5 py-0.5 rounded-sm w-fit ${level === 'beginner' ? 'bg-green-500/20 text-green-500' :
-                    level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-500' :
-                        level === 'advanced' ? 'bg-red-500/20 text-red-500' : ''
-                    }`}>
-                    {level ? level.charAt(0).toUpperCase() + level.slice(1) : '-'}
-                </span>
+                <span className="text-xs text-(--foreground-dim)">{t("readingMinutes", { count: readingTime })}</span>
+                <PostLevelBadge level={level} className="w-fit" />
+                <PostTypeBadge type={type} order={seriesOrder} compact />
                 <span className="w-fit">
-                    {category ? <PostCategoryBadge category={category} /> : <span className="text-xs text-foreground/40">-</span>}
+                    {category ? <PostCategoryBadge category={category} name={categoryName} icon={categoryIcon} /> : <span className="text-xs text-foreground/40">-</span>}
                 </span>
             </div>
 
@@ -77,7 +81,6 @@ export default function PostListItem({
                 <PostCardContextMenu
                     x={contextMenu.x}
                     y={contextMenu.y}
-                    postUrl={postUrl}
                     onClose={handleCloseMenu}
                     onShareQR={handleOpenQRPopup}
                     linkCopied={linkCopied}
@@ -97,6 +100,10 @@ export default function PostListItem({
                     level={level}
                     tags={tags}
                     category={category}
+                    categoryName={categoryName}
+                    categoryIcon={categoryIcon}
+                    type={type}
+                    seriesOrder={seriesOrder}
                     postUrl={postUrl}
                     onClose={handleCloseQRPopup}
                 />

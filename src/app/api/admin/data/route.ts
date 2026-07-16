@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { apiSuccess, apiError, handleRouteError } from "@/lib/api-helpers";
 
-const ALLOWED_TABLES = ["users", "post", "tag", "post_tags"] as const;
+const ALLOWED_TABLES = ["post", "category", "series", "tag", "post_tags", "site_settings"] as const;
 
 export async function GET(req: NextRequest) {
     try {
@@ -26,22 +26,26 @@ export async function GET(req: NextRequest) {
         }
 
         // Fetch all tables in parallel.
-        const [usersRes, postRes, tagRes, postTagsRes] = await Promise.all([
-            supabase.from("users").select("id, username, full_name, email, phone, role, school, created_at").order("created_at", { ascending: false }).limit(500),
-            supabase.from("post").select("id, slug, title, category, published, published_at, created_at, updated_at").order("id", { ascending: false }).limit(500),
+        const [postRes, categoryRes, seriesRes, tagRes, postTagsRes, settingsRes] = await Promise.all([
+            supabase.from("post").select("id, slug, title, category, level, reading_time, series_id, series_order, published, published_at, created_at, updated_at").order("id", { ascending: false }).limit(500),
+            supabase.from("category").select("*").order("display_order").limit(500),
+            supabase.from("series").select("*").order("name").limit(500),
             supabase.from("tag").select("*").order("id", { ascending: false }).limit(500),
             supabase.from("post_tags").select("post_id, tag_id").limit(2000),
+            supabase.from("site_settings").select("key, value, is_public, updated_at").order("key").limit(100),
         ]);
 
-        for (const r of [usersRes, postRes, tagRes, postTagsRes]) {
+        for (const r of [postRes, categoryRes, seriesRes, tagRes, postTagsRes, settingsRes]) {
             if (r.error) return apiError(r.error.message, 500);
         }
 
         return apiSuccess({
-            users: usersRes.data ?? [],
             post: postRes.data ?? [],
+            category: categoryRes.data ?? [],
+            series: seriesRes.data ?? [],
             tag: tagRes.data ?? [],
             post_tags: postTagsRes.data ?? [],
+            site_settings: settingsRes.data ?? [],
         });
     } catch (err) {
         return handleRouteError(err);

@@ -16,7 +16,7 @@ interface SelectProps {
 }
 
 const Select = forwardRef<HTMLButtonElement, SelectProps>(
-    ({ value, onValueChange, options, placeholder = "Select...", className = "", isActive = false }, ref) => {
+    ({ value, onValueChange, options, placeholder, className = "", isActive = false }, ref) => {
         // Convert empty string to special value for Radix
         const internalValue = value === "" ? EMPTY_VALUE : value;
 

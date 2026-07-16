@@ -11,6 +11,7 @@ import { PostPreviewPanel } from "../common/PostPreviewPanel";
 import { usePostForm } from "@/hooks/usePostForm";
 import { useResizablePanel } from "@/hooks/useResizablePanel";
 import { useTranslations } from "next-intl";
+import SeriesForm from "./SeriesForm";
 
 interface AddPostFormProps {
     onSuccess?: (post: { id: number; slug: string }) => void;
@@ -23,6 +24,7 @@ export default function AddPostForm({ onSuccess, onShowToast, existingTitles = [
     const t = useTranslations("admin");
     const tCommon = useTranslations("common");
     const [showAddTag, setShowAddTag] = useState(false);
+    const [showAddSeries, setShowAddSeries] = useState(false);
     const { ratio, containerRef, handleMouseDown } = useResizablePanel(0.5, 0.2);
     const form = usePostForm({
         mode: "create",
@@ -32,7 +34,7 @@ export default function AddPostForm({ onSuccess, onShowToast, existingTitles = [
         onSuccess,
     });
 
-    const { formData, setFormData, tags, setTags, selectedTagIds, setSelectedTagIds, toggleTag, validation, submitted, mdxSource, isRendering, isLoading, error, submit } = form;
+    const { formData, setFormData, tags, setTags, categories, series, setSeries, selectedTagIds, setSelectedTagIds, toggleTag, validation, submitted, mdxSource, isRendering, isLoading, error, submit } = form;
 
     return (
         <div ref={containerRef} className="fixed inset-0 z-30 flex bg-background pt-[var(--header-height,0px)]">
@@ -58,9 +60,12 @@ export default function AddPostForm({ onSuccess, onShowToast, existingTitles = [
                         formData={formData}
                         setFormData={setFormData}
                         tags={tags}
+                        categories={categories}
+                        series={series}
                         selectedTagIds={selectedTagIds}
                         onToggleTag={toggleTag}
                         onAddNewTag={() => setShowAddTag(true)}
+                        onAddNewSeries={() => setShowAddSeries(true)}
                         validationErrors={validation.validationErrors}
                         validationWarnings={validation.validationWarnings}
                         submitted={submitted}
@@ -96,6 +101,12 @@ export default function AddPostForm({ onSuccess, onShowToast, existingTitles = [
                 description={formData.description}
                 imageUrl={formData.image_url}
                 category={formData.category}
+                categoryInfo={categories.find((category) => category.slug === formData.category)}
+                level={formData.level}
+                readingTime={formData.reading_time}
+                type={formData.post_type}
+                series={series.find((item) => item.id === formData.series_id)}
+                seriesOrder={formData.series_order}
                 selectedTags={selectedTagIds}
                 tags={tags}
                 mdxSource={mdxSource}
@@ -109,6 +120,16 @@ export default function AddPostForm({ onSuccess, onShowToast, existingTitles = [
                         setSelectedTagIds((prev) => [...prev, tag.id]);
                     }}
                     onClose={() => setShowAddTag(false)}
+                />
+            )}
+
+            {showAddSeries && (
+                <SeriesForm
+                    onSuccess={(created) => {
+                        setSeries((previous) => [...previous, { ...created, post_count: 0 }]);
+                        setFormData((previous) => ({ ...previous, post_type: "series", series_id: created.id, series_order: 1 }));
+                    }}
+                    onClose={() => setShowAddSeries(false)}
                 />
             )}
         </div>

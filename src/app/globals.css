@@ -182,11 +182,6 @@ aside {
   animation: slide-in 0.3s ease-out forwards;
 }
 
-/* Smooth color transition */
-.smooth-text {
-  transition: color 0.3s ease-out !important;
-}
-
 /* .dark class inherits from :root which is already dark theme */
 
 @layer base {
@@ -197,97 +192,4 @@ aside {
   body {
     @apply bg-background text-foreground;
   }
-
-  .maplibregl-popup-content {
-    @apply bg-transparent! shadow-none! p-0! rounded-none!;
-  }
-
-  .maplibregl-popup-tip {
-    @apply hidden!;
-  }
-
-  .react-flow__panel {
-    background-color: transparent;
-  }
-}
-
-/* ReactFlow controls styling - outside @layer for higher specificity */
-.react-flow__controls {
-  background-color: var(--background) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 0.375rem;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  overflow: hidden;
-}
-
-.react-flow__controls-button {
-  background-color: var(--background) !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  fill: var(--foreground) !important;
-}
-
-.react-flow__controls-button:hover {
-  background-color: var(--background-hover) !important;
-}
-
-.react-flow__controls-button:last-child {
-  border-bottom: none !important;
-}
-
-/* Hide ReactFlow attribution and style panels */
-.react-flow__attribution {
-  display: none !important;
-}
-
-.react-flow__panel {
-  background-color: transparent !important;
-}
-
-/* ReactFlow node styling */
-.react-flow__node {
-  background-color: transparent !important;
-  border: none !important;
-  color: var(--foreground) !important;
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
-}
-
-/* Default node types keep their styling */
-.react-flow__node-default,
-.react-flow__node-input,
-.react-flow__node-output {
-  background-color: var(--background) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 0.375rem;
-}
-
-.react-flow__node.selected {
-  border-color: var(--accent) !important;
-}
-
-.react-flow__handle {
-  background-color: var(--foreground-dim) !important;
-  transition: background-color 0.2s ease-out;
-}
-
-.react-flow__edge-path {
-  stroke: var(--foreground-dim) !important;
-  transition: stroke 0.2s ease-out;
-}
-
-.react-flow__edge-text {
-  fill: var(--foreground) !important;
-  transition: fill 0.2s ease-out;
-}
-
-.react-flow__edge-textbg {
-  fill: var(--background) !important;
-  transition: fill 0.2s ease-out;
-}
-
-.react-flow__controls {
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
-}
-
-.react-flow__controls-button {
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out, fill 0.2s ease-out;
 }

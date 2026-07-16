@@ -10,6 +10,8 @@ import { PostFormBody } from "./PostFormBody";
 import { PostPreviewPanel } from "../common/PostPreviewPanel";
 import { usePostForm } from "@/hooks/usePostForm";
 import { useResizablePanel } from "@/hooks/useResizablePanel";
+import { useTranslations } from "next-intl";
+import SeriesForm from "./SeriesForm";
 
 interface EditPostFormProps {
     postId: number;
@@ -19,7 +21,10 @@ interface EditPostFormProps {
 }
 
 export default function EditPostForm({ postId, onSuccess, onShowToast, existingSlugs = [] }: EditPostFormProps) {
+    const t = useTranslations("admin");
+    const tCommon = useTranslations("common");
     const [showAddTag, setShowAddTag] = useState(false);
+    const [showAddSeries, setShowAddSeries] = useState(false);
     const { ratio, containerRef, handleMouseDown } = useResizablePanel(0.5, 0.2);
     const form = usePostForm({
         mode: "edit",
@@ -29,12 +34,12 @@ export default function EditPostForm({ postId, onSuccess, onShowToast, existingS
         onSuccess,
     });
 
-    const { formData, setFormData, tags, setTags, selectedTagIds, setSelectedTagIds, toggleTag, validation, submitted, mdxSource, isRendering, isLoading, isFetching, error, submit } = form;
+    const { formData, setFormData, tags, setTags, categories, series, setSeries, selectedTagIds, setSelectedTagIds, toggleTag, validation, submitted, mdxSource, isRendering, isLoading, isFetching, error, submit } = form;
 
     if (isFetching) {
         return (
             <div className="fixed inset-0 z-30 flex items-center justify-center bg-background">
-                <p className="text-foreground/60">Loading post...</p>
+                <p className="text-foreground/60">{t("loadingPost")}</p>
             </div>
         );
     }
@@ -54,7 +59,7 @@ export default function EditPostForm({ postId, onSuccess, onShowToast, existingS
                         >
                             <ArrowLeft size={18} />
                         </Link>
-                        <h2 className="text-lg font-semibold">Edit Post</h2>
+                        <h2 className="text-lg font-semibold">{t("editPostTitle")}</h2>
                     </div>
                 </div>
 
@@ -63,9 +68,13 @@ export default function EditPostForm({ postId, onSuccess, onShowToast, existingS
                         formData={formData}
                         setFormData={setFormData}
                         tags={tags}
+                        categories={categories}
+                        series={series}
+                        postId={postId}
                         selectedTagIds={selectedTagIds}
                         onToggleTag={toggleTag}
                         onAddNewTag={() => setShowAddTag(true)}
+                        onAddNewSeries={() => setShowAddSeries(true)}
                         validationErrors={validation.validationErrors}
                         validationWarnings={validation.validationWarnings}
                         submitted={submitted}
@@ -75,16 +84,16 @@ export default function EditPostForm({ postId, onSuccess, onShowToast, existingS
 
                 <div className="p-4 border-t border-(--border-color) flex justify-end gap-2">
                     <Link href="/admin">
-                        <Button type="button" variant="cancel">Cancel</Button>
+                        <Button type="button" variant="cancel">{tCommon("cancel")}</Button>
                     </Link>
                     <Button
                         type="submit"
                         variant="save"
                         isLoading={isLoading}
-                        loadingText="Saving..."
+                        loadingText={t("savingChanges")}
                         disabled={validation.hasValidationErrors}
                     >
-                        Save Changes
+                        {t("saveChanges")}
                     </Button>
                 </div>
             </form>
@@ -100,6 +109,12 @@ export default function EditPostForm({ postId, onSuccess, onShowToast, existingS
                 description={formData.description}
                 imageUrl={formData.image_url}
                 category={formData.category}
+                categoryInfo={categories.find((category) => category.slug === formData.category)}
+                level={formData.level}
+                readingTime={formData.reading_time}
+                type={formData.post_type}
+                series={series.find((item) => item.id === formData.series_id)}
+                seriesOrder={formData.series_order}
                 selectedTags={selectedTagIds}
                 tags={tags}
                 mdxSource={mdxSource}
@@ -113,6 +128,16 @@ export default function EditPostForm({ postId, onSuccess, onShowToast, existingS
                         setSelectedTagIds((prev) => [...prev, tag.id]);
                     }}
                     onClose={() => setShowAddTag(false)}
+                />
+            )}
+
+            {showAddSeries && (
+                <SeriesForm
+                    onSuccess={(created) => {
+                        setSeries((previous) => [...previous, { ...created, post_count: 0 }]);
+                        setFormData((previous) => ({ ...previous, post_type: "series", series_id: created.id, series_order: 1 }));
+                    }}
+                    onClose={() => setShowAddSeries(false)}
                 />
             )}
         </div>

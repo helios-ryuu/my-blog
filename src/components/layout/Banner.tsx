@@ -1,15 +1,16 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useBannerVisibility, dismissBanner } from "@/hooks";
+import { dismissBanner, useBannerVisibility } from "@/hooks";
+import { useTranslations } from "next-intl";
 
 interface BannerProps {
     content: React.ReactNode;
     dismissible?: boolean;
-    id?: string; // Unique ID for localStorage key
-    cooldownMinutes?: number; // Minutes before banner can show again
-    gradient?: string; // CSS gradient string, e.g. "linear-gradient(to right, #ff6b6b, #feca57)"
-    bgColor?: string; // Fallback solid color
+    id?: string;
+    cooldownMinutes?: number;
+    gradient?: string;
+    bgColor?: string;
 }
 
 export default function Banner({
@@ -18,30 +19,27 @@ export default function Banner({
     id = "default",
     cooldownMinutes = 5,
     gradient,
-    bgColor = "#ef4444"
+    bgColor = "#ef4444",
 }: BannerProps) {
+    const t = useTranslations("common");
     const isVisible = useBannerVisibility(id, cooldownMinutes);
-
-    const handleDismiss = () => {
-        dismissBanner(id);
-    };
 
     if (!isVisible) return null;
 
     return (
         <div
-            className="flex items-center justify-center text-white/90 text-sm py-1 px-4"
+            className="flex min-h-8 items-center px-3 py-1 text-sm text-white/90"
             style={{ background: gradient || bgColor }}
         >
-            <div className="flex-1 text-center">
-                {content}
-            </div>
+            <div className="min-w-0 flex-1 text-center">{content}</div>
             {dismissible && (
                 <button
-                    onClick={handleDismiss}
-                    className="p-1 hover:bg-white/20 rounded transition-colors cursor-pointer"
+                    type="button"
+                    onClick={() => dismissBanner(id)}
+                    className="ml-2 inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded transition-colors hover:bg-white/20"
+                    aria-label={t("close")}
                 >
-                    <X className="w-4 h-4" />
+                    <X className="h-4 w-4" />
                 </button>
             )}
         </div>

@@ -97,24 +97,6 @@ export function FormTextarea({ hasError, hasWarning, className = "", ...props }:
     );
 }
 
-interface FormSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-    hasError?: boolean;
-}
-
-export function FormSelect({ hasError, className = "", children, ...props }: FormSelectProps) {
-    return (
-        <select
-            {...props}
-            className={`w-full px-3 py-2 rounded-md border bg-background text-foreground text-sm focus:outline-none focus:ring-2 transition-colors ${hasError
-                    ? "border-red-500 focus:ring-red-500/50"
-                    : "border-(--border-color) focus:ring-accent/50"
-                } ${className}`}
-        >
-            {children}
-        </select>
-    );
-}
-
 // Styled dropdown matching SelectDropdown design
 interface SelectOption {
     value: string | number;
@@ -136,7 +118,7 @@ interface FormSelectDropdownProps {
 export function FormSelectDropdown({
     options,
     value = "",
-    placeholder = "Select...",
+    placeholder = "",
     className = "",
     onChange,
     hasError,

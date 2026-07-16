@@ -4,10 +4,13 @@ import { useState } from "react";
 import { Edit3, Clock, Send, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import type { AdminPost } from "@/types/admin";
+import type { AdminCategory, AdminPost } from "@/types/admin";
+import PostLevelBadge from "@/components/features/post/card/PostLevelBadge";
+import PostTypeBadge from "@/components/features/post/card/PostTypeBadge";
 
 interface DraftPostsSectionProps {
     posts: AdminPost[];
+    categories: AdminCategory[];
     isLoading?: boolean;
     onEditDraft: (id: number) => void;
     onPublished?: () => void;
@@ -16,6 +19,7 @@ interface DraftPostsSectionProps {
 
 export default function DraftPostsSection({
     posts,
+    categories,
     isLoading,
     onEditDraft,
     onPublished,
@@ -23,6 +27,7 @@ export default function DraftPostsSection({
 }: DraftPostsSectionProps) {
     const t = useTranslations("admin");
     const tCommon = useTranslations("common");
+    const tPost = useTranslations("post");
     const drafts = posts.filter((p) => !p.published);
     const [publishingId, setPublishingId] = useState<number | null>(null);
 
@@ -35,11 +40,11 @@ export default function DraftPostsSection({
                 body: JSON.stringify({ published: true }),
             });
             const json = await res.json();
-            if (!json.success) throw new Error(json.message || "Publish failed");
+            if (!json.success) throw new Error(json.message || t("publishError"));
             onShowToast?.("success", t("publishPost"));
             onPublished?.();
         } catch (e) {
-            onShowToast?.("error", e instanceof Error ? e.message : "Publish failed");
+            onShowToast?.("error", e instanceof Error ? e.message : t("publishError"));
         } finally {
             setPublishingId(null);
         }
@@ -96,8 +101,11 @@ export default function DraftPostsSection({
                                                 : "—"}
                                     </span>
                                     <span className="px-1.5 py-0.5 rounded text-[10px] uppercase bg-foreground/10 text-foreground/50">
-                                        {draft.category}
+                                        {categories.find((category) => category.slug === draft.category)?.name ?? draft.category}
                                     </span>
+                                    <PostLevelBadge level={draft.level} />
+                                    <PostTypeBadge type={draft.type} order={draft.series_order} compact />
+                                    <span>{tPost("readingMinutes", { count: draft.reading_time })}</span>
                                 </div>
                             </div>
 

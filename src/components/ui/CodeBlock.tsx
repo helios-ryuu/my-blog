@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Clipboard, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CodeBlockProps {
     children: React.ReactNode;
@@ -10,6 +11,7 @@ interface CodeBlockProps {
 }
 
 export default function CodeBlock({ children, className, ...props }: CodeBlockProps) {
+    const t = useTranslations("common");
     const [copied, setCopied] = useState(false);
     const preRef = useRef<HTMLPreElement>(null);
 
@@ -59,7 +61,7 @@ export default function CodeBlock({ children, className, ...props }: CodeBlockPr
                 <button
                     onClick={handleCopy}
                     className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-gray-200 cursor-pointer"
-                    title="Copy to clipboard"
+                    title={t("copy")}
                 >
                     {copied ? (
                         <Check className="w-4 h-4 text-accent" />

@@ -1,11 +1,11 @@
 "use client";
 
-import { FileText, Tag } from "lucide-react";
+import { BookOpen, FileText, Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
 import ConfirmPopup from "./ConfirmPopup";
 
 interface DeletePreviewData {
-    type: "post" | "tag";
+    type: "post" | "tag" | "series";
     id: number;
     name: string;
     slug?: string;
@@ -20,7 +20,7 @@ interface DeletePreviewPopupProps {
     onConfirmDelete: () => void;
 }
 
-const typeIcons = { post: FileText, tag: Tag };
+const typeIcons = { post: FileText, tag: Tag, series: BookOpen };
 
 function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
     return (
@@ -33,7 +33,7 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
 
 export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: DeletePreviewPopupProps) {
     const t = useTranslations("deletePopup");
-    const typeLabel = data.type === "post" ? t("typePost") : t("typeTag");
+    const typeLabel = data.type === "post" ? t("typePost") : data.type === "tag" ? t("typeTag") : t("typeSeries");
 
     return (
         <ConfirmPopup

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 interface TocItem {
     id: string;
@@ -13,6 +14,7 @@ interface TableOfContentsProps {
 }
 
 export default function TableOfContents({ content }: TableOfContentsProps) {
+    const t = useTranslations("post");
     const [activeId, setActiveId] = useState<string>("");
     const isClickNavigating = useRef(false);
 
@@ -83,7 +85,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
     return (
         <div className="flex flex-col h-full">
             <h4 className="px-4 text-xs font-semibold text-foreground/70 uppercase tracking-wider border-b border-border/50 py-2 whitespace-nowrap overflow-hidden">
-                On this page
+                {t("onThisPage")}
             </h4>
             <nav className="pl-4 overflow-y-auto custom-scrollbar flex-1">
                 <ul className="space-y-1 mr-2 mb-10 mt-2">

@@ -2,11 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { Link2, QrCode, FileCode } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface PostCardContextMenuProps {
     x: number;
     y: number;
-    postUrl: string;
     onClose: () => void;
     onShareQR: () => void;
     linkCopied: boolean;
@@ -17,13 +17,13 @@ interface PostCardContextMenuProps {
 export default function PostCardContextMenu({
     x,
     y,
-    postUrl: _postUrl,
     onClose,
     onShareQR,
     linkCopied,
     onCopyLink,
     onDownloadMarkdown,
 }: PostCardContextMenuProps) {
+    const t = useTranslations("post");
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -73,7 +73,7 @@ export default function PostCardContextMenu({
                 className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-accent/20 rounded-md cursor-pointer transition-colors text-left"
             >
                 <Link2 className="w-4 h-4" />
-                <span className="whitespace-nowrap">{linkCopied ? "Link copied!" : "Share as Link"}</span>
+                <span className="whitespace-nowrap">{linkCopied ? t("linkCopied") : t("shareAsLink")}</span>
             </button>
 
             {/* Share as QR Card */}
@@ -85,13 +85,10 @@ export default function PostCardContextMenu({
                 className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-accent/20 rounded-md cursor-pointer transition-colors text-left"
             >
                 <QrCode className="w-4 h-4" />
-                <span className="whitespace-nowrap">Share as QR Card</span>
+                <span className="whitespace-nowrap">{t("shareAsQrCard")}</span>
             </button>
 
             <div className="my-1 border-t border-(--border-color)/50"></div>
-
-
-
             {/* Download as Markdown */}
             <button
                 onClick={(e) => {
@@ -101,7 +98,7 @@ export default function PostCardContextMenu({
                 className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-accent/20 rounded-md cursor-pointer transition-colors text-left"
             >
                 <FileCode className="w-4 h-4" />
-                <span className="whitespace-nowrap">Download as Markdown</span>
+                <span className="whitespace-nowrap">{t("downloadMarkdown")}</span>
             </button>
         </div>
     );

@@ -1,41 +1,52 @@
-# Requirements v1.1.0
+# Requirements v2.0
 
-## Auth và tài khoản
+## Public blog
 
-- Admin cấp tài khoản thủ công trong `/admin/accounts`.
-- Người dùng đăng nhập bằng `username/password`.
-- `username`, `password`, `full_name` là bắt buộc khi tạo tài khoản.
-- `username` chỉ gồm chữ, số, `_`, tối thiểu 6 ký tự.
-- `password` tối thiểu 8 ký tự và không có khoảng trắng.
-- Khi tài khoản có vai trò `admin`, thông tin trường/tổ chức không hiển thị trong form quản trị.
-- Màn quản lý tài khoản có tìm kiếm, filter, sort, highlight row đang sửa và pagination 50 dòng/trang.
-- User thường chỉ xem hồ sơ cá nhân ở chế độ read-only; admin vẫn tự cập nhật được.
+- Homepage hiển thị tên Helios Blog, mô tả ngắn và các bài gần đây.
+- Chỉ bài `published = true` được hiển thị công khai.
+- Người đọc có thể lọc theo tag, danh mục, mức độ, kiểu Standalone/Series và sắp xếp bài viết.
+- Card, list, QR và trang chi tiết hiển thị ngày, thời gian đọc, mức độ và kiểu bài.
+- Bài thuộc series hiển thị Part X of Y và liên kết Previous/Next chỉ từ các bài đã xuất bản; series một bài không hiện navigation.
+- Search hỗ trợ tiêu đề, mô tả và cú pháp `#tag`.
+- Trang bài viết render MDX, code highlighting, mục lục, bài liên quan, chia sẻ và tải nội dung Markdown.
 
-## Contest và đội thi
+## CMS
 
-- Public contest page hiển thị thông tin cuộc thi, mô tả, timeline và hướng dẫn nộp bài.
-- Admin quản lý cuộc thi và đội thi trong `/contest-management`.
-- Cuộc thi cá nhân có min/max thành viên = `1-1`.
-- Cuộc thi đội/both mặc định min/max thành viên = `2-3`, và `max >= min`.
-- Stage có thể chứa `prompt_text` để hiển thị đề bài trong My Contests.
-- Đội thi được tạo trực tiếp bằng `TEAM_CODE`, `TEAM_NAME`, `LEVEL`, leader và members; không có bước duyệt/từ chối.
-- Thành viên đội xem cuộc thi của mình trong `/profile/contests`.
-- My Contests có search/filter/sort, vòng hiện tại, countdown có giây và đề bài link được.
+- `/admin` và `/api/admin/*` yêu cầu session admin hợp lệ.
+- Admin có thể tạo, sửa, xoá, xuất bản bài viết và quản lý danh mục/tag.
+- Danh mục có tên, slug, mục đích, ví dụ và emoji tuỳ chọn; không thể xoá khi vẫn có bài viết tham chiếu.
+- Form bài viết yêu cầu chọn danh mục, mức độ và nhập thời gian đọc từ 1 đến 120 phút; hệ thống không tự tính thời gian đọc.
+- Form bài viết có chế độ Standalone/Series. Chế độ Series yêu cầu chọn series và order nguyên dương chưa được dùng; có thể tạo series ngay trong field và tự chọn bản ghi mới.
+- Admin có thể tạo, sửa, tìm kiếm và xoá series; UI và API chặn xoá khi series còn bài.
+- Form sửa/xoá post và sửa/xoá tag dùng combobox tìm nhanh; bộ lọc nâng cao chỉ mở khi admin cần lọc theo nhiều tiêu chí hoặc phân trang.
+- Ảnh được upload và quản lý trong Cloudflare R2 bucket `my-blog`.
+- Upload chỉ nhận AVIF, GIF, JPEG, PNG hoặc WebP và giới hạn 10 MB mỗi file.
+- Database viewer chỉ đọc các bảng thuộc phạm vi blog.
 
-## Submission
+## Auth
 
-- Web phục vụ nộp bài qua stage có `allow_submission=true`.
-- Thành viên của đội được admin gán có thể nộp bài khi stage nộp bài đang mở.
-- Bài đã nộp luôn có thể thay thế trong thời gian stage nộp bài còn mở.
-- Bài nộp mới lưu trong Storage theo cấu trúc `contestSlug/TEAM_CODE/file`.
-- Admin xem và tải bài nộp trong panel quản lý đội.
+- Chỉ có một admin, cấu hình bằng `ADMIN_USERNAME`.
+- Mật khẩu dùng `ADMIN_PASSWORD_HASH` hoặc `ADMIN_PASSWORD`.
+- Session dùng cookie HTTP-only, SameSite Lax và Secure ở production.
+- `SESSION_SECRET` là bắt buộc ở production.
+- Không có bảng tài khoản hoặc màn quản lý tài khoản.
 
-## UI
+## Appearance
 
-- Accent chính là `#1F51FF`; toàn site dùng font Lexend.
-- Header có navigation panel dùng chung và không hiển thị GitHub.
-- Header có Facebook và Instagram chính thức.
-- Footer hiển thị hotline, email, Facebook, Instagram và copyright chính thức.
-- Homepage có `Bài viết nổi bật` và danh sách compact `Các cuộc thi`.
-- Bucket manager hiển thị rõ cây thư mục/file, hỗ trợ tạo, đổi tên và xoá folder/file.
-- Q&A chung dành cho thí sinh; Q&A Admin tách riêng và chỉ hiện với admin.
+- Dark theme là mặc định và có thể chuyển sang light theme.
+- Accent mặc định là `#1f51ff`.
+- Admin có thể nhập hoặc chọn một mã màu `#RRGGBB`.
+- Màu được lưu toàn cục và mọi component nhận qua CSS token.
+- Giao diện phải hoạt động tốt trên mobile và desktop.
+
+## Data
+
+- Database mới được khởi tạo bằng `supabase/schema.sql`.
+- Các bảng gồm `post`, `category`, `series`, `tag`, `post_tags`, `site_settings`.
+- Bài viết tham chiếu category slug động và dùng ba mức `beginner`, `intermediate`, `advanced`.
+- `post.series_id` và `post.series_order` phải cùng null hoặc cùng có giá trị; order là số nguyên dương, duy nhất trong từng series và foreign key dùng `on delete restrict`.
+- Kiểu bài không được lưu thành cột riêng: Standalone/Series được suy ra từ `series_id`. Category `series` độc lập với bảng series.
+- Public read dùng publishable key và Supabase RLS; CMS write dùng secret key ở server.
+- API ghi dữ liệu từ chối field lạ, sai kiểu, slug sai định dạng, nội dung vượt giới hạn và quá 5 tag trên một bài.
+- Media dùng Cloudflare R2, mặc định là bucket private được phục vụ qua `/api/media/*`.
+- Service key không được đưa xuống client.

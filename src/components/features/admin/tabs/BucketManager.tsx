@@ -10,7 +10,6 @@ import {
     FileImage,
     File as FileIcon,
     RefreshCw,
-    ExternalLink,
     Pencil,
     X,
     Search,
@@ -23,8 +22,6 @@ import {
 import Image from "next/image";
 import { Button } from "../common/Button";
 import { useToast } from "../../../ui/Toast";
-
-export type BucketName = "post-images" | "submissions";
 
 interface BucketEntry {
     name: string;
@@ -43,21 +40,14 @@ interface BucketFolder {
 
 interface BucketListResponse {
     success: boolean;
-    data?: { bucket: BucketName; prefix: string; folders: BucketFolder[]; files: BucketEntry[] };
+    data?: { bucket: string; prefix: string; folders: BucketFolder[]; files: BucketEntry[] };
     message?: string;
 }
 
 interface BucketManagerProps {
-    initialBucket?: BucketName;
-    allowBucketSwitch?: boolean;
     mode?: "manage" | "picker";
     onPick?: (file: BucketEntry) => void;
 }
-
-const BUCKET_KEYS: Record<BucketName, "bucketPostImages" | "bucketSubmissions"> = {
-    "post-images": "bucketPostImages",
-    submissions: "bucketSubmissions",
-};
 
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
 const isImage = (name: string) => IMAGE_EXTENSIONS.some((ext) => name.toLowerCase().endsWith(ext));
@@ -70,15 +60,12 @@ function formatSize(bytes: number): string {
 }
 
 export default function BucketManager({
-    initialBucket = "post-images",
-    allowBucketSwitch = true,
     mode = "manage",
     onPick,
 }: BucketManagerProps) {
     const { showToast } = useToast();
     const t = useTranslations("admin");
     const tCommon = useTranslations("common");
-    const [bucket, setBucket] = useState<BucketName>(initialBucket);
     const [prefix, setPrefix] = useState<string>("");
     const [folders, setFolders] = useState<BucketFolder[]>([]);
     const [files, setFiles] = useState<BucketEntry[]>([]);
@@ -86,6 +73,7 @@ export default function BucketManager({
     const [isUploading, setIsUploading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [newFolderName, setNewFolderName] = useState("");
+    const [isCreatingFolder, setIsCreatingFolder] = useState(false);
     const [selectedFile, setSelectedFile] = useState<BucketEntry | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [renameState, setRenameState] = useState<{ from: string; to: string; type: "file" | "folder" } | null>(null);
@@ -96,7 +84,6 @@ export default function BucketManager({
         setIsLoading(true);
         try {
             const url = new URL("/api/admin/bucket", window.location.origin);
-            url.searchParams.set("bucket", bucket);
             if (prefix) url.searchParams.set("prefix", prefix);
             const res = await fetch(url.toString());
             const json: BucketListResponse = await res.json();
@@ -104,27 +91,18 @@ export default function BucketManager({
                 setFolders(json.data.folders);
                 setFiles(json.data.files);
             } else {
-                showToast("error", json.message || "Failed to load files");
+                showToast("error", json.message || t("loadFilesError"));
                 setFolders([]);
                 setFiles([]);
             }
         } catch (e) {
-            showToast("error", e instanceof Error ? e.message : "Failed to load files");
+            showToast("error", e instanceof Error ? e.message : t("loadFilesError"));
         } finally {
             setIsLoading(false);
         }
-    }, [bucket, prefix, showToast]);
+    }, [prefix, showToast, t]);
 
     useEffect(() => { fetchEntries(); }, [fetchEntries]);
-
-    function changeBucket(next: BucketName) {
-        if (next === bucket) return;
-        setBucket(next);
-        setPrefix("");
-        setSearchQuery("");
-        setSelectedFile(null);
-        setRenameState(null);
-    }
 
     function navigateInto(folder: BucketFolder) {
         setPrefix(folder.path);
@@ -138,9 +116,13 @@ export default function BucketManager({
 
     async function handleCreateFolder() {
         const name = newFolderName.trim();
-        if (!name) return;
+        if (!name) {
+            showToast("warning", t("folderNameRequired"));
+            return;
+        }
+        setIsCreatingFolder(true);
         try {
-            const res = await fetch(`/api/admin/bucket?bucket=${bucket}`, {
+            const res = await fetch("/api/admin/bucket", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "create-folder", path: pathInCurrentFolder(name) }),
@@ -149,9 +131,12 @@ export default function BucketManager({
             if (!json.success) throw new Error(json.message || t("createFolderError"));
             showToast("success", t("createFolderSuccess"));
             setNewFolderName("");
+            setSearchQuery("");
             await fetchEntries();
         } catch (e) {
             showToast("error", e instanceof Error ? e.message : t("createFolderError"));
+        } finally {
+            setIsCreatingFolder(false);
         }
     }
 
@@ -170,12 +155,12 @@ export default function BucketManager({
                 const fd = new FormData();
                 fd.append("file", file);
                 if (prefix) fd.append("prefix", prefix);
-                const res = await fetch(`/api/admin/bucket?bucket=${bucket}`, { method: "POST", body: fd });
+                const res = await fetch("/api/admin/bucket", { method: "POST", body: fd });
                 const json = await res.json();
                 if (json.success) count++;
-                else showToast("error", json.message || `Failed to upload ${file.name}`);
+                else showToast("error", json.message || t("uploadFileError", { name: file.name }));
             }
-            if (count > 0) showToast("success", `${count} file(s) uploaded`);
+            if (count > 0) showToast("success", t("uploadSuccess", { count }));
             await fetchEntries();
         } finally {
             setIsUploading(false);
@@ -185,7 +170,7 @@ export default function BucketManager({
 
     async function handleDelete(path: string, type: "file" | "folder" = "file") {
         try {
-            const res = await fetch(`/api/admin/bucket?bucket=${bucket}`, {
+            const res = await fetch("/api/admin/bucket", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ path, type }),
@@ -214,7 +199,7 @@ export default function BucketManager({
         const folderPrefix = slashIdx >= 0 ? renameState.from.slice(0, slashIdx + 1) : "";
         const toBase = renameState.to.includes("/") ? renameState.to : folderPrefix + renameState.to;
         try {
-            const res = await fetch(`/api/admin/bucket?bucket=${bucket}`, {
+            const res = await fetch("/api/admin/bucket", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ from: renameState.from, to: toBase, type: renameState.type }),
@@ -239,7 +224,7 @@ export default function BucketManager({
             setCopiedUrl(url);
             setTimeout(() => setCopiedUrl(null), 1500);
         } catch {
-            showToast("error", "Clipboard write failed");
+            showToast("error", t("clipboardError"));
         }
     }
 
@@ -259,24 +244,13 @@ export default function BucketManager({
                 <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2">
                         <h2 className="text-lg font-semibold text-foreground">{t("storageBucket")}</h2>
-                        {allowBucketSwitch && (
-                            <div className="flex items-center gap-1 ml-3 p-0.5 rounded-md border border-(--border-color) bg-foreground/5">
-                                {(Object.keys(BUCKET_KEYS) as BucketName[]).map((b) => (
-                                    <button
-                                        key={b}
-                                        onClick={() => changeBucket(b)}
-                                        className={`px-3 py-1 text-xs rounded-sm transition-colors cursor-pointer ${bucket === b
-                                            ? "bg-accent text-white"
-                                            : "text-foreground/70 hover:text-foreground"}`}
-                                    >
-                                        {t(BUCKET_KEYS[b])}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                        <span className="rounded-sm border border-(--border-color) bg-foreground/5 px-2 py-0.5 text-xs text-foreground/60">
+                            Cloudflare R2
+                        </span>
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
+                            type="button"
                             variant="utility"
                             size="sm"
                             onClick={fetchEntries}
@@ -292,7 +266,7 @@ export default function BucketManager({
                                 ref={fileInputRef}
                                 type="file"
                                 multiple
-                                accept={bucket === "post-images" ? "image/*" : "*"}
+                                accept="image/*"
                                 onChange={handleUpload}
                                 disabled={isUploading}
                                 className="hidden"
@@ -304,11 +278,12 @@ export default function BucketManager({
                 {/* Breadcrumbs */}
                 <div className="flex items-center gap-1 text-xs text-foreground/60 flex-wrap">
                     <button
+                        type="button"
                         onClick={() => navigateToCrumb("")}
                         className="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-foreground/5 hover:text-foreground transition-colors cursor-pointer"
                     >
                         <Home size={12} />
-                        {t(BUCKET_KEYS[bucket])}
+                        {t("bucketMedia")}
                     </button>
                     {breadcrumbs.map((crumb, idx) => {
                         const target = breadcrumbs.slice(0, idx + 1).join("/");
@@ -316,6 +291,7 @@ export default function BucketManager({
                             <span key={target} className="flex items-center gap-1">
                                 <ChevronRight size={12} />
                                 <button
+                                    type="button"
                                     onClick={() => navigateToCrumb(target)}
                                     className="px-1.5 py-0.5 rounded hover:bg-foreground/5 hover:text-foreground transition-colors cursor-pointer"
                                 >
@@ -346,13 +322,24 @@ export default function BucketManager({
                                 value={newFolderName}
                                 onChange={(e) => setNewFolderName(e.target.value)}
                                 onKeyDown={(e) => {
-                                    if (e.key === "Enter") handleCreateFolder();
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        handleCreateFolder();
+                                    }
                                 }}
                                 placeholder={t("newFolderPlaceholder")}
                                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
                             />
                         </div>
-                        <Button variant="utility" size="sm" onClick={handleCreateFolder}>
+                        <Button
+                            type="button"
+                            variant="utility"
+                            size="sm"
+                            onClick={handleCreateFolder}
+                            isLoading={isCreatingFolder}
+                            disabled={isCreatingFolder}
+                            loadingText={t("creatingFolder")}
+                        >
                             {t("createFolder")}
                         </Button>
                     </div>
@@ -391,7 +378,7 @@ export default function BucketManager({
 
             {/* Body */}
             {isLoading ? (
-                <div className="p-8 text-center text-foreground/50">Loading…</div>
+                <div className="p-8 text-center text-foreground/50">{t("loadingFiles")}</div>
             ) : filteredFolders.length === 0 && filteredFiles.length === 0 ? (
                 <div className="p-8 rounded-lg border border-(--border-color) bg-(--post-card) text-center">
                     <FileImage size={40} className="mx-auto mb-3 text-foreground/30" />
@@ -620,7 +607,6 @@ export default function BucketManager({
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-(--border-color) text-foreground/70 hover:border-accent hover:text-accent transition-colors"
                                 >
-                                    <ExternalLink size={14} />
                                     {t("openFile")}
                                 </a>
                                 {mode === "manage" && (

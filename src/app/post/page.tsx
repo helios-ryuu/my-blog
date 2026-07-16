@@ -1,31 +1,29 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { getAllPostsMeta, getAllTags, getAllLevels } from "@/lib/posts";
+import { getAllPostsMeta, getAllTags } from "@/lib/posts";
 import { PostListClient } from "@/components/features/post";
 import MobileSearchBar from "@/components/layout/MobileSearchBar";
 import PageHeader from "@/components/layout/PageHeader";
-import type { Level } from "@/types/post";
 import { unstable_cache } from "next/cache";
+import { listCategories } from "@/lib/categories-db";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 
 // Cache post list data
 const getCachedPostsData = unstable_cache(
     async () => {
-        const [posts, allTags, allLevelsRaw] = await Promise.all([
+        const [posts, allTags, allCategories] = await Promise.all([
             getAllPostsMeta(),
             getAllTags(),
-            getAllLevels()
+            listCategories(createSupabasePublicClient()),
         ]);
-
-        const allLevels = allLevelsRaw as Level[];
-
-        return { posts, allTags, allLevels };
+        return { posts, allTags, allCategories };
     },
     ["post-list"],
-    { revalidate: 60, tags: ["posts"] }
+    { revalidate: 60, tags: ["posts", "categories"] }
 );
 
 export default async function PostPage() {
-    const { posts, allTags, allLevels } = await getCachedPostsData();
+    const { posts, allTags, allCategories } = await getCachedPostsData();
     const t = await getTranslations("post");
 
     return (
@@ -37,11 +35,11 @@ export default async function PostPage() {
                 <div className="mx-auto">
                     <PageHeader title={t("pageTitle")} description={t("pageSubtitle")} />
 
-                    <Suspense fallback={<div>Loading...</div>}>
+                    <Suspense fallback={<div className="text-sm text-foreground/60">{t("loading")}</div>}>
                         <PostListClient
                             posts={posts}
                             allTags={allTags}
-                            allLevels={allLevels}
+                            allCategories={allCategories}
                         />
                     </Suspense>
 

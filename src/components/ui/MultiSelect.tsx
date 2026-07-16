@@ -7,7 +7,7 @@ interface MultiSelectProps {
     values: string[];
     onValuesChange: (values: string[]) => void;
     options: { value: string; label: string }[];
-    placeholder?: string;
+    placeholder: string;
     className?: string;
     isActive?: boolean;
 }
@@ -16,7 +16,7 @@ export default function MultiSelect({
     values,
     onValuesChange,
     options,
-    placeholder = "Select...",
+    placeholder,
     className = "",
     isActive = false,
 }: MultiSelectProps) {

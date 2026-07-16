@@ -1,4 +1,4 @@
-import { getPostBySlug, getRelatedPosts } from "@/lib/posts";
+import { getPostBySlug, getPublishedSeriesPosts, getRelatedPosts } from "@/lib/posts";
 import { shouldBypassImageOptimization } from "@/lib/images";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -6,10 +6,11 @@ import { mdxComponents } from "../../../../mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
 import Image from "next/image";
-import { PostMeta, RelatedPosts, MobileTocBar, PostShareActions, PostCategoryBadge, TableOfContents } from "@/components/features/post";
+import { RelatedPosts, MobileTocBar, PostMeta, PostShareActions, PostCategoryBadge, SeriesNavigation, TableOfContents } from "@/components/features/post";
 import { TagList } from "@/components/ui";
 import { Metadata } from "next";
 import { unstable_cache } from "next/cache";
+import { getTranslations } from "next-intl/server";
 
 // Cache post data for faster subsequent loads
 const getCachedPost = unstable_cache(
@@ -32,21 +33,22 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const post = await getPostBySlug(slug);
+    const [post, t] = await Promise.all([getPostBySlug(slug), getTranslations("notFound")]);
 
     if (!post) {
         return {
-            title: "Post Not Found",
+            title: t("title"),
+            description: t("description"),
         };
     }
 
     return {
-        title: `${post.title} - Toán Mô Hình Hà Nội`,
+        title: post.title,
         description: post.description,
         openGraph: {
             title: post.title,
             description: post.description,
-            siteName: "Toán Mô Hình Hà Nội",
+            siteName: "Helios Blog",
             images: post.image ? [
                 {
                     url: post.image,
@@ -81,7 +83,10 @@ export default async function BlogPostPage({ params }: Props) {
         notFound();
     }
 
-    const relatedPosts = await getCachedRelatedPosts(slug, post.tags || []);
+    const [relatedPosts, seriesPosts] = await Promise.all([
+        getCachedRelatedPosts(slug, post.tags || []),
+        post.series ? getPublishedSeriesPosts(post.series.id) : Promise.resolve([]),
+    ]);
 
     return (
         <div className="flex flex-col">
@@ -98,7 +103,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </aside>
 
                 {/* Main Content */}
-                <article className="flex-1 min-w-0 mx-auto py-6 md:py-4 md:px-6">
+                <article className="flex-1 min-w-0 mx-auto py-6 md:py-4 md:px-12">
                     <header className="mb-8">
                         {/* Cover image (FR_POST_03) */}
                         {post.image && (
@@ -119,13 +124,13 @@ export default async function BlogPostPage({ params }: Props) {
                         {/* Category badge (FR_POST_03) */}
                         {post.category && (
                             <div className="mb-3">
-                                <PostCategoryBadge category={post.category} />
+                                <PostCategoryBadge category={post.category} name={post.categoryName} icon={post.categoryIcon} />
                             </div>
                         )}
 
                         <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
                         <p className="text-sm mt-2 text-foreground/70">{post.description}</p>
-                        <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} className="mt-4 mb-3" />
+                        <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} type={post.type} seriesOrder={post.seriesOrder} />
                         {post.tags && <TagList tags={post.tags} />}
                     </header>
 
@@ -141,11 +146,12 @@ export default async function BlogPostPage({ params }: Props) {
                             }}
                         />
                         <PostShareActions post={post} />
+                        <SeriesNavigation currentSlug={post.slug} posts={seriesPosts} />
                     </div>
                 </article>
 
                 {/* Related posts panel */}
-                <aside className="hidden xl:block w-62 flex-none pt-6 pb-10 px-2">
+                <aside className="hidden xl:block w-72 flex-none pt-6 pb-10 pr-4 xs:px-2">
                     <div className="sticky top-0 max-h-[calc(100vh-6rem)] overflow-y-auto">
                         <RelatedPosts posts={relatedPosts} />
                     </div>

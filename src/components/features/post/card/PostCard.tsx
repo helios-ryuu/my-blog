@@ -2,14 +2,18 @@
 
 import { useCallback } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { shouldBypassImageOptimization } from "@/lib/images";
 import { TagList } from "@/components/ui";
 import StatColumns from "./PostStatColumns";
 import PostCardContextMenu from "./PostCardContextMenu";
 import PostCategoryBadge from "./PostCategoryBadge";
+import PostLevelBadge from "./PostLevelBadge";
+import PostTypeBadge from "./PostTypeBadge";
 import ShareQRPopup from "../share/PostShareQRPopup";
 import { usePostShareInteractions } from "@/hooks/usePostShareInteractions";
 import type { PostItemProps } from "@/types/post";
+import { useTranslations } from "next-intl";
 
 export default function PostCard({
     slug,
@@ -21,9 +25,15 @@ export default function PostCard({
     level,
     tags,
     category,
+    categoryName,
+    categoryIcon,
+    type,
+    seriesOrder,
     onClick,
     className = ""
 }: PostItemProps) {
+    const t = useTranslations("post");
+    const router = useRouter();
     const {
         contextMenu, showQRPopup, linkCopied, postUrl,
         handleContextMenu, handleTouchStart, handleTouchMove, handleTouchEnd,
@@ -31,10 +41,11 @@ export default function PostCard({
     } = usePostShareInteractions(slug);
 
     const handleClick = useCallback(() => {
-        if (!contextMenu && onClick) {
-            onClick();
+        if (!contextMenu) {
+            if (onClick) onClick();
+            else router.push(`/post/${slug}`);
         }
-    }, [contextMenu, onClick]);
+    }, [contextMenu, onClick, router, slug]);
 
     return (
         <>
@@ -74,7 +85,7 @@ export default function PostCard({
                     {/* Category */}
                     {category && (
                         <div className="mt-2 mb-1">
-                            <PostCategoryBadge category={category} />
+                            <PostCategoryBadge category={category} name={categoryName} icon={categoryIcon} />
                         </div>
                     )}
 
@@ -107,21 +118,11 @@ export default function PostCard({
                 <div className="flex-none">
                     <div className="w-full border-t border-(--border-color) mt-4 mb-2" />
                     <StatColumns stats={[
-                        ...(date ? [{ label: "Date", value: date }] : []),
-                        ...(readingTime ? [{ label: "Read", value: readingTime }] : []),
-                        ...(level ? [{
-                            label: "Level",
-                            value: (
-                                <span className={`
-                                    ${level === 'beginner' ? 'bg-green-500/20 text-green-500 px-1.5 py-0.5 rounded-[4px]' : ''}
-                                    ${level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded-[4px]' : ''}
-                                    ${level === 'advanced' ? 'bg-red-500/20 text-red-500 px-1.5 py-0.5 rounded-[4px]' : ''}
-                                `}>
-                                    {level.charAt(0).toUpperCase() + level.slice(1)}
-                                </span>
-                            )
-                        }] : []),
+                        ...(date ? [{ label: t("date"), value: date }] : []),
+                        { label: t("read"), value: t("readingMinutes", { count: readingTime }) },
+                        { label: t("level"), value: <PostLevelBadge level={level} compact /> },
                     ]} />
+                    <PostTypeBadge type={type} order={seriesOrder} fullWidth className="mt-2" />
                 </div>
             </div>
 
@@ -130,7 +131,6 @@ export default function PostCard({
                 <PostCardContextMenu
                     x={contextMenu.x}
                     y={contextMenu.y}
-                    postUrl={postUrl}
                     onClose={handleCloseMenu}
                     onShareQR={handleOpenQRPopup}
                     linkCopied={linkCopied}
@@ -150,6 +150,10 @@ export default function PostCard({
                     level={level}
                     tags={tags}
                     category={category}
+                    categoryName={categoryName}
+                    categoryIcon={categoryIcon}
+                    type={type}
+                    seriesOrder={seriesOrder}
                     postUrl={postUrl}
                     onClose={handleCloseQRPopup}
                 />

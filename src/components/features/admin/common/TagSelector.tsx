@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, Plus, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Tag {
     id: number;
@@ -24,6 +25,7 @@ export function TagSelector({
     onToggle,
     onAddNew,
 }: TagSelectorProps) {
+    const t = useTranslations("admin");
     const [query, setQuery] = useState("");
     const filtered = tags.filter((t) => t.name.toLowerCase().includes(query.toLowerCase()));
 
@@ -31,7 +33,7 @@ export function TagSelector({
         <div>
             <div className="flex items-center justify-between mb-1">
                 <label className="block text-sm font-medium text-foreground/70">
-                    Tags <span className="text-foreground/40">(max {maxTags})</span>
+                    Tags <span className="text-foreground/40">({t("tagLimit", { count: maxTags })})</span>
                 </label>
                 {onAddNew && (
                     <button
@@ -40,7 +42,7 @@ export function TagSelector({
                         className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 transition-colors cursor-pointer"
                     >
                         <Plus size={14} />
-                        Add New Tag
+                        {t("addNewTag")}
                     </button>
                 )}
             </div>
@@ -52,7 +54,7 @@ export function TagSelector({
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search tags..."
+                        placeholder={t("searchTags")}
                         className="w-full pl-8 pr-3 py-1.5 text-sm rounded-md border border-(--border-color) bg-background focus:outline-none focus:ring-2 focus:ring-accent/50"
                     />
                 </div>
@@ -82,7 +84,7 @@ export function TagSelector({
                 })}
                 {filtered.length === 0 && (
                     <span className="text-foreground/40 text-sm">
-                        {tags.length === 0 ? "No tags available" : "No tags match search"}
+                        {tags.length === 0 ? t("noTagsAvailable") : t("noTagsMatch")}
                     </span>
                 )}
             </div>

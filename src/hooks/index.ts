@@ -1,2 +1,2 @@
 export { useMounted } from "./useMounted";
-export { useBannerVisibility, dismissBanner } from "./useBannerVisibility";
+export { dismissBanner, useBannerVisibility } from "./useBannerVisibility";

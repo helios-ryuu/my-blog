@@ -1,33 +1,24 @@
 import type { PostCategory } from "@/types/database";
 
-const LABEL: Record<PostCategory, string> = {
-    news: "Tin tức",
-    announcement: "Thông báo",
-    tutorial: "Hướng dẫn",
-    result: "Kết quả",
-};
-
-const STYLE: Record<PostCategory, string> = {
-    news: "bg-blue-500/20 text-blue-500",
-    announcement: "bg-yellow-500/20 text-yellow-500",
-    tutorial: "bg-green-500/20 text-green-500",
-    result: "bg-accent/20 text-accent",
-};
-
 export default function PostCategoryBadge({
     category,
+    name,
+    icon,
     className = "",
 }: {
     category: PostCategory;
+    name?: string;
+    icon?: string | null;
     className?: string;
 }) {
+    const label = name ?? category.split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
+
     return (
         <span
-            className={`inline-block px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase rounded-[4px] ${STYLE[category]} ${className}`}
+            className={`inline-flex items-center gap-1 rounded-[4px] border border-accent/25 bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-accent ${className}`}
         >
-            {LABEL[category]}
+            {icon && <span aria-hidden="true" className="text-xs leading-none">{icon}</span>}
+            {label}
         </span>
     );
 }
-
-export const POST_CATEGORY_LABEL = LABEL;

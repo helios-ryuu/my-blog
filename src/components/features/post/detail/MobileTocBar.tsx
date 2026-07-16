@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { Menu, X, Slash, ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface TocItem {
     id: string;
@@ -16,6 +17,7 @@ interface MobileTocBarProps {
 }
 
 export default function MobileTocBar({ title, content }: MobileTocBarProps) {
+    const t = useTranslations("post");
     const [isOpen, setIsOpen] = useState(false);
     const [activeId, setActiveId] = useState<string>("");
     const isClickNavigating = useRef(false);
@@ -98,12 +100,12 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
                     <Link
                         href="/post"
                         className="flex items-center justify-center rounded-sm w-6 h-6 hover:bg-foreground/10 hover:text-foreground transition-colors shrink-0"
-                        title="Back to Posts"
+                        title={t("backToPosts")}
                     >
                         <ChevronLeft className="w-4 h-4" strokeWidth={3} />
                     </Link>
                     <Link href="/post" className="hover:text-foreground shrink-0 pl-1">
-                        Post
+                        {t("postLabel")}
                     </Link>
                     <Slash className="w-3 h-3 text-foreground/30 shrink-0" />
                     <span className="text-foreground truncate md:whitespace-normal md:overflow-visible font-medium">{title}</span>
@@ -123,7 +125,7 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
                     <div className="absolute left-0 right-0 bg-background border-b border-(--border-color) z-50 max-h-[60vh] overflow-y-auto">
                         <nav className="p-4">
                             <h4 className="text-sm font-semibold text-foreground/70 mb-3 uppercase tracking-wider">
-                                On this page
+                                {t("onThisPage")}
                             </h4>
                             <ul className="space-y-1">
                                 {headings.map(({ id, text, level }) => (

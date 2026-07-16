@@ -1,26 +1,35 @@
-import type { PostCategory } from "./database";
+import type { PostCategory, PostLevel, PostType } from "./database";
 
-export type Level = "beginner" | "intermediate" | "advanced";
+interface PostSeriesMeta {
+    id: number;
+    name: string;
+    slug: string;
+    description?: string | null;
+}
 
-export interface PostFrontmatter {
+interface PostFrontmatter {
     title: string;
     description: string;
     date: string;
     image?: string;
     tags?: string[];
-    level?: Level;
     category?: PostCategory;
+    categoryName?: string;
+    categoryIcon?: string | null;
+    level: PostLevel;
+    readingTime: number;
+    type: PostType;
+    series?: PostSeriesMeta | null;
+    seriesOrder?: number | null;
 }
 
 export interface Post extends PostFrontmatter {
     slug: string;
     content: string;
-    readingTime: string;
 }
 
 export interface PostMeta extends PostFrontmatter {
     slug: string;
-    readingTime: string;
 }
 
 /** Shared props for PostCard and PostListItem */
@@ -30,10 +39,15 @@ export interface PostItemProps {
     title: string;
     description: string;
     date?: string;
-    readingTime?: string;
-    level?: Level;
     tags?: string[];
     category?: PostCategory;
+    categoryName?: string;
+    categoryIcon?: string | null;
+    level: PostLevel;
+    readingTime: number;
+    type: PostType;
+    series?: PostSeriesMeta | null;
+    seriesOrder?: number | null;
     onClick?: () => void;
     className?: string;
 }

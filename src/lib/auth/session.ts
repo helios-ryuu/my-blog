@@ -1,21 +1,19 @@
-import type { UserRoleDb } from "@/types/database";
-
-export const SESSION_COOKIE = "tmh_session";
+export const SESSION_COOKIE = "helios_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 export interface SessionPayload {
-    userId: string;
-    role: UserRoleDb;
+    username: string;
+    role: "admin";
     exp: number;
 }
 
 function getSecret(): string {
-    return (
-        process.env.SESSION_SECRET ||
-        process.env.SUPABASE_SECRET_KEY ||
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-        "tmh-dev-session-secret"
-    );
+    const secret = process.env.SESSION_SECRET;
+    if (secret) return secret;
+    if (process.env.NODE_ENV === "production") {
+        throw new Error("SESSION_SECRET is required in production");
+    }
+    return "helios-blog-development-secret";
 }
 
 function base64UrlEncode(input: string): string {
@@ -60,10 +58,10 @@ function safeEqual(a: string, b: string): boolean {
     return diff === 0;
 }
 
-export function createSessionPayload(userId: string, role: UserRoleDb): SessionPayload {
+export function createSessionPayload(username: string): SessionPayload {
     return {
-        userId,
-        role,
+        username,
+        role: "admin",
         exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
     };
 }
@@ -81,7 +79,7 @@ export async function verifySessionToken(token: string | undefined | null): Prom
     if (!safeEqual(signature, expected)) return null;
     try {
         const payload = JSON.parse(base64UrlDecode(encoded)) as SessionPayload;
-        if (!payload.userId || !payload.role || !payload.exp) return null;
+        if (!payload.username || payload.role !== "admin" || !payload.exp) return null;
         if (payload.exp < Math.floor(Date.now() / 1000)) return null;
         return payload;
     } catch {

@@ -1,7 +1,7 @@
 import FAQPage from "@/components/features/faq/FAQPage";
 
 export const metadata = {
-    title: "Q&A — Toán Mô Hình Hà Nội",
+    title: "Q&A",
 };
 
 export default function FAQRoute() {

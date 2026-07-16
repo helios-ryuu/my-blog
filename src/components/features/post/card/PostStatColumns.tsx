@@ -7,11 +7,11 @@ interface StatColumnsProps {
 
 export default function StatColumns({ stats, className = "" }: StatColumnsProps) {
     return (
-        <div className={`flex flex-row items-stretch gap-2 ${className}`}>
+        <div className={`flex flex-row items-stretch gap-1 ${className}`}>
             {stats.map((stat) => (
-                <div key={stat.label} className="flex-1 flex flex-col items-start justify-center gap-1 p-2">
+                <div key={stat.label} className="flex min-w-0 flex-1 flex-col items-start justify-center gap-1 p-1.5">
                     <span className="text-xs font-semibold text-foreground/50 tracking-widest">{stat.label.toUpperCase()}</span>
-                    <span className="font-semibold text-[10px]">{stat.value}</span>
+                    <span className="whitespace-nowrap font-semibold text-[10px]">{stat.value}</span>
                 </div>
             ))}
         </div>

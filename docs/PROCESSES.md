@@ -1,57 +1,71 @@
-# Processes v1.1.0
+# Processes v2.0
 
-## Đăng nhập
+## Khởi tạo
 
-1. User mở `/auth`.
-2. User nhập `username/password` do admin cấp.
-3. API `/api/auth/login` validate username/password rồi kiểm tra `public.users`.
-4. Server set cookie session HTTP-only.
-5. `proxy.ts` và server helpers kiểm quyền dựa trên session nội bộ.
+1. Tạo Supabase project mới.
+2. Chạy `supabase/schema.sql` trong SQL Editor.
+3. Tạo Cloudflare R2 API token có quyền Object Read & Write cho bucket `my-blog`.
+4. Tạo `.env` từ `.env.example`.
+5. Cấu hình Supabase keys, R2 credentials, admin credential và session secret.
+6. Chạy `pnpm dev`.
 
-## Cấp tài khoản
+## Đăng nhập admin
 
-1. Admin mở `/admin/accounts`.
-2. Admin tạo user với username, password, họ tên, email, phone, school, role.
-3. Username chỉ gồm chữ, số, `_`, tối thiểu 6 ký tự; password tối thiểu 8 ký tự và không có khoảng trắng.
-4. Nếu role là admin, form ẩn school và payload xoá school.
-5. User đăng nhập bằng thông tin được cấp. User thường chỉ xem hồ sơ ở chế độ read-only.
+1. Admin mở `/auth`.
+2. API so sánh username và SHA-256 của mật khẩu theo thời gian cố định.
+3. Server ký session bằng HMAC-SHA256.
+4. Cookie HTTP-only được dùng để bảo vệ trang và API quản trị.
 
-## Tạo cuộc thi và vòng thi
+## Viết và xuất bản
 
-1. Admin mở `/contest-management`.
-2. Admin tạo cuộc thi với hình thức tham gia, `min_team_size`, `max_team_size`, timeline và status.
-3. Với cá nhân, min/max luôn là `1-1`; với đội hoặc both, mặc định `2-3` và `max >= min`.
-4. Admin thêm các stage, bật `allow_submission` cho vòng được nộp bài và nhập `prompt_text` nếu cần hiển thị đề bài.
+1. Admin mở `/admin` và tạo bài mới.
+2. Nhập title, slug, description, category, level, thời gian đọc, kiểu bài, image, tag và nội dung MDX.
+3. Kiểm tra preview trước khi lưu.
+4. Lưu nháp để tiếp tục chỉnh sửa hoặc bật xuất bản ngay.
+5. Bài được revalidate trên homepage, danh sách và trang chi tiết.
 
-## Tạo đội thi
+Category chọn từ danh sách do CMS quản lý. Level chọn cơ bản, trung cấp hoặc nâng cao. Thời gian đọc là số phút do tác giả ước tính thủ công trong khoảng 1–120.
 
-1. Admin mở `/contest-management`.
-2. Admin chọn cuộc thi và mở panel đội thi.
-3. Admin tạo đội với `TEAM_CODE`, `TEAM_NAME`, `LEVEL`, leader và members.
-4. Hệ thống kiểm tra số thành viên theo min/max của cuộc thi.
-5. Đội có thể nộp bài khi stage nộp bài của cuộc thi mở.
+Với bài độc lập, giữ chế độ Standalone. Với bài theo chuỗi, chọn Series, tìm series theo ID/tên/slug rồi dùng order được đề xuất hoặc nhập order khác chưa được dùng. Nút `+` trong field mở modal tạo series và tự chọn series mới. Chuyển lại Standalone sẽ xoá cả series và order khi lưu.
 
-## Nộp và thay thế bài
+Khi sửa hoặc xoá, nhập trực tiếp vào field để tìm nhanh. Nút bộ lọc trong field mở selector nâng cao: post có thể lọc theo từ khoá, category, level, type, trạng thái và tag; post/tag/series đều có phân trang để không phụ thuộc một dropdown dài.
 
-1. User đăng nhập và mở `/profile/contests`.
-2. Hệ thống liệt kê các đội mà user là thành viên, có search/filter/sort.
-3. Nếu stage hiện tại bật `allow_submission`, UI hiển thị vòng hiện tại, countdown có giây, đề bài và form upload.
-4. API `/api/submissions` kiểm quyền thành viên và stage rồi upload file vào `submissions/contestSlug/TEAM_CODE/`.
-5. Nếu đội đã có bài nộp, hệ thống xoá bài cũ và nhận bài mới miễn vòng nộp bài còn mở.
+## Quản lý series
 
-## Admin xem bài nộp
+1. Tạo series tại section Tạo mới hoặc từ field Series trong form bài viết.
+2. Nhập name, slug và description tuỳ chọn; slug tự sinh nhưng có thể chỉnh.
+3. Sửa hoặc xoá qua quick search hay advanced selector theo ID, name và slug.
+4. Trước khi xoá, gỡ toàn bộ bài khỏi series bằng cách chuyển chúng sang Standalone hoặc sang series khác.
+5. API trả `409` nếu order bị trùng hoặc series vẫn còn bài.
 
-1. Admin mở panel đội thi trong `/contest-management`.
-2. Admin mở từng đội để xem danh sách submission.
-3. Download dùng signed URL ngắn hạn qua API admin.
+## Quản lý danh mục
 
-## Q&A
+1. Admin mở section Danh mục tại `/admin`.
+2. Tạo hoặc sửa tên, slug, mục đích, ví dụ và emoji tuỳ chọn.
+3. Khi đổi slug, foreign key tự cập nhật category của các bài đang dùng.
+4. Chỉ xoá danh mục có số bài bằng 0; UI và API đều chặn xoá khi còn tham chiếu.
 
-1. `/faq` chỉ hiển thị hướng dẫn chung cho thí sinh.
-2. `/faq/admin` chỉ hiện với admin và chứa quy trình quản trị.
-
-## Quản lý bucket
+## Quản lý ảnh
 
 1. Admin mở `/admin/bucket`.
-2. Admin chọn bucket, duyệt breadcrumb/tree thư mục.
-3. Admin có thể tạo, đổi tên, xoá folder/file và tải file lên thư mục hiện tại.
+2. Nhập tên và nhấn Tạo thư mục; danh sách và bộ lọc được làm mới để folder mới xuất hiện ngay, sau đó mở folder và upload ảnh.
+3. Server ghi object qua S3 API của Cloudflare R2.
+4. Chọn ảnh trực tiếp trong form bài viết hoặc sao chép URL `/api/media/*`.
+5. Custom domain hiện tại là `https://bucket-blog.helios.id.vn`, được cấu hình qua `R2_PUBLIC_URL` để URL mới dùng Cloudflare trực tiếp.
+6. Khi đổi tên hoặc xoá file, kiểm tra các bài đang tham chiếu URL cũ.
+
+## Chỉnh màu accent
+
+1. Admin mở `/admin`.
+2. Chọn màu hoặc nhập mã hex sáu chữ số.
+3. API lưu `accent_color` vào `site_settings`.
+4. Cache settings được revalidate.
+5. Context phía client cập nhật CSS token ngay sau khi lưu.
+
+## Kiểm tra trước release
+
+```bash
+pnpm check
+```
+
+Sau đó kiểm tra homepage, search, bài showcase MDX, đăng nhập, series CRUD/order/navigation, CMS, selector nâng cao, database viewer, tạo folder/upload R2, banner cooldown, theme và accent trên desktop/mobile.

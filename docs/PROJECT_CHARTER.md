@@ -1,31 +1,31 @@
-# Project Charter v1.1.0
+# Project Charter v2.0
 
 ## Mục tiêu
 
-Toán Mô Hình Hà Nội Portal là cổng thông tin cho bài viết chuyên môn, thông tin cuộc thi và nộp bài theo đội.
+Helios Blog là không gian xuất bản cá nhân có trải nghiệm đọc rõ ràng và một CMS đủ gọn để vận hành lâu dài.
 
-Domain vận hành: `toanmohinhvietnam.com`. Domain này không thay đổi nội dung hoặc branding hiển thị của web.
+## Phạm vi
 
-## Phạm vi v1.1.0
-
-- Bài viết/news chuyên môn.
-- Contest public listing/detail và timeline.
-- Account management do admin vận hành với validation username/password.
-- Team management do admin vận hành với min/max thành viên.
-- Submission cho các vòng thi được mở, cho phép thay thế bài trong thời gian còn hạn.
-- My Contests có search/filter/sort, vòng hiện tại, countdown và đề bài.
-- Q&A chung cho thí sinh và Q&A Admin tách riêng.
-- Bucket management cho ảnh bài viết và bài nộp.
+- Bài viết MDX có ảnh bìa, tag, danh mục, series có thứ tự, mức độ, thời gian đọc và trạng thái nháp/xuất bản.
+- Trang chủ, danh sách, trang chi tiết, tag, danh mục và tìm kiếm.
+- Giao diện responsive, sáng/tối và song ngữ.
+- Công cụ chia sẻ liên kết, QR và ảnh.
+- CMS quản lý nội dung và thư viện ảnh trên Cloudflare R2.
+- CMS quản lý vòng đời series; public UI hiển thị Type và điều hướng bài trước/sau mà không cần route `/series` riêng.
+- Màu accent toàn cục do admin cấu hình.
+- Một admin duy nhất qua biến môi trường.
 
 ## Ngoài phạm vi
 
-- User tự đăng ký tài khoản.
-- User tự đăng ký tham gia cuộc thi.
-- User thường tự sửa hồ sơ cá nhân.
-- Email automation.
-- Payment hoặc scoring tự động.
+- Đăng ký tài khoản công khai.
+- Nhiều vai trò hoặc nhiều tài khoản quản trị.
+- Bình luận, newsletter và thanh toán.
+- Trình soạn thảo WYSIWYG.
 
-## Vai trò
+## Nguyên tắc
 
-- Admin: quản lý tài khoản, bài viết, cuộc thi, đội thi, bài nộp, bucket và Q&A Admin.
-- User/thí sinh: đăng nhập, xem hồ sơ read-only, xem đội đã được cấp, xem đề bài và nộp/thay thế bài khi vòng nộp bài đang mở.
+- Giữ kiến trúc đơn giản và ưu tiên helper sẵn có.
+- Component mới dùng CSS token và pattern giao diện hiện tại.
+- Dữ liệu bí mật chỉ tồn tại ở server.
+- Mọi thay đổi nội dung đi qua API có kiểm quyền.
+- Schema và tài liệu phải phản ánh đúng code đang chạy.

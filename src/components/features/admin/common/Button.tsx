@@ -69,7 +69,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref
     ) => {
         const iconSize = iconSizes[size];
-        const isDisabled = disabled || isLoading;
+        const isDisabled = Boolean(disabled || isLoading);
 
         return (
             <button
@@ -108,44 +108,3 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = "Button";
-
-// Convenient preset components
-export const PrimaryButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(
-    (props, ref) => <Button ref={ref} variant="primary" {...props} />
-);
-PrimaryButton.displayName = "PrimaryButton";
-
-export const PublishButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(
-    (props, ref) => <Button ref={ref} variant="publish" {...props} />
-);
-PublishButton.displayName = "PublishButton";
-
-export const UnpublishButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(
-    (props, ref) => <Button ref={ref} variant="unpublish" {...props} />
-);
-UnpublishButton.displayName = "UnpublishButton";
-
-export const DangerButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(
-    (props, ref) => <Button ref={ref} variant="danger" {...props} />
-);
-DangerButton.displayName = "DangerButton";
-
-export const CancelButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(
-    (props, ref) => <Button ref={ref} variant="cancel" {...props} />
-);
-CancelButton.displayName = "CancelButton";
-
-export const SaveButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(
-    (props, ref) => <Button ref={ref} variant="save" {...props} />
-);
-SaveButton.displayName = "SaveButton";
-
-export const AttentionButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(
-    (props, ref) => <Button ref={ref} variant="attention" {...props} />
-);
-AttentionButton.displayName = "AttentionButton";
-
-export const UtilityButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(
-    (props, ref) => <Button ref={ref} variant="utility" {...props} />
-);
-UtilityButton.displayName = "UtilityButton";

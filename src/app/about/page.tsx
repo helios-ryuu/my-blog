@@ -1,40 +1,86 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { unstable_cache } from "next/cache";
 import PageHeader from "@/components/layout/PageHeader";
+import PostLevelBadge from "@/components/features/post/card/PostLevelBadge";
+import { SOCIAL_LINKS } from "@/config/site";
+import { POST_LEVELS } from "@/types/database";
+import { listCategories } from "@/lib/categories-db";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 
-export const metadata: Metadata = {
-    title: "Giới thiệu — Toán Mô Hình Hà Nội",
-    description: "Không gian học thuật dành cho cộng đồng quan tâm tới mô hình hóa và ứng dụng toán học.",
-};
+const getCachedCategories = unstable_cache(
+    async () => listCategories(createSupabasePublicClient()),
+    ["about-categories"],
+    { revalidate: 300, tags: ["categories"] },
+);
 
-export default function AboutPage() {
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getTranslations("about");
+    return { title: t("metadataTitle"), description: t("metadataDescription") };
+}
+
+export default async function AboutPage() {
+    const [t, tPost, categories] = await Promise.all([
+        getTranslations("about"),
+        getTranslations("post"),
+        getCachedCategories(),
+    ]);
+
     return (
-        <main className="mx-auto max-w-5xl px-4 py-8">
-            <PageHeader
-                title="Giới thiệu"
-                description="Toán Mô Hình Hà Nội là không gian học thuật dành cho những bạn trẻ quan tâm tới mô hình hóa, tư duy định lượng và ứng dụng toán học vào các vấn đề thực tiễn."
-            />
+        <main className="mx-auto max-w-4xl px-4 py-10">
+            <PageHeader title={t("title")} description={t("subtitle")} />
+            <div className="divide-y divide-(--border-color) border-y border-(--border-color)">
+                <section className="grid gap-5 py-7 md:grid-cols-[180px_1fr] md:gap-8">
+                    <h2 className="text-sm font-semibold uppercase tracking-widest text-accent">{t("aboutTitle")}</h2>
+                    <div className="space-y-4 text-sm leading-7 text-foreground/72">
+                        <p>{t("paragraphOne")}</p>
+                        <p>{t("paragraphTwo")}</p>
+                    </div>
+                </section>
 
-            <div className="grid gap-6 md:grid-cols-3">
-                <section className="rounded-[8px] border border-(--border-color) bg-(--post-card) p-5">
-                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-widest">Sứ mệnh</h2>
-                    <p className="text-sm leading-relaxed text-foreground/74">
-                        Xây dựng cộng đồng học hỏi nghiêm túc, nơi kiến thức toán học được nối với dữ liệu,
-                        kinh tế, tài chính, kỹ thuật và các bài toán xã hội.
-                    </p>
+                <section className="grid gap-5 py-7 md:grid-cols-[180px_1fr] md:gap-8">
+                    <div>
+                        <h2 className="text-sm font-semibold uppercase tracking-widest text-accent">{t("topicsTitle")}</h2>
+                        <p className="mt-2 text-xs leading-5 text-foreground/50">{t("topicsDescription")}</p>
+                    </div>
+                    <div className="divide-y divide-(--border-color)">
+                        {categories.map((category) => (
+                            <Link
+                                key={category.id}
+                                href={`/category/${category.slug}`}
+                                className="group grid gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[180px_1fr] sm:gap-4"
+                            >
+                                <span className="text-sm font-semibold group-hover:text-accent">
+                                    {category.icon && <span aria-hidden="true">{category.icon}{" "}</span>}{category.name}
+                                </span>
+                                <span className="text-sm leading-6 text-foreground/62">
+                                    {category.description}
+                                    {category.examples && <span className="block text-xs text-foreground/40">{category.examples}</span>}
+                                </span>
+                            </Link>
+                        ))}
+                    </div>
                 </section>
-                <section className="rounded-[8px] border border-(--border-color) bg-(--post-card) p-5">
-                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-widest">Hoạt động</h2>
-                    <p className="text-sm leading-relaxed text-foreground/74">
-                        Portal này tập trung đăng tải bài viết chuyên môn, thông tin cuộc thi và hỗ trợ thí sinh
-                        nộp bài trong các vòng thi được ban tổ chức mở.
-                    </p>
+
+                <section className="grid gap-5 py-7 md:grid-cols-[180px_1fr] md:gap-8">
+                    <h2 className="text-sm font-semibold uppercase tracking-widest text-accent">{t("readingGuideTitle")}</h2>
+                    <div className="space-y-4 text-sm leading-7 text-foreground/72">
+                        <p>{t("readingGuideDescription")}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                            {POST_LEVELS.map((level) => <PostLevelBadge key={level} level={level} />)}
+                        </div>
+                        <p>{t("readingTimeDescription")} <span className="font-semibold text-foreground">{tPost("readingMinutes", { count: 5 })}</span></p>
+                    </div>
                 </section>
-                <section className="rounded-[8px] border border-(--border-color) bg-(--post-card) p-5">
-                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-widest">Liên hệ</h2>
-                    <p className="text-sm leading-relaxed text-foreground/74">
-                        Thông tin liên hệ chính thức sẽ được cập nhật sau. Trong thời gian này, vui lòng theo dõi
-                        fanpage của Toán Mô Hình Hà Nội để nhận thông báo mới nhất.
-                    </p>
+
+                <section className="grid gap-5 py-7 md:grid-cols-[180px_1fr] md:gap-8">
+                    <h2 className="text-sm font-semibold uppercase tracking-widest text-accent">{t("contactTitle")}</h2>
+                    <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm leading-7 text-foreground/72">
+                        <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" className="hover:text-accent">GitHub</a>
+                        <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-accent">Facebook</a>
+                        <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-accent">Instagram</a>
+                    </div>
                 </section>
             </div>
         </main>

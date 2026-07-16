@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Languages, Check } from "lucide-react";
@@ -13,6 +13,7 @@ function writeLocaleCookie(next: Locale) {
 }
 
 export default function LanguageSwitcher() {
+    const t = useTranslations("common");
     const router = useRouter();
     const current = useLocale();
     const [isPending, startTransition] = useTransition();
@@ -32,7 +33,7 @@ export default function LanguageSwitcher() {
             <DropdownMenu.Trigger asChild>
                 <button
                     type="button"
-                    aria-label="Language"
+                    aria-label={t("language")}
                     disabled={isPending}
                     className="flex-none inline-flex items-center gap-1 px-1.5 h-8 rounded-md cursor-pointer hover:bg-background-hover text-(--foreground-dim) hover:text-foreground transition-colors text-[11px] font-semibold tracking-wider"
                 >

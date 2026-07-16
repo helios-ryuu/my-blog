@@ -7,13 +7,17 @@ export async function listTags(supabase: SupabaseClient): Promise<DbTag[]> {
     return (data ?? []) as DbTag[];
 }
 
-export async function getTagById(
-    supabase: SupabaseClient,
-    id: number,
-): Promise<DbTag | null> {
+export async function getTagById(supabase: SupabaseClient, id: number): Promise<DbTag | null> {
     const { data, error } = await supabase.from("tag").select("*").eq("id", id).maybeSingle();
     if (error) throw new Error(error.message);
     return (data as DbTag) ?? null;
+}
+
+export async function tagIdsExist(supabase: SupabaseClient, ids: number[]): Promise<boolean> {
+    if (ids.length === 0) return true;
+    const { data, error } = await supabase.from("tag").select("id").in("id", ids);
+    if (error) throw new Error(error.message);
+    return new Set((data ?? []).map((tag) => Number(tag.id))).size === new Set(ids).size;
 }
 
 export async function createTag(

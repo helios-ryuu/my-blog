@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { revalidateTag, revalidatePath } from "next/cache";
 
-export type ApiResponse<T> =
-    | { success: true; data: T; message?: string }
-    | { success: false; message: string };
+export class HttpError extends Error {
+    constructor(public readonly status: number, message: string) {
+        super(message);
+        this.name = "HttpError";
+    }
+}
 
 export function apiSuccess<T>(data: T, message?: string): NextResponse {
     return NextResponse.json({ success: true, data, ...(message ? { message } : {}) });
@@ -22,8 +25,8 @@ export async function parseIdParam(
     entityName = "ID",
 ): Promise<number | NextResponse> {
     const { id } = await params;
-    const parsed = parseInt(id, 10);
-    if (Number.isNaN(parsed)) {
+    const parsed = Number(id);
+    if (!/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(parsed)) {
         return apiError(`Invalid ${entityName}`, 400);
     }
     return parsed;
@@ -36,19 +39,28 @@ export function revalidatePosts(slug?: string): void {
     revalidatePath("/post");
 }
 
-export function revalidateContests(slug?: string): void {
-    revalidateTag("contests", "max");
-    if (slug) revalidateTag(`contest-${slug}`, "max");
-    revalidatePath("/contests");
-}
-
 export function revalidateTags(): void {
     revalidateTag("tags", "max");
+    revalidatePosts();
+}
+
+export function revalidateCategories(): void {
+    revalidateTag("categories", "max");
+    revalidatePath("/about");
+    revalidatePath("/category/[type]", "page");
+    revalidatePosts();
+}
+
+export function revalidateSeries(): void {
+    revalidateTag("series", "max");
+    revalidatePosts();
 }
 
 export function handleRouteError(err: unknown): NextResponse {
+    if (err instanceof HttpError) return apiError(err.message, err.status);
     const message = err instanceof Error ? err.message : "Unknown error";
     if (message === "UNAUTHORIZED") return apiError("Unauthorized", 401);
     if (message === "FORBIDDEN") return apiError("Forbidden", 403);
-    return apiError(message, 500);
+    console.error("API route error:", err);
+    return apiError("Internal server error", 500);
 }

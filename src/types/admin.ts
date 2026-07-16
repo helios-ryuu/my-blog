@@ -1,9 +1,24 @@
 /**
  * Shared admin types — used across admin forms, sections, and selectors.
- * Mirrors the new Supabase schema (no author/series; category enum).
+ * Mirrors the Supabase schema used by the CMS.
  */
 
-import type { PostCategory } from "./database";
+import {
+    POST_LEVELS,
+    type DbCategory,
+    type DbSeries,
+    type PostCategory,
+    type PostLevel,
+    type PostType,
+} from "./database";
+
+export interface AdminCategory extends DbCategory {
+    post_count: number;
+}
+
+export interface AdminSeries extends DbSeries {
+    post_count: number;
+}
 
 export interface AdminTag {
     id: number;
@@ -20,16 +35,21 @@ export interface AdminPost {
     content?: string;
     image_url?: string | null;
     category: PostCategory;
+    level: PostLevel;
+    reading_time: number;
+    type: PostType;
+    series_id: number | null;
+    series_order: number | null;
+    series?: DbSeries | null;
     published: boolean;
     published_at?: string | null;
-    tags?: string[];
+    tags?: AdminTag[];
     created_at?: string;
     updated_at?: string | null;
     [key: string]: unknown;
 }
 
-export const CATEGORIES: PostCategory[] = ["news", "announcement", "tutorial", "result"];
-export const STATUSES = ["all", "published", "draft"] as const;
+export const LEVELS = POST_LEVELS;
 
 export const CHAR_LIMITS = {
     title: 120,

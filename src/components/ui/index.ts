@@ -1,9 +1,4 @@
 export { default as Button } from "./Button";
-export { default as CodeBlock } from "./CodeBlock";
-export { default as FadeText } from "./FadeText";
 export { default as IconButton } from "./IconButton";
-export { default as SocialButton } from "./SocialButton";
 export { default as TagList } from "./TagList";
-export { default as Select } from "./Select";
-export { default as MultiSelect } from "./MultiSelect";
 export { default as PixelBlast } from "./PixelBlast";

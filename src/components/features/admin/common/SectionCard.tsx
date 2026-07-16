@@ -1,14 +1,7 @@
 "use client";
 
-import { Filter } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { FormSelectDropdown } from "./FormFields";
-
-interface SelectOption {
-    value: string | number;
-    label: string;
-}
 
 interface SectionCardProps {
     // Required
@@ -25,25 +18,17 @@ interface SectionCardProps {
     onClick?: () => void;
     icon?: LucideIcon;
 
-    // Optional - select dropdown
-    selectKey?: number;
-    selectValue?: string;
-    selectPlaceholder?: string;
-    selectOptions?: SelectOption[];
-    onSelectChange?: (value: string) => void;
-    selectDisabled?: boolean;
-
     // Optional - button
     buttonText?: string;
     buttonVariant?: "default" | "danger";
     buttonDisabled?: boolean;
     onButtonClick?: () => void;
 
-    // Optional - advanced select icon button (shown next to dropdown)
-    onSecondaryButtonClick?: () => void;
-
     // Optional - legend/footer text
     legend?: ReactNode;
+
+    // Optional - custom control rendered before the action button
+    children?: ReactNode;
 }
 
 export function SectionCard({
@@ -53,18 +38,12 @@ export function SectionCard({
     colorVariant = "accent",
     onClick,
     icon: Icon,
-    selectKey,
-    selectValue,
-    selectPlaceholder = "Select...",
-    selectOptions,
-    onSelectChange,
     buttonText,
     buttonVariant = "default",
     buttonDisabled = false,
     onButtonClick,
-    selectDisabled,
-    onSecondaryButtonClick,
     legend,
+    children,
 }: SectionCardProps) {
     // Color classes based on variant
     const colorClasses = {
@@ -111,12 +90,6 @@ export function SectionCard({
         }`
         : `w-full px-3 py-2 text-white text-sm rounded-md transition-colors ${variantButtonClasses[colorVariant]}`;
 
-    const secondaryButtonClasses = {
-        accent: "bg-accent/20 text-accent hover:bg-accent/40",
-        blue: "bg-blue-500/20 text-blue-500 hover:bg-blue-500/40",
-        red: "bg-red-500/20 text-red-500 hover:bg-red-500/40",
-    };
-
     return (
         <div className={`p-4 rounded-lg border transition-colors ${colorClasses[colorVariant]} ${className}`}>
             {Icon ? (
@@ -131,27 +104,8 @@ export function SectionCard({
             )}
             <p className="text-sm text-foreground/60 mb-3">{description}</p>
 
-            {selectOptions && (
-                <div className={`flex gap-2 ${buttonText ? "mb-2" : ""}`}>
-                    <FormSelectDropdown
-                        key={selectKey}
-                        className="flex-1"
-                        value={selectValue}
-                        placeholder={selectPlaceholder}
-                        options={selectOptions}
-                        onChange={onSelectChange}
-                        disabled={selectDisabled}
-                    />
-                    {onSecondaryButtonClick && (
-                        <button
-                            onClick={onSecondaryButtonClick}
-                            className={`px-3 py-2 rounded-md transition-colors cursor-pointer flex items-center justify-center ${secondaryButtonClasses[colorVariant]}`}
-                            title="Advanced Select"
-                        >
-                            <Filter size={16} />
-                        </button>
-                    )}
-                </div>
+            {children && (
+                <div className={buttonText ? "mb-2" : ""}>{children}</div>
             )}
 
             {buttonText && onButtonClick && (

@@ -12,12 +12,11 @@ export function usePostShareInteractions(slug: string) {
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
     const [showQRPopup, setShowQRPopup] = useState(false);
     const [linkCopied, setLinkCopied] = useState(false);
+    const [postUrl, setPostUrl] = useState(`/post/${slug}`);
     const longPressTimer = useRef<NodeJS.Timeout | null>(null);
     const touchMoved = useRef(false);
 
-    const postUrl = typeof window !== "undefined"
-        ? `${window.location.origin}/post/${slug}`
-        : `/post/${slug}`;
+    const absolutePostUrl = useCallback(() => `${window.location.origin}/post/${slug}`, [slug]);
 
     const handleContextMenu = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
@@ -55,11 +54,12 @@ export function usePostShareInteractions(slug: string) {
 
     const handleCopyLink = useCallback(async () => {
         try {
+            const url = absolutePostUrl();
             if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(postUrl);
+                await navigator.clipboard.writeText(url);
             } else {
                 const textarea = document.createElement('textarea');
-                textarea.value = postUrl;
+                textarea.value = url;
                 textarea.style.position = 'fixed';
                 textarea.style.left = '-9999px';
                 textarea.style.top = '-9999px';
@@ -82,19 +82,20 @@ export function usePostShareInteractions(slug: string) {
         } catch (err) {
             console.error("Failed to copy link:", err);
         }
-    }, [postUrl]);
+    }, [absolutePostUrl]);
 
     const handleOpenQRPopup = useCallback(() => {
+        setPostUrl(absolutePostUrl());
         setContextMenu(null);
         setShowQRPopup(true);
-    }, []);
+    }, [absolutePostUrl]);
 
     const handleCloseQRPopup = useCallback(() => {
         setShowQRPopup(false);
     }, []);
 
     const handleDownloadMarkdown = useCallback(() => {
-        const downloadUrl = `/api/post/${slug}/download?format=md`;
+        const downloadUrl = `/api/posts/${slug}/download`;
         const link = document.createElement("a");
         link.href = downloadUrl;
         link.download = `${slug}.md`;

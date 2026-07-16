@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { EffectComposer, RenderPass } from "postprocessing";
 import * as THREE from "three";
 
 type PixelBlastVariant = "square" | "circle" | "triangle" | "diamond";
@@ -237,6 +236,7 @@ export default function PixelBlast({
         const renderer = new THREE.WebGLRenderer({
             antialias,
             alpha: transparent,
+            preserveDrawingBuffer: true,
             powerPreference: "high-performance",
         });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -282,11 +282,6 @@ export default function PixelBlast({
         const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
         scene.add(quad);
 
-        const composer = new EffectComposer(renderer);
-        const renderPass = new RenderPass(scene, camera);
-        renderPass.renderToScreen = true;
-        composer.addPass(renderPass);
-
         const bufferSize = new THREE.Vector2();
         const resize = () => {
             const width = Math.max(1, container.clientWidth);
@@ -295,7 +290,6 @@ export default function PixelBlast({
             renderer.getDrawingBufferSize(bufferSize);
             uniforms.uResolution.value.copy(bufferSize);
             uniforms.uPixelSize.value = pixelSize * renderer.getPixelRatio();
-            composer.setSize(bufferSize.x, bufferSize.y);
         };
         resize();
 
@@ -338,7 +332,7 @@ export default function PixelBlast({
             timer.update(timestamp);
             if (!autoPauseOffscreen || visibleRef.current) {
                 uniforms.uTime.value = timeOffset + timer.getElapsed();
-                composer.render();
+                renderer.render(scene, camera);
             }
             raf = requestAnimationFrame(animate);
         };
@@ -351,7 +345,6 @@ export default function PixelBlast({
             observer.disconnect();
             intersectionObserver.disconnect();
             timer.dispose();
-            composer.dispose();
             quad.geometry.dispose();
             material.dispose();
             renderer.dispose();

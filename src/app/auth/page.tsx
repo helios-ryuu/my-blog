@@ -1,118 +1,81 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import { LockKeyhole, LogIn } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useUser } from "@/contexts/UserContext";
 import { useToast } from "@/components/ui/Toast";
-
-const USERNAME_RE = /^[A-Za-z0-9_]{6,30}$/;
-const PASSWORD_RE = /^\S{8,}$/;
+import { useUser } from "@/contexts/UserContext";
+import { useTranslations } from "next-intl";
 
 export default function AuthPage() {
-    return (
-        <Suspense fallback={null}>
-            <AuthPageInner />
-        </Suspense>
-    );
+    return <Suspense fallback={null}><AuthPageInner /></Suspense>;
 }
 
 function AuthPageInner() {
+    const t = useTranslations("auth");
     const { user, refresh } = useUser();
     const router = useRouter();
     const searchParams = useSearchParams();
     const { showToast } = useToast();
-    const next = searchParams.get("next") ?? "/";
-    const errorParam = searchParams.get("error");
+    const requestedNext = searchParams.get("next");
+    const next = requestedNext?.startsWith("/") && !requestedNext.startsWith("//")
+        ? requestedNext
+        : "/admin";
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const usernameError = username.length > 0 && !USERNAME_RE.test(username) ? "Username chỉ gồm chữ, số, dấu gạch dưới và tối thiểu 6 ký tự." : "";
-    const passwordError = password.length > 0 && !PASSWORD_RE.test(password) ? "Password tối thiểu 8 ký tự và không có dấu cách." : "";
 
     useEffect(() => {
         if (user) router.replace(next);
-    }, [user, router, next]);
+    }, [next, router, user]);
 
-    useEffect(() => {
-        if (errorParam) showToast("error", decodeURIComponent(errorParam));
-    }, [errorParam, showToast]);
-
-    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        if (!USERNAME_RE.test(username) || !PASSWORD_RE.test(password)) {
-            showToast("warning", "Vui lòng kiểm tra lại username/password.");
-            return;
-        }
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!username.trim() || !password) return;
         setIsLoading(true);
         try {
-            const res = await fetch("/api/auth/login", {
+            const response = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ username: username.trim(), password }),
             });
-            const json = await res.json();
-            if (!json.success) {
-                showToast("error", json.message || "Đăng nhập thất bại.");
-                return;
-            }
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message || t("failed"));
             await refresh();
             router.replace(next);
             router.refresh();
-        } catch {
-            showToast("error", "Không thể đăng nhập. Vui lòng thử lại.");
+        } catch (error) {
+            showToast("error", error instanceof Error ? error.message : t("failed"));
         } finally {
             setIsLoading(false);
         }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
-            <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
-                <div className="space-y-2">
-                    <h1 className="text-2xl font-semibold">Đăng nhập</h1>
-                    <p className="text-sm text-foreground/60">
-                        Sử dụng tài khoản do quản trị viên cấp để tiếp tục.
-                    </p>
-                </div>
-
+        <main className="flex min-h-[calc(100vh-7rem)] items-center justify-center px-4 py-12">
+            <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
+                <header>
+                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded border border-accent/35 bg-accent/10 text-accent">
+                        <LockKeyhole className="h-5 w-5" />
+                    </div>
+                    <h1 className="text-2xl font-semibold">{t("title")}</h1>
+                    <p className="mt-2 text-sm leading-relaxed text-foreground/55">{t("description")}</p>
+                </header>
                 <div className="space-y-3">
                     <label className="block text-sm text-foreground/70">
-                        Username
-                        <input
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            autoComplete="username"
-                            className={`mt-1 w-full rounded-md border bg-background px-3 py-2 text-foreground outline-none focus:ring-2 ${
-                                usernameError ? "border-red-500 focus:ring-red-500/50" : "border-(--border-color) focus:ring-accent/50"
-                            }`}
-                            required
-                        />
-                        {usernameError && <span className="mt-1 block text-xs text-red-500">{usernameError}</span>}
+                        {t("username")}
+                        <input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" className="mt-1 h-10 w-full rounded border border-(--border-color) bg-background px-3 outline-none focus:border-accent focus:ring-1 focus:ring-accent" required autoFocus />
                     </label>
                     <label className="block text-sm text-foreground/70">
-                        Password
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            autoComplete="current-password"
-                            className={`mt-1 w-full rounded-md border bg-background px-3 py-2 text-foreground outline-none focus:ring-2 ${
-                                passwordError ? "border-red-500 focus:ring-red-500/50" : "border-(--border-color) focus:ring-accent/50"
-                            }`}
-                            required
-                        />
-                        {passwordError && <span className="mt-1 block text-xs text-red-500">{passwordError}</span>}
+                        {t("password")}
+                        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" className="mt-1 h-10 w-full rounded border border-(--border-color) bg-background px-3 outline-none focus:border-accent focus:ring-1 focus:ring-accent" required />
                     </label>
                 </div>
-
-                <button
-                    type="submit"
-                    disabled={isLoading || !!usernameError || !!passwordError}
-                    className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-md border border-(--border-color) text-sm font-medium hover:bg-foreground/5 disabled:opacity-50 transition-colors cursor-pointer disabled:cursor-not-allowed"
-                >
-                    {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+                <button type="submit" disabled={isLoading} className="inline-flex h-10 w-full items-center justify-center gap-2 rounded border border-accent bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">
+                    <LogIn className="h-4 w-4" />
+                    {isLoading ? t("submitting") : t("submit")}
                 </button>
             </form>
-        </div>
+        </main>
     );
 }

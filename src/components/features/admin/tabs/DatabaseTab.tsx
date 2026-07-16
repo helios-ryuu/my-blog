@@ -8,13 +8,15 @@ import { Button } from "../common/Button";
 import { useToast } from "../../../ui/Toast";
 
 interface TableData {
-    users: Record<string, unknown>[];
     post: Record<string, unknown>[];
+    category: Record<string, unknown>[];
+    series: Record<string, unknown>[];
     tag: Record<string, unknown>[];
     post_tags: Record<string, unknown>[];
+    site_settings: Record<string, unknown>[];
 }
 
-const EMPTY: TableData = { users: [], post: [], tag: [], post_tags: [] };
+const EMPTY: TableData = { post: [], category: [], series: [], tag: [], post_tags: [], site_settings: [] };
 
 export default function DatabaseTab() {
     const { showToast } = useToast();
@@ -57,55 +59,85 @@ export default function DatabaseTab() {
             </div>
 
             <DataTable
-                title="Users"
-                isLoading={isLoading}
-                data={data.users}
-                columns={[
-                    { key: "id", label: "ID" },
-                    { key: "username", label: "Username" },
-                    { key: "full_name", label: "Full name" },
-                    { key: "email", label: "Email" },
-                    { key: "phone", label: "Phone" },
-                    { key: "role", label: "Role" },
-                    { key: "school", label: "School" },
-                    { key: "created_at", label: "Created at" },
-                ]}
-            />
-
-            <DataTable
-                title="Posts"
+                title={t("dbPosts")}
                 isLoading={isLoading}
                 data={data.post}
                 columns={[
                     { key: "id", label: "ID" },
-                    { key: "title", label: "Title" },
+                    { key: "title", label: t("dbTitle") },
                     { key: "slug", label: "Slug" },
-                    { key: "category", label: "Category" },
-                    { key: "published", label: "Published" },
-                    { key: "published_at", label: "Published at" },
-                    { key: "created_at", label: "Created at" },
+                    { key: "category", label: t("dbCategory") },
+                    { key: "level", label: t("dbLevel") },
+                    { key: "reading_time", label: t("dbReadingTime") },
+                    { key: "series_id", label: t("dbSeriesId") },
+                    { key: "series_order", label: t("dbSeriesOrder") },
+                    { key: "published", label: t("dbPublished") },
+                    { key: "published_at", label: t("dbPublishedAt") },
+                    { key: "created_at", label: t("dbCreatedAt") },
                 ]}
             />
 
             <DataTable
-                title="Tags"
+                title={t("dbCategories")}
+                isLoading={isLoading}
+                data={data.category}
+                columns={[
+                    { key: "id", label: "ID" },
+                    { key: "icon", label: t("categoryIcon") },
+                    { key: "name", label: t("dbName") },
+                    { key: "slug", label: "Slug" },
+                    { key: "description", label: t("fieldDescription") },
+                    { key: "examples", label: t("categoryExamples") },
+                    { key: "display_order", label: t("categoryOrder") },
+                    { key: "updated_at", label: t("dbUpdatedAt") },
+                ]}
+            />
+
+            <DataTable
+                title={t("dbSeries")}
+                isLoading={isLoading}
+                data={data.series}
+                columns={[
+                    { key: "id", label: "ID" },
+                    { key: "name", label: t("dbName") },
+                    { key: "slug", label: "Slug" },
+                    { key: "description", label: t("fieldDescription") },
+                    { key: "created_at", label: t("dbCreatedAt") },
+                    { key: "updated_at", label: t("dbUpdatedAt") },
+                ]}
+            />
+
+            <DataTable
+                title={t("dbTags")}
                 isLoading={isLoading}
                 data={data.tag}
                 columns={[
                     { key: "id", label: "ID" },
-                    { key: "name", label: "Name" },
+                    { key: "name", label: t("dbName") },
                     { key: "slug", label: "Slug" },
-                    { key: "created_at", label: "Created at" },
+                    { key: "created_at", label: t("dbCreatedAt") },
                 ]}
             />
 
             <DataTable
-                title="Post ↔ Tags"
+                title={t("dbPostTags")}
                 isLoading={isLoading}
                 data={data.post_tags}
                 columns={[
-                    { key: "post_id", label: "Post ID" },
-                    { key: "tag_id", label: "Tag ID" },
+                    { key: "post_id", label: t("dbPostId") },
+                    { key: "tag_id", label: t("dbTagId") },
+                ]}
+            />
+
+            <DataTable
+                title={t("dbSiteSettings")}
+                isLoading={isLoading}
+                data={data.site_settings}
+                columns={[
+                    { key: "key", label: t("dbKey") },
+                    { key: "value", label: t("dbValue") },
+                    { key: "is_public", label: t("dbPublic") },
+                    { key: "updated_at", label: t("dbUpdatedAt") },
                 ]}
             />
         </div>

@@ -1,21 +1,35 @@
-// Database row types — mirror the Supabase schema in supabase/schema.sql.
+// Database row types - mirror the Supabase schema in supabase/schema.sql.
 
-export type PostCategory = "news" | "announcement" | "tutorial" | "result";
-export type UserRoleDb = "user" | "admin";
-export type ContestParticipationType = "individual" | "team" | "both";
-export type ContestStatus = "draft" | "active" | "closed" | "cancelled";
-export type RegistrationStatus = "pending" | "approved" | "rejected" | "withdrawn";
-export type MemberRole = "leader" | "member";
+export type PostCategory = string;
+export const POST_TYPES = ["standalone", "series"] as const;
+export type PostType = (typeof POST_TYPES)[number];
 
-export interface DbUser {
-    id: string;
-    username: string;
-    password: string;
-    full_name: string;
-    email: string | null;
-    phone: string | null;
-    school: string | null;
-    role: UserRoleDb;
+export const POST_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+export type PostLevel = (typeof POST_LEVELS)[number];
+
+export const POST_LEVEL_LABEL_KEYS: Record<PostLevel, "levelBeginner" | "levelIntermediate" | "levelAdvanced"> = {
+    beginner: "levelBeginner",
+    intermediate: "levelIntermediate",
+    advanced: "levelAdvanced",
+};
+
+export interface DbCategory {
+    id: number;
+    name: string;
+    slug: string;
+    icon: string | null;
+    description: string;
+    examples: string;
+    display_order: number;
+    created_at: string;
+    updated_at: string | null;
+}
+
+export interface DbSeries {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
     created_at: string;
     updated_at: string | null;
 }
@@ -28,6 +42,10 @@ export interface DbPost {
     content: string;
     image_url: string | null;
     category: PostCategory;
+    level: PostLevel;
+    reading_time: number;
+    series_id: number | null;
+    series_order: number | null;
     published: boolean;
     published_at: string | null;
     created_at: string;
@@ -41,111 +59,16 @@ export interface DbTag {
     created_at: string;
 }
 
-export interface DbPostTag {
-    post_id: number;
-    tag_id: number;
-    created_at: string;
-}
-
 export interface DbPostWithRelations extends DbPost {
     tags: DbTag[];
+    series: DbSeries | null;
+    type: PostType;
 }
 
-export interface DbContest {
-    id: number;
-    slug: string;
-    title: string;
-    description: string;
-    rules: string | null;
-    cover_image_url: string | null;
-    participation_type: ContestParticipationType;
-    min_team_size: number;
-    max_team_size: number;
-    start_at: string;
-    end_at: string;
-    status: ContestStatus;
-    created_at: string;
-    updated_at: string | null;
-}
+export type DbPostSummary = Omit<DbPost, "content">;
 
-export interface DbContestStage {
-    id: number;
-    contest_id: number;
-    name: string;
-    description: string | null;
-    start_at: string;
-    end_at: string;
-    allow_registration: boolean;
-    allow_submission: boolean;
-    submission_type: string | null;
-    prompt_text: string | null;
-    display_order: number;
-    created_at: string;
-    updated_at: string | null;
-}
-
-export type ContestWithStages = DbContest & { stages: DbContestStage[] };
-
-export interface DbContestRegistration {
-    id: number;
-    contest_id: number;
-    team_code: string;
-    team_name: string | null;
-    level: string | null;
-    status: RegistrationStatus;
-    registered_at: string;
-    updated_at: string | null;
-}
-
-export interface DbRegistrationMember {
-    registration_id: number;
-    user_id: string;
-    role: MemberRole;
-    joined_at: string;
-}
-
-export interface DbSubmission {
-    id: number;
-    registration_id: number;
-    storage_path: string;
-    file_name: string;
-    file_size_bytes: number;
-    mime_type: string;
-    note: string | null;
-    submitted_by: string;
-    submitted_at: string;
-    is_final: boolean;
-}
-
-// Minimal Supabase Database typings used by supabase-js helpers.
-type Row<T> = T;
-type Insert<T> = Partial<T>;
-type Update<T> = Partial<T>;
-
-export interface Database {
-    public: {
-        Tables: {
-            users: { Row: Row<DbUser>; Insert: Insert<DbUser>; Update: Update<DbUser> };
-            post: { Row: Row<DbPost>; Insert: Insert<DbPost>; Update: Update<DbPost> };
-            tag: { Row: Row<DbTag>; Insert: Insert<DbTag>; Update: Update<DbTag> };
-            post_tags: { Row: Row<DbPostTag>; Insert: Insert<DbPostTag>; Update: Update<DbPostTag> };
-            contest: { Row: Row<DbContest>; Insert: Insert<DbContest>; Update: Update<DbContest> };
-            contest_stage: { Row: Row<DbContestStage>; Insert: Insert<DbContestStage>; Update: Update<DbContestStage> };
-            contest_registration: { Row: Row<DbContestRegistration>; Insert: Insert<DbContestRegistration>; Update: Update<DbContestRegistration> };
-            registration_member: { Row: Row<DbRegistrationMember>; Insert: Insert<DbRegistrationMember>; Update: Update<DbRegistrationMember> };
-            submission: { Row: Row<DbSubmission>; Insert: Insert<DbSubmission>; Update: Update<DbSubmission> };
-        };
-        Views: Record<string, never>;
-        Functions: {
-            is_admin: { Args: Record<string, never>; Returns: boolean };
-        };
-        Enums: {
-            user_role: UserRoleDb;
-            post_category: PostCategory;
-            contest_participation_type: ContestParticipationType;
-            contest_status: ContestStatus;
-            registration_status: RegistrationStatus;
-            member_role: MemberRole;
-        };
-    };
+export interface DbPostSummaryWithRelations extends DbPostSummary {
+    tags: DbTag[];
+    series: DbSeries | null;
+    type: PostType;
 }

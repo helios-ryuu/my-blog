@@ -16,7 +16,7 @@ export default async function BucketPage() {
                         </p>
                     </header>
                     <div className="flex-1 overflow-hidden">
-                        <BucketManager initialBucket="post-images" allowBucketSwitch mode="manage" />
+                        <BucketManager mode="manage" />
                     </div>
                 </div>
             </div>

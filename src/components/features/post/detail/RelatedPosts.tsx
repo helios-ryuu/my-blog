@@ -4,18 +4,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { shouldBypassImageOptimization } from "@/lib/images";
 import type { PostMeta } from "@/types/post";
+import { useTranslations } from "next-intl";
 
 interface RelatedPostsProps {
     posts: PostMeta[];
 }
 
 export default function RelatedPosts({ posts }: RelatedPostsProps) {
+    const t = useTranslations("post");
     if (posts.length === 0) return null;
 
     return (
         <aside className="sticky">
-            <h4 className="text-sm font-semibold text-foreground/70 mb-4 uppercase tracking-wider">
-                Related Posts
+            <h4 className="text-sm font-semibold text-foreground/70 my-4 uppercase tracking-wider">
+                {t("relatedPosts")}
             </h4>
             <div className="space-y-4">
                 {posts.slice(0, 3).map((post) => (
@@ -41,7 +43,7 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
                                     {post.title}
                                 </h5>
                                 <p className="text-[10px] text-foreground/50 mt-1">
-                                    {post.date}
+                                    {post.date} · {t("readingMinutes", { count: post.readingTime })}
                                 </p>
                             </div>
                         </article>

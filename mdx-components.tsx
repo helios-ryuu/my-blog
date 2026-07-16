@@ -146,7 +146,7 @@ function Video({ src, title }: { src: string; title?: string }) {
     );
 }
 
-export function createMDXComponents(components: MDXComponents = {}): MDXComponents {
+function createMDXComponents(components: MDXComponents = {}): MDXComponents {
     return {
         h1: ({ children }) => (
             <h1 className="text-4xl font-bold mt-8 mb-4">{children}</h1>
@@ -265,13 +265,13 @@ export function createMDXComponents(components: MDXComponents = {}): MDXComponen
         tr: ({ children }) => (
             <tr className="border-b border-(--border-color)">{children}</tr>
         ),
-        th: ({ children }) => (
-            <th className="px-4 py-2 text-left font-semibold border-r border-(--border-color) last:border-r-0">
+        th: ({ children, ...props }) => (
+            <th {...props} className="px-4 py-2 text-left font-semibold border-r border-(--border-color) last:border-r-0">
                 {children}
             </th>
         ),
-        td: ({ children }) => (
-            <td className="text-sm px-4 py-2 border-r border-(--border-color) last:border-r-0">
+        td: ({ children, ...props }) => (
+            <td {...props} className="text-sm px-4 py-2 border-r border-(--border-color) last:border-r-0">
                 {children}
             </td>
         ),
@@ -305,7 +305,6 @@ export function createMDXComponents(components: MDXComponents = {}): MDXComponen
         YouTube,
         Video,
         ...components,
-        // TODO: Add graph element using react-flow-renderer
     };
 }
 

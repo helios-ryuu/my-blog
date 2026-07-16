@@ -5,12 +5,14 @@ import PostCardContextMenu from "../card/PostCardContextMenu";
 import ShareQRPopup from "./PostShareQRPopup";
 import { usePostShareInteractions } from "@/hooks/usePostShareInteractions";
 import type { Post } from "@/types/post";
+import { useTranslations } from "next-intl";
 
 interface PostShareActionsProps {
     post: Post;
 }
 
 export default function PostShareActions({ post }: PostShareActionsProps) {
+    const t = useTranslations("post");
     const {
         contextMenu, showQRPopup, linkCopied, postUrl,
         handleContextMenu, handleCloseMenu, handleCopyLink,
@@ -30,7 +32,7 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
                 `}
             >
                 <Share2 className="w-4 h-4" />
-                Share this post
+                {t("shareThisPost")}
             </button>
 
             {/* Context Menu */}
@@ -38,7 +40,6 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
                 <PostCardContextMenu
                     x={contextMenu.x}
                     y={contextMenu.y}
-                    postUrl={postUrl}
                     onClose={handleCloseMenu}
                     onShareQR={handleOpenQRPopup}
                     linkCopied={linkCopied}
@@ -58,6 +59,10 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
                     level={post.level}
                     tags={post.tags}
                     category={post.category}
+                    categoryName={post.categoryName}
+                    categoryIcon={post.categoryIcon}
+                    type={post.type}
+                    seriesOrder={post.seriesOrder}
                     postUrl={postUrl}
                     onClose={handleCloseQRPopup}
                 />
