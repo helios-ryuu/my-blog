@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { Download, Copy, X, Check } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { toPng } from "html-to-image";
+import { toBlob } from "html-to-image";
 import Image from "next/image";
 
 import { useTranslations } from "next-intl";
@@ -33,6 +33,32 @@ interface ShareQRPopupProps {
     onClose: () => void;
 }
 
+const TRANSPARENT_PIXEL =
+    "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
+function getCaptureImageUrl(src: string): string {
+    return /^https?:\/\//i.test(src)
+        ? `/api/media/share?url=${encodeURIComponent(src)}`
+        : src;
+}
+
+function isIosDevice(): boolean {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+function downloadBlob(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = fileName;
+    link.href = url;
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+}
+
 export default function ShareQRPopup({
     image,
     title,
@@ -57,6 +83,7 @@ export default function ShareQRPopup({
     const tCommon = useTranslations("common");
 
     const toastShownRef = useRef(false);
+    const captureImageUrl = image ? getCaptureImageUrl(image) : undefined;
 
     useEscapeKey(onClose);
 
@@ -88,14 +115,30 @@ export default function ShareQRPopup({
             // Wait for all images to load before capturing
             await waitForImages(cardRef.current);
 
-            const dataUrl = await toPng(cardRef.current, {
-                quality: 1,
+            const blob = await toBlob(cardRef.current, {
                 pixelRatio: 2,
+                cacheBust: true,
+                imagePlaceholder: TRANSPARENT_PIXEL,
+                onImageErrorHandler: () => undefined,
             });
-            const link = document.createElement("a");
-            link.download = `${title.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-share.png`;
-            link.href = dataUrl;
-            link.click();
+            if (!blob) throw new Error("Unable to create the share image");
+
+            const fileName = `${title.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-share.png`;
+            const file = new File([blob], fileName, { type: "image/png" });
+            const canShareFile = isIosDevice()
+                && typeof navigator.share === "function"
+                && (!navigator.canShare || navigator.canShare({ files: [file] }));
+
+            if (canShareFile) {
+                try {
+                    await navigator.share({ files: [file], title });
+                } catch (error) {
+                    if (error instanceof DOMException && error.name === "AbortError") return;
+                    downloadBlob(blob, fileName);
+                }
+            } else {
+                downloadBlob(blob, fileName);
+            }
             showToast("success", t("imageDownloaded"));
         } catch (err) {
             console.error("Failed to generate image:", err);
@@ -111,11 +154,13 @@ export default function ShareQRPopup({
             // Wait for all images to load before capturing
             await waitForImages(cardRef.current);
 
-            const dataUrl = await toPng(cardRef.current, {
-                quality: 1,
+            const blob = await toBlob(cardRef.current, {
                 pixelRatio: 2,
+                cacheBust: true,
+                imagePlaceholder: TRANSPARENT_PIXEL,
+                onImageErrorHandler: () => undefined,
             });
-            const blob = await (await fetch(dataUrl)).blob();
+            if (!blob) throw new Error("Unable to create the share image");
             await navigator.clipboard.write([
                 new ClipboardItem({ "image/png": blob }),
             ]);
@@ -181,7 +226,7 @@ export default function ShareQRPopup({
                     <div className="relative w-full h-44 md:h-42 mb-4 rounded-xl overflow-hidden">
                         <div className="absolute -inset-1 blur-xl opacity-16 transform-gpu">
                             <Image
-                                src={image}
+                                src={captureImageUrl!}
                                 alt=""
                                 fill
                                 className="object-cover"
@@ -190,7 +235,7 @@ export default function ShareQRPopup({
                         </div>
                         <div className="relative w-full h-full z-10">
                             <Image
-                                src={image}
+                                src={captureImageUrl!}
                                 alt={title}
                                 fill
                                 className="object-cover"
