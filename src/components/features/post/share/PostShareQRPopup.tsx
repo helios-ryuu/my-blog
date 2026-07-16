@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { Download, Copy, X, Check } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toBlob } from "html-to-image";
@@ -58,6 +58,32 @@ function downloadBlob(blob: Blob, fileName: string): void {
     window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
 
+function blobToDataUrl(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(reader.error || new Error("Unable to read image data"));
+        reader.onload = () => resolve(String(reader.result));
+        reader.readAsDataURL(blob);
+    });
+}
+
+async function loadImageDataUrl(src: string): Promise<string> {
+    if (src.startsWith("data:")) return src;
+
+    const response = await fetch(src, { cache: "force-cache" });
+    if (!response.ok) throw new Error(`Unable to fetch image (${response.status})`);
+
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) {
+        throw new Error(`Unexpected image content type: ${blob.type || "unknown"}`);
+    }
+    return blobToDataUrl(blob);
+}
+
+function waitForPaint(): Promise<void> {
+    return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+}
+
 async function waitForImage(image: HTMLImageElement): Promise<void> {
     if (!image.complete) {
         await new Promise<void>((resolve, reject) => {
@@ -96,7 +122,7 @@ async function waitForImage(image: HTMLImageElement): Promise<void> {
 async function waitForCaptureAssets(element: HTMLElement): Promise<void> {
     await Promise.all(Array.from(element.querySelectorAll("img"), waitForImage));
     await document.fonts?.ready;
-    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    await waitForPaint();
 }
 
 export default function ShareQRPopup({
@@ -116,8 +142,10 @@ export default function ShareQRPopup({
     onClose,
 }: ShareQRPopupProps) {
     const cardRef = useRef<HTMLDivElement>(null);
+    const imagePreparationRef = useRef<Promise<string> | null>(null);
     const [copied, setCopied] = useState(false);
     const [downloading, setDownloading] = useState(false);
+    const [embeddedImageUrl, setEmbeddedImageUrl] = useState<string | null>(null);
     const { showToast } = useToast();
     const t = useTranslations("post");
     const tCommon = useTranslations("common");
@@ -133,13 +161,49 @@ export default function ShareQRPopup({
             toastShownRef.current = true;
         }
     }, [showToast, t]);
+
+    const prepareCaptureImage = useCallback(async (): Promise<string | null> => {
+        if (!captureImageUrl) return null;
+        if (embeddedImageUrl) return embeddedImageUrl;
+        if (imagePreparationRef.current) return imagePreparationRef.current;
+
+        const preparation = loadImageDataUrl(captureImageUrl);
+        imagePreparationRef.current = preparation;
+        try {
+            const dataUrl = await preparation;
+            setEmbeddedImageUrl(dataUrl);
+            return dataUrl;
+        } finally {
+            imagePreparationRef.current = null;
+        }
+    }, [captureImageUrl, embeddedImageUrl]);
+
+    useEffect(() => {
+        void prepareCaptureImage().catch((error) => {
+            console.error("Failed to prepare share image:", error);
+        });
+    }, [prepareCaptureImage]);
+
+    const prepareCapture = async (): Promise<HTMLElement> => {
+        if (image && !embeddedImageUrl) {
+            const preparedImage = await prepareCaptureImage();
+            if (!preparedImage) throw new Error("Unable to prepare the post image");
+            await waitForPaint();
+        }
+
+        const card = cardRef.current;
+        if (!card) throw new Error("Share card is not available");
+        await waitForCaptureAssets(card);
+        return card;
+    };
+
     const handleDownload = async () => {
         if (!cardRef.current || downloading) return;
         setDownloading(true);
         try {
-            await waitForCaptureAssets(cardRef.current);
+            const card = await prepareCapture();
 
-            const blob = await toBlob(cardRef.current, {
+            const blob = await toBlob(card, {
                 pixelRatio: 2,
             });
             if (!blob) throw new Error("Unable to create the share image");
@@ -172,9 +236,9 @@ export default function ShareQRPopup({
     const handleCopyToClipboard = async () => {
         if (!cardRef.current || copied) return;
         try {
-            await waitForCaptureAssets(cardRef.current);
+            const card = await prepareCapture();
 
-            const blob = await toBlob(cardRef.current, {
+            const blob = await toBlob(card, {
                 pixelRatio: 2,
             });
             if (!blob) throw new Error("Unable to create the share image");
@@ -241,25 +305,31 @@ export default function ShareQRPopup({
                 {/* Image */}
                 {image && (
                     <div className="relative w-full h-44 md:h-42 mb-4 rounded-xl overflow-hidden">
-                        <div className="absolute -inset-1 blur-xl opacity-16 transform-gpu">
-                            <Image
-                                src={captureImageUrl!}
-                                alt=""
-                                fill
-                                className="object-cover"
-                                unoptimized
-                            />
-                        </div>
-                        <div className="relative w-full h-full z-10">
-                            <Image
-                                src={captureImageUrl!}
-                                alt={title}
-                                fill
-                                className="object-cover"
-                                unoptimized
-                            />
-                            <div className="absolute inset-0 bg-linear-to-t from-background/25 via-transparent to-transparent" />
-                        </div>
+                        {embeddedImageUrl ? (
+                            <>
+                                <div className="absolute -inset-1 blur-xl opacity-16 transform-gpu">
+                                    <Image
+                                        src={embeddedImageUrl}
+                                        alt=""
+                                        fill
+                                        className="object-cover"
+                                        unoptimized
+                                    />
+                                </div>
+                                <div className="relative w-full h-full z-10">
+                                    <Image
+                                        src={embeddedImageUrl}
+                                        alt={title}
+                                        fill
+                                        className="object-cover"
+                                        unoptimized
+                                    />
+                                    <div className="absolute inset-0 bg-linear-to-t from-background/25 via-transparent to-transparent" />
+                                </div>
+                            </>
+                        ) : (
+                            <div className="h-full w-full animate-pulse bg-foreground/10" />
+                        )}
                     </div>
                 )}
 
