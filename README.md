@@ -115,8 +115,6 @@ Bucket có thể giữ private. Khi `R2_PUBLIC_URL` trống, ứng dụng tạo 
 
 Cấu hình hiện tại dùng `https://bucket-blog.helios.id.vn` làm custom domain của bucket `my-blog`.
 
-CORS không cần thiết cho luồng mặc định vì upload và đọc S3 đều diễn ra ở server.
-
 Media manager hỗ trợ tạo folder marker, upload, đổi tên và xoá. Folder vừa tạo được làm mới ngay trong danh sách; tên trống bị từ chối ở UI và API.
 
 ## Series
