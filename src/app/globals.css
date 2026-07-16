@@ -113,7 +113,7 @@ body {
 
 /* Global transitions for theme switching */
 * {
-  transition-property: background-color, border-color;
+  transition-property: color, background-color, border-color;
   transition-duration: 0.2s;
   transition-timing-function: ease-out;
 }

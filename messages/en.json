@@ -79,6 +79,7 @@
         "filterCategory": "Category",
         "filterType": "Type",
         "filterSort": "Sort",
+        "managePosts": "Manage posts",
         "filterAll": "All",
         "sortNewest": "Newest",
         "sortOldest": "Oldest",
