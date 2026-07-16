@@ -464,7 +464,7 @@
         "adminItems": [
             {
                 "q": "Tài khoản quản trị được cấu hình ở đâu?",
-                "a": "Username, password hoặc password hash và session secret được cấu hình qua biến môi trường. Ứng dụng không lưu hay quản lý tài khoản trong cơ sở dữ liệu."
+                "a": "Username, đúng một trong password hoặc password hash, và session secret được cấu hình qua biến môi trường. Ứng dụng không lưu hay quản lý tài khoản trong cơ sở dữ liệu."
             },
             {
                 "q": "Quy trình xuất bản bài viết là gì?",

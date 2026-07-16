@@ -11,7 +11,12 @@ export async function POST(req: NextRequest) {
         const password = typeof body.password === "string" ? body.password : "";
         if (!username || !password) return apiError("Username and password are required", 400);
         if (username.length > 200 || password.length > 1024) return apiError("Credentials are too long", 400);
-        if (!await verifyAdminCredentials(username, password)) {
+        const verification = await verifyAdminCredentials(username, password);
+        if (verification === "misconfigured") {
+            console.error("Admin authentication is misconfigured: configure exactly one valid password source");
+            return apiError("Authentication is temporarily unavailable", 503);
+        }
+        if (verification === "invalid_credentials") {
             return apiError("Invalid username or password", 401);
         }
 

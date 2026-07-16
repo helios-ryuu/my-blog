@@ -91,7 +91,7 @@ pnpm dev
 | `R2_SECRET_ACCESS_KEY` | Có | R2 API token secret access key |
 | `R2_PUBLIC_URL` | Không | Custom domain public của bucket |
 
-Chỉ cấu hình một trong `ADMIN_PASSWORD` và `ADMIN_PASSWORD_HASH`. Khi cả hai tồn tại, hash được ưu tiên.
+Chỉ cấu hình đúng một trong `ADMIN_PASSWORD` và `ADMIN_PASSWORD_HASH`. Ứng dụng trả `503` nếu cả hai cùng tồn tại, nếu cả hai cùng thiếu hoặc nếu hash không phải chuỗi SHA-256 gồm 64 ký tự hex.
 
 File `.env` đã nằm trong `.gitignore`. Trên máy Linux/macOS, nên giới hạn quyền đọc bằng `chmod 600 .env` vì file chứa credential server và khoá session.
 
@@ -100,6 +100,8 @@ Tạo password hash:
 ```bash
 printf '%s' 'your-password' | sha256sum
 ```
+
+Với Vercel Production, giữ `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` và `SESSION_SECRET`, đồng thời xóa `ADMIN_PASSWORD`. Thay đổi biến môi trường chỉ có hiệu lực sau khi redeploy production.
 
 Tạo session secret:
 

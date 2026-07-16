@@ -26,7 +26,8 @@
 ## Auth
 
 - Chỉ có một admin, cấu hình bằng `ADMIN_USERNAME`.
-- Mật khẩu dùng `ADMIN_PASSWORD_HASH` hoặc `ADMIN_PASSWORD`.
+- Mật khẩu dùng đúng một trong `ADMIN_PASSWORD_HASH` hoặc `ADMIN_PASSWORD`; cấu hình đồng thời cả hai bị từ chối.
+- `ADMIN_PASSWORD_HASH` phải là SHA-256 lowercase/uppercase hợp lệ gồm đúng 64 ký tự hex; server chuẩn hóa về lowercase trước khi so sánh.
 - Session dùng cookie HTTP-only, SameSite Lax và Secure ở production.
 - `SESSION_SECRET` là bắt buộc ở production.
 - Không có bảng tài khoản hoặc màn quản lý tài khoản.

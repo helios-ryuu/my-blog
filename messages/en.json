@@ -464,7 +464,7 @@
         "adminItems": [
             {
                 "q": "Where are admin credentials configured?",
-                "a": "The username, password or password hash, and session secret are environment variables. The app does not store or manage accounts in the database."
+                "a": "The username, exactly one of a password or password hash, and the session secret are environment variables. The app does not store or manage accounts in the database."
             },
             {
                 "q": "What is the publishing workflow?",

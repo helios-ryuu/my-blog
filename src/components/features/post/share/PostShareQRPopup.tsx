@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useEffect, useState } from "react";
-import { Download, Copy, X, Check } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import { Download, Copy, X, Check, Loader2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toBlob } from "html-to-image";
 import Image from "next/image";
@@ -34,6 +34,9 @@ interface ShareQRPopupProps {
 }
 
 const IMAGE_LOAD_TIMEOUT_MS = 15_000;
+const IMAGE_RETRY_DELAYS_MS = [0, 250, 750] as const;
+
+type CaptureStatus = "preparing" | "ready" | "error";
 
 function getCaptureImageUrl(src: string): string {
     return /^https?:\/\//i.test(src)
@@ -67,10 +70,10 @@ function blobToDataUrl(blob: Blob): Promise<string> {
     });
 }
 
-async function loadImageDataUrl(src: string): Promise<string> {
+async function fetchImageDataUrl(src: string, cache: RequestCache): Promise<string> {
     if (src.startsWith("data:")) return src;
 
-    const response = await fetch(src, { cache: "force-cache" });
+    const response = await fetch(src, { cache });
     if (!response.ok) throw new Error(`Unable to fetch image (${response.status})`);
 
     const blob = await response.blob();
@@ -78,6 +81,20 @@ async function loadImageDataUrl(src: string): Promise<string> {
         throw new Error(`Unexpected image content type: ${blob.type || "unknown"}`);
     }
     return blobToDataUrl(blob);
+}
+
+async function loadImageDataUrl(src: string): Promise<string> {
+    let lastError: unknown;
+    for (let attempt = 0; attempt < IMAGE_RETRY_DELAYS_MS.length; attempt += 1) {
+        const delay = IMAGE_RETRY_DELAYS_MS[attempt];
+        if (delay) await new Promise((resolve) => window.setTimeout(resolve, delay));
+        try {
+            return await fetchImageDataUrl(src, attempt === 0 ? "force-cache" : "reload");
+        } catch (error) {
+            lastError = error;
+        }
+    }
+    throw lastError instanceof Error ? lastError : new Error("Unable to load the post image");
 }
 
 function waitForPaint(): Promise<void> {
@@ -125,6 +142,22 @@ async function waitForCaptureAssets(element: HTMLElement): Promise<void> {
     await waitForPaint();
 }
 
+async function createShareBlob(element: HTMLElement): Promise<Blob> {
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+            await waitForCaptureAssets(element);
+            const blob = await toBlob(element, { pixelRatio: 2 });
+            if (!blob?.size) throw new Error("Unable to create the share image");
+            return blob;
+        } catch (error) {
+            lastError = error;
+            await waitForPaint();
+        }
+    }
+    throw lastError instanceof Error ? lastError : new Error("Unable to create the share image");
+}
+
 export default function ShareQRPopup({
     image,
     title,
@@ -142,10 +175,11 @@ export default function ShareQRPopup({
     onClose,
 }: ShareQRPopupProps) {
     const cardRef = useRef<HTMLDivElement>(null);
-    const imagePreparationRef = useRef<Promise<string> | null>(null);
     const [copied, setCopied] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [embeddedImageUrl, setEmbeddedImageUrl] = useState<string | null>(null);
+    const [preparedBlob, setPreparedBlob] = useState<Blob | null>(null);
+    const [captureStatus, setCaptureStatus] = useState<CaptureStatus>("preparing");
     const { showToast } = useToast();
     const t = useTranslations("post");
     const tCommon = useTranslations("common");
@@ -156,60 +190,68 @@ export default function ShareQRPopup({
     useEscapeKey(onClose);
 
     useEffect(() => {
-        if (!toastShownRef.current) {
+        let cancelled = false;
+        setPreparedBlob(null);
+        setCaptureStatus("preparing");
+
+        if (!captureImageUrl) {
+            setEmbeddedImageUrl(null);
+            return () => {
+                cancelled = true;
+            };
+        }
+
+        void loadImageDataUrl(captureImageUrl).then((dataUrl) => {
+            if (!cancelled) setEmbeddedImageUrl(dataUrl);
+        }).catch((error) => {
+            if (cancelled) return;
+            console.error("Failed to prepare post image:", error);
+            setCaptureStatus("error");
+            showToast("error", t("imageDownloadFailed"));
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [captureImageUrl, showToast, t]);
+
+    useEffect(() => {
+        if (image && !embeddedImageUrl) return;
+        const card = cardRef.current;
+        if (!card) return;
+
+        let cancelled = false;
+        setPreparedBlob(null);
+        setCaptureStatus("preparing");
+        void createShareBlob(card).then((blob) => {
+            if (cancelled) return;
+            setPreparedBlob(blob);
+            setCaptureStatus("ready");
+        }).catch((error) => {
+            if (cancelled) return;
+            console.error("Failed to generate share image:", error);
+            setCaptureStatus("error");
+            showToast("error", t("imageDownloadFailed"));
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [embeddedImageUrl, image, postUrl, showToast, t]);
+
+    useEffect(() => {
+        if (captureStatus === "ready" && !toastShownRef.current) {
             showToast("info", t("qrReady"));
             toastShownRef.current = true;
         }
-    }, [showToast, t]);
-
-    const prepareCaptureImage = useCallback(async (): Promise<string | null> => {
-        if (!captureImageUrl) return null;
-        if (embeddedImageUrl) return embeddedImageUrl;
-        if (imagePreparationRef.current) return imagePreparationRef.current;
-
-        const preparation = loadImageDataUrl(captureImageUrl);
-        imagePreparationRef.current = preparation;
-        try {
-            const dataUrl = await preparation;
-            setEmbeddedImageUrl(dataUrl);
-            return dataUrl;
-        } finally {
-            imagePreparationRef.current = null;
-        }
-    }, [captureImageUrl, embeddedImageUrl]);
-
-    useEffect(() => {
-        void prepareCaptureImage().catch((error) => {
-            console.error("Failed to prepare share image:", error);
-        });
-    }, [prepareCaptureImage]);
-
-    const prepareCapture = async (): Promise<HTMLElement> => {
-        if (image && !embeddedImageUrl) {
-            const preparedImage = await prepareCaptureImage();
-            if (!preparedImage) throw new Error("Unable to prepare the post image");
-            await waitForPaint();
-        }
-
-        const card = cardRef.current;
-        if (!card) throw new Error("Share card is not available");
-        await waitForCaptureAssets(card);
-        return card;
-    };
+    }, [captureStatus, showToast, t]);
 
     const handleDownload = async () => {
-        if (!cardRef.current || downloading) return;
+        if (!preparedBlob || captureStatus !== "ready" || downloading) return;
         setDownloading(true);
         try {
-            const card = await prepareCapture();
-
-            const blob = await toBlob(card, {
-                pixelRatio: 2,
-            });
-            if (!blob) throw new Error("Unable to create the share image");
-
             const fileName = `${title.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-share.png`;
-            const file = new File([blob], fileName, { type: "image/png" });
+            const file = new File([preparedBlob], fileName, { type: "image/png" });
             const canShareFile = isIosDevice()
                 && typeof navigator.share === "function"
                 && (!navigator.canShare || navigator.canShare({ files: [file] }));
@@ -219,10 +261,10 @@ export default function ShareQRPopup({
                     await navigator.share({ files: [file], title });
                 } catch (error) {
                     if (error instanceof DOMException && error.name === "AbortError") return;
-                    downloadBlob(blob, fileName);
+                    downloadBlob(preparedBlob, fileName);
                 }
             } else {
-                downloadBlob(blob, fileName);
+                downloadBlob(preparedBlob, fileName);
             }
             showToast("success", t("imageDownloaded"));
         } catch (err) {
@@ -234,16 +276,10 @@ export default function ShareQRPopup({
     };
 
     const handleCopyToClipboard = async () => {
-        if (!cardRef.current || copied) return;
+        if (!preparedBlob || captureStatus !== "ready" || copied) return;
         try {
-            const card = await prepareCapture();
-
-            const blob = await toBlob(card, {
-                pixelRatio: 2,
-            });
-            if (!blob) throw new Error("Unable to create the share image");
             await navigator.clipboard.write([
-                new ClipboardItem({ "image/png": blob }),
+                new ClipboardItem({ "image/png": preparedBlob }),
             ]);
             setCopied(true);
             showToast("success", t("imageCopied"));
@@ -267,21 +303,28 @@ export default function ShareQRPopup({
                         e.stopPropagation();
                         handleDownload();
                     }}
-                    disabled={downloading}
-                    className="p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-accent/40 hover:border-accent cursor-pointer transition-colors disabled:opacity-50"
+                    disabled={captureStatus !== "ready" || !preparedBlob || downloading}
+                    className="p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-accent/40 hover:border-accent cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                     title={t("downloadImage")}
                 >
-                    <Download className="w-5 h-5" strokeWidth={3} />
+                    {captureStatus === "preparing"
+                        ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={3} />
+                        : <Download className="h-5 w-5" strokeWidth={3} />}
                 </button>
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         handleCopyToClipboard();
                     }}
-                    className="hidden sm:block p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-accent/40 hover:border-accent cursor-pointer transition-colors"
+                    disabled={captureStatus !== "ready" || !preparedBlob}
+                    className="hidden sm:block p-3 rounded-full bg-background/90 border border-(--border-color) hover:bg-accent/40 hover:border-accent cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                     title={t("copyImage")}
                 >
-                    {copied ? <Check className="w-5 h-5 text-green-500" strokeWidth={3} /> : <Copy className="w-5 h-5" strokeWidth={3} />}
+                    {captureStatus === "preparing"
+                        ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={3} />
+                        : copied
+                            ? <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
+                            : <Copy className="h-5 w-5" strokeWidth={3} />}
                 </button>
                 <button
                     onClick={(e) => {

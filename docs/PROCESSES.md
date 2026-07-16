@@ -12,9 +12,12 @@
 ## Đăng nhập admin
 
 1. Admin mở `/auth`.
-2. API so sánh username và SHA-256 của mật khẩu theo thời gian cố định.
-3. Server ký session bằng HMAC-SHA256.
-4. Cookie HTTP-only được dùng để bảo vệ trang và API quản trị.
+2. Server xác nhận đúng một nguồn mật khẩu được cấu hình: plaintext hoặc SHA-256 hash 64 ký tự hex.
+3. API so sánh username và SHA-256 của mật khẩu theo thời gian cố định.
+4. Server ký session bằng HMAC-SHA256.
+5. Cookie HTTP-only được dùng để bảo vệ trang và API quản trị.
+
+Production nên chỉ dùng `ADMIN_PASSWORD_HASH`. Sau khi đặt lại env trên Vercel, xóa `ADMIN_PASSWORD` và redeploy để deployment mới nhận credential.
 
 ## Viết và xuất bản
 
