@@ -1,6 +1,6 @@
 {
   "name": "helios-blog",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Personal blog and lightweight CMS for Helios",
   "private": true,
   "scripts": {

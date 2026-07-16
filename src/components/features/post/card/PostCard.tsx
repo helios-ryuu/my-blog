@@ -84,7 +84,7 @@ export default function PostCard({
 
                     {/* Category */}
                     {category && (
-                        <div className="mt-2 mb-1">
+                        <div className="mt-2 mb-2">
                             <PostCategoryBadge category={category} name={categoryName} icon={categoryIcon} />
                         </div>
                     )}

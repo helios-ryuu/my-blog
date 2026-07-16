@@ -33,8 +33,7 @@ interface ShareQRPopupProps {
     onClose: () => void;
 }
 
-const TRANSPARENT_PIXEL =
-    "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+const IMAGE_LOAD_TIMEOUT_MS = 15_000;
 
 function getCaptureImageUrl(src: string): string {
     return /^https?:\/\//i.test(src)
@@ -57,6 +56,47 @@ function downloadBlob(blob: Blob, fileName: string): void {
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+}
+
+async function waitForImage(image: HTMLImageElement): Promise<void> {
+    if (!image.complete) {
+        await new Promise<void>((resolve, reject) => {
+            const timeout = window.setTimeout(() => {
+                cleanup();
+                reject(new Error(`Timed out while loading image: ${image.currentSrc || image.src}`));
+            }, IMAGE_LOAD_TIMEOUT_MS);
+            const cleanup = () => {
+                window.clearTimeout(timeout);
+                image.removeEventListener("load", handleLoad);
+                image.removeEventListener("error", handleError);
+            };
+            const handleLoad = () => {
+                cleanup();
+                resolve();
+            };
+            const handleError = () => {
+                cleanup();
+                reject(new Error(`Unable to load image: ${image.currentSrc || image.src}`));
+            };
+
+            image.addEventListener("load", handleLoad, { once: true });
+            image.addEventListener("error", handleError, { once: true });
+        });
+    }
+
+    if (image.naturalWidth === 0 || image.naturalHeight === 0) {
+        throw new Error(`Image has no rendered content: ${image.currentSrc || image.src}`);
+    }
+
+    if (typeof image.decode === "function") {
+        await image.decode();
+    }
+}
+
+async function waitForCaptureAssets(element: HTMLElement): Promise<void> {
+    await Promise.all(Array.from(element.querySelectorAll("img"), waitForImage));
+    await document.fonts?.ready;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 }
 
 export default function ShareQRPopup({
@@ -93,33 +133,14 @@ export default function ShareQRPopup({
             toastShownRef.current = true;
         }
     }, [showToast, t]);
-    // Helper to wait for all images to load
-    const waitForImages = async (element: HTMLElement): Promise<void> => {
-        const images = element.querySelectorAll('img');
-        const promises = Array.from(images).map((img) => {
-            if (img.complete) return Promise.resolve();
-            return new Promise<void>((resolve) => {
-                img.onload = () => resolve();
-                img.onerror = () => resolve(); // Resolve even on error to prevent hang
-            });
-        });
-        await Promise.all(promises);
-        // Extra delay to ensure rendering is complete
-        await new Promise(resolve => setTimeout(resolve, 100));
-    };
-
     const handleDownload = async () => {
         if (!cardRef.current || downloading) return;
         setDownloading(true);
         try {
-            // Wait for all images to load before capturing
-            await waitForImages(cardRef.current);
+            await waitForCaptureAssets(cardRef.current);
 
             const blob = await toBlob(cardRef.current, {
                 pixelRatio: 2,
-                cacheBust: true,
-                imagePlaceholder: TRANSPARENT_PIXEL,
-                onImageErrorHandler: () => undefined,
             });
             if (!blob) throw new Error("Unable to create the share image");
 
@@ -151,14 +172,10 @@ export default function ShareQRPopup({
     const handleCopyToClipboard = async () => {
         if (!cardRef.current || copied) return;
         try {
-            // Wait for all images to load before capturing
-            await waitForImages(cardRef.current);
+            await waitForCaptureAssets(cardRef.current);
 
             const blob = await toBlob(cardRef.current, {
                 pixelRatio: 2,
-                cacheBust: true,
-                imagePlaceholder: TRANSPARENT_PIXEL,
-                onImageErrorHandler: () => undefined,
             });
             if (!blob) throw new Error("Unable to create the share image");
             await navigator.clipboard.write([
@@ -248,7 +265,7 @@ export default function ShareQRPopup({
 
                 {/* Category */}
                 {category && (
-                    <div className="mt-2 mb-1">
+                    <div className="mt-2 mb-2">
                         <PostCategoryBadge category={category} name={categoryName} icon={categoryIcon} />
                     </div>
                 )}
@@ -265,7 +282,7 @@ export default function ShareQRPopup({
 
                 {/* Tags */}
                 {tags && (
-                    <div className="mt-2">
+                    <div className="mt-4">
                         <TagList tags={tags} variant="compact" />
                     </div>
                 )}
