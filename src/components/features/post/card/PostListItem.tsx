@@ -9,6 +9,7 @@ import PostLevelBadge from "./PostLevelBadge";
 import PostTypeBadge from "./PostTypeBadge";
 import ShareQRPopup from "../share/PostShareQRPopup";
 import { usePostShareInteractions } from "@/hooks/usePostShareInteractions";
+import { startNavigationLoading } from "@/lib/navigation-loading";
 import type { PostItemProps } from "@/types/post";
 import { useTranslations } from "next-intl";
 
@@ -39,6 +40,7 @@ export default function PostListItem({
 
     const handleClick = useCallback(() => {
         if (!contextMenu) {
+            startNavigationLoading(`/post/${slug}`);
             if (onClick) {
                 onClick();
             } else {

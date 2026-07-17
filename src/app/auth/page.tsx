@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import { useUser } from "@/contexts/UserContext";
 import { useTranslations } from "next-intl";
+import { startNavigationLoading } from "@/lib/navigation-loading";
 
 export default function AuthPage() {
     return <Suspense fallback={null}><AuthPageInner /></Suspense>;
@@ -26,7 +27,10 @@ function AuthPageInner() {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (user) router.replace(next);
+        if (user) {
+            startNavigationLoading(next);
+            router.replace(next);
+        }
     }, [next, router, user]);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -42,6 +46,7 @@ function AuthPageInner() {
             const result = await response.json();
             if (!response.ok || !result.success) throw new Error(result.message || t("failed"));
             await refresh();
+            startNavigationLoading(next);
             router.replace(next);
             router.refresh();
         } catch (error) {

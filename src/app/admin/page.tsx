@@ -10,6 +10,7 @@ import DeletePreviewPopup from "@/components/features/admin/common/DeletePreview
 import EditTagForm from "@/components/features/admin/forms/EditTagForm";
 import SiteSettingsSection from "@/components/features/admin/sections/SiteSettingsSection";
 import SeriesForm from "@/components/features/admin/forms/SeriesForm";
+import { startNavigationLoading } from "@/lib/navigation-loading";
 import type { DeleteConfirmData } from "@/components/features/admin/sections/DeleteSection";
 import type { AdminCategory, AdminPost, AdminSeries, AdminTag } from "@/types/admin";
 
@@ -87,10 +88,17 @@ function AdminWorkspace() {
                 categories={categories}
                 isLoading={isLoading}
                 onRefresh={refresh}
-                onAddPost={() => router.push("/admin/posts/new")}
+                onAddPost={() => {
+                    startNavigationLoading("/admin/posts/new");
+                    router.push("/admin/posts/new");
+                }}
                 onAddTag={() => setShowAddTag(true)}
                 onAddSeries={() => setShowAddSeries(true)}
-                onEditPost={(id) => router.push(`/admin/posts/${id}/edit`)}
+                onEditPost={(id) => {
+                    const href = `/admin/posts/${id}/edit`;
+                    startNavigationLoading(href);
+                    router.push(href);
+                }}
                 onEditTag={(tag) => setEditTag(tag)}
                 onEditSeries={(series) => setEditSeries(series)}
                 onDeleteConfirm={(data) => setDeleteTarget(data)}

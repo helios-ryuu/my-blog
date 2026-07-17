@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ThemeProvider } from "next-themes";
@@ -8,20 +9,54 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileSearchBar from "@/components/layout/MobileSearchBar";
 import NavigationPanel from "@/components/layout/NavigationPanel";
+import PageLoadingShell from "@/components/layout/PageLoadingShell";
 import { PixelBlast } from "@/components/ui";
 import { ToastProvider } from "@/components/ui/Toast";
 import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { SOCIAL_LINKS } from "@/config/site";
+import { NAVIGATION_START_EVENT, startNavigationLoading } from "@/lib/navigation-loading";
 
 function AppShellContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const tCommon = useTranslations("common");
     const { accentColor } = useSiteSettings();
     const isHomePage = pathname === "/";
+    const [navigationTarget, setNavigationTarget] = useState<string | null>(null);
+
+    useEffect(() => {
+        const handleNavigationStart = (event: Event) => {
+            setNavigationTarget((event as CustomEvent<string>).detail);
+        };
+
+        window.addEventListener(NAVIGATION_START_EVENT, handleNavigationStart);
+        return () => window.removeEventListener(NAVIGATION_START_EVENT, handleNavigationStart);
+    }, []);
+
+    useEffect(() => {
+        if (navigationTarget === pathname) setNavigationTarget(null);
+    }, [navigationTarget, pathname]);
+
+    useEffect(() => {
+        if (!navigationTarget) return;
+        const timeout = window.setTimeout(() => setNavigationTarget(null), 30_000);
+        return () => window.clearTimeout(timeout);
+    }, [navigationTarget]);
+
+    function handleClickCapture(event: ReactMouseEvent<HTMLDivElement>) {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (!(event.target instanceof Element)) return;
+
+        const link = event.target.closest<HTMLAnchorElement>("a[href]");
+        if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+        startNavigationLoading(link.href);
+    }
 
     return (
-        <div className="relative flex min-h-screen flex-col md:h-screen md:overflow-hidden">
+        <div
+            className="relative flex min-h-screen flex-col md:h-screen md:overflow-hidden"
+            onClickCapture={handleClickCapture}
+        >
             {isHomePage && (
                 <div className="pointer-events-none absolute inset-0 z-0 opacity-65">
                     <PixelBlast
@@ -69,7 +104,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 <div className="relative flex-1 md:min-h-0">
                     <main className={`h-full overflow-auto ${isHomePage ? "bg-transparent" : "bg-background"}`}>
                         <div className="flex min-h-full flex-col pb-[env(safe-area-inset-bottom)]">
-                            <div className="min-h-0 flex-1">{children}</div>
+                            <div className="min-h-0 flex-1">
+                                {navigationTarget ? <PageLoadingShell /> : children}
+                            </div>
                             <Footer />
                         </div>
                     </main>

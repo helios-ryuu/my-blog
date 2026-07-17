@@ -1,5 +1,5 @@
-import AdminLoadingShell from "@/components/layout/AdminLoadingShell";
+import PageLoadingShell from "@/components/layout/PageLoadingShell";
 
 export default function Loading() {
-    return <AdminLoadingShell />;
+    return <PageLoadingShell />;
 }

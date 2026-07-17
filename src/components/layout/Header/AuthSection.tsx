@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Database, FolderOpen, LayoutDashboard, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useUser } from "@/contexts/UserContext";
+import { startNavigationLoading } from "@/lib/navigation-loading";
 
 export default function AuthSection() {
     const { user, isLoading, logout } = useUser();
@@ -35,6 +36,7 @@ export default function AuthSection() {
     async function handleLogout() {
         setIsOpen(false);
         await logout();
+        startNavigationLoading("/");
         router.push("/");
         router.refresh();
     }

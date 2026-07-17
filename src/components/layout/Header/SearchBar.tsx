@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { startNavigationLoading } from "@/lib/navigation-loading";
 
 type SearchItemType = "home" | "posts" | "post" | "tag";
 
@@ -55,6 +56,7 @@ export default function SearchBar() {
     }, [items, query, staticRoutes]);
 
     const goTo = useCallback((path: string) => {
+        startNavigationLoading(path);
         router.push(path);
         setQuery("");
         setIsOpen(false);

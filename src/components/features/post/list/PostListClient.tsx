@@ -9,6 +9,7 @@ import MultiSelect from "@/components/ui/MultiSelect";
 import { Button } from "@/components/ui";
 import { ChevronLeft, ChevronRight, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { startNavigationLoading } from "@/lib/navigation-loading";
 import type { PostMeta } from "@/types/post";
 import {
     POST_LEVELS,
@@ -102,7 +103,9 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
         if (v !== "card") params.set("view", v);
 
         const query = params.toString();
-        router.push(query ? `/post?${query}` : "/post", { scroll: false });
+        const href = query ? `/post?${query}` : "/post";
+        startNavigationLoading(href);
+        router.push(href, { scroll: false });
     };
 
     const handleTagsChange = (values: string[]) => {
@@ -397,7 +400,6 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                                                 type={post.type}
                                                 series={post.series}
                                                 seriesOrder={post.seriesOrder}
-                                                onClick={() => router.push(`/post/${post.slug}`)}
                                             />
                                         ))}
                                 </motion.div>
@@ -423,7 +425,6 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                                 type={post.type}
                                 series={post.series}
                                 seriesOrder={post.seriesOrder}
-                                onClick={() => router.push(`/post/${post.slug}`)}
                             />
                         ))}
                     </div>
@@ -458,7 +459,6 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                                         type={post.type}
                                         series={post.series}
                                         seriesOrder={post.seriesOrder}
-                                        onClick={() => router.push(`/post/${post.slug}`)}
                                     />
                                 ))}
                         </motion.div>

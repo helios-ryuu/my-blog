@@ -4,6 +4,7 @@ import { use } from "react";
 import { useRouter } from "next/navigation";
 import EditPostForm from "@/components/features/admin/forms/EditPostForm";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
+import { startNavigationLoading } from "@/lib/navigation-loading";
 
 function EditPostInner({ postId }: { postId: number }) {
     const router = useRouter();
@@ -12,7 +13,10 @@ function EditPostInner({ postId }: { postId: number }) {
         <EditPostForm
             postId={postId}
             onShowToast={showToast}
-            onSuccess={() => router.push("/admin")}
+            onSuccess={() => {
+                startNavigationLoading("/admin");
+                router.push("/admin");
+            }}
         />
     );
 }
