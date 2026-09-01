@@ -93,4 +93,4 @@ Media không nằm trong Supabase schema. Ảnh được lưu trong Cloudflare R
 
 Khi bucket private, route `/api/media/[...key]` stream object công khai với cache header. Có thể cấu hình `R2_PUBLIC_URL` để dùng custom domain của R2 thay cho route proxy.
 
-Bucket production hiện dùng custom domain `https://bucket-blog.helios.id.vn`.
+Bucket production hiện dùng custom domain `https://bucket-space.helios.id.vn`.

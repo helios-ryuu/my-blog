@@ -1,4 +1,4 @@
--- Helios Blog v2.0 - complete fresh database initialization
+-- Helios Space v2.0 - complete fresh database initialization
 -- This is the single source of truth for the project database schema.
 begin;
 

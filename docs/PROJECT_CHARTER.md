@@ -2,7 +2,7 @@
 
 ## Mục tiêu
 
-Helios Blog là không gian xuất bản cá nhân có trải nghiệm đọc rõ ràng và một CMS đủ gọn để vận hành lâu dài.
+Helios Space là không gian xuất bản cá nhân có trải nghiệm đọc rõ ràng và một CMS đủ gọn để vận hành lâu dài.
 
 ## Phạm vi
 

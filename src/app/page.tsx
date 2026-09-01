@@ -57,7 +57,7 @@ export default async function Home() {
                         <PenLine className="h-4 w-4 text-accent" />
                         {t("heroEyebrow")}
                     </div>
-                    <h1 className="text-4xl font-extrabold leading-tight text-accent md:text-5xl">Helios Blog</h1>
+                    <h1 className="text-4xl font-extrabold leading-tight text-accent md:text-5xl">Helios Space</h1>
                     <p className="mt-5 max-w-xl text-base leading-8 text-foreground/78">{t("heroLead")}</p>
                     <div className="mt-7 flex flex-wrap gap-3">
                         <Link href="/post" className="inline-flex h-10 items-center gap-2 rounded-[8px] border border-accent bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-hover">

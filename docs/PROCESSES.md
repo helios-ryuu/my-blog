@@ -54,7 +54,7 @@ Khi sửa hoặc xoá, nhập trực tiếp vào field để tìm nhanh. Nút b�
 2. Nhập tên và nhấn Tạo thư mục; danh sách và bộ lọc được làm mới để folder mới xuất hiện ngay, sau đó mở folder và upload ảnh.
 3. Server ghi object qua S3 API của Cloudflare R2.
 4. Chọn ảnh trực tiếp trong form bài viết hoặc sao chép URL `/api/media/*`.
-5. Custom domain hiện tại là `https://bucket-blog.helios.id.vn`, được cấu hình qua `R2_PUBLIC_URL` để URL mới dùng Cloudflare trực tiếp.
+5. Custom domain hiện tại là `https://bucket-space.helios.id.vn`, được cấu hình qua `R2_PUBLIC_URL` để URL mới dùng Cloudflare trực tiếp.
 6. Khi đổi tên hoặc xoá file, kiểm tra các bài đang tham chiếu URL cũ.
 
 ## Chỉnh màu accent

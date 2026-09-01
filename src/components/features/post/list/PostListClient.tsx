@@ -7,9 +7,10 @@ import { PostCard, PostListItem } from "@/components/features/post";
 import Select from "@/components/ui/Select";
 import MultiSelect from "@/components/ui/MultiSelect";
 import { Button } from "@/components/ui";
-import { ChevronLeft, ChevronRight, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { startNavigationLoading } from "@/lib/navigation-loading";
+import { usePostFilter } from "@/contexts/PostFilterContext";
 import type { PostMeta } from "@/types/post";
 import {
     POST_LEVELS,
@@ -43,6 +44,7 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
     const t = useTranslations("post");
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { isMobileFilterOpen } = usePostFilter();
 
     const selectedTags = useMemo(() => {
         const tag = searchParams.get("tag");
@@ -62,7 +64,6 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
     const [direction, setDirection] = useState(0);
     const [postsPerPage, setPostsPerPage] = useState(4);
     const [isMobile, setIsMobile] = useState(false);
-    const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
 
     // Responsive posts per page and mobile detection
     useEffect(() => {
@@ -229,24 +230,10 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
     return (
         <>
             {/* Filters & Sort Bar */}
-            <div className="mt-6">
-                <button
-                    type="button"
-                    onClick={() => setIsMobileControlsOpen((open) => !open)}
-                    aria-expanded={isMobileControlsOpen}
-                    aria-controls="post-management-controls"
-                    className={`group flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border text-sm font-medium transition-colors duration-200 sm:hidden ${isMobileControlsOpen
-                        ? "border-accent/50 bg-accent/15"
-                        : "border-(--border-color) bg-background-hover hover:border-(--border-color-hover)"
-                    }`}
-                >
-                    <SlidersHorizontal className={`h-4 w-4 shrink-0 transition-colors duration-200 ease-out ${isMobileControlsOpen ? "text-accent" : "text-foreground group-hover:text-accent"}`} />
-                    <span className={`transition-colors duration-200 ease-out ${isMobileControlsOpen ? "text-accent" : "text-foreground group-hover:text-accent"}`}>{t("managePosts")}</span>
-                </button>
-
+            <div className="mt-2 mb-2 md:mt-8 px-2">
                 <div
                     id="post-management-controls"
-                    className={`${isMobileControlsOpen ? "grid" : "hidden"} grid-cols-1 gap-4 border-b border-(--border-color) py-4 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:border-0 sm:py-0`}
+                    className={`${isMobileFilterOpen ? "grid" : "hidden"} grid-cols-1 gap-4 border-b border-(--border-color) py-4 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:border-0 sm:py-0`}
                 >
                     <div className="flex flex-col sm:flex-row flex-wrap gap-4 flex-1">
                         <div className="grid grid-cols-[3.5rem_1fr] sm:flex items-center gap-2">

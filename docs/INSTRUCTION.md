@@ -1,6 +1,6 @@
 # Hướng dẫn viết bài MDX
 
-Tài liệu này mô tả cú pháp được Helios Blog hỗ trợ trong trường `content` của bài viết. Nội dung được biên dịch bằng MDX, mở rộng Markdown với `remark-gfm`, tô màu code bằng `rehype-pretty-code` và render qua `mdx-components.tsx`.
+Tài liệu này mô tả cú pháp được Helios Space hỗ trợ trong trường `content` của bài viết. Nội dung được biên dịch bằng MDX, mở rộng Markdown với `remark-gfm`, tô màu code bằng `rehype-pretty-code` và render qua `mdx-components.tsx`.
 
 Các bài mẫu có thể dùng trực tiếp trong CMS:
 
@@ -73,10 +73,10 @@ https://example.com
 ```md
 ![Mô tả ảnh](/api/media/posts/example.webp)
 
-![Mô tả ảnh](https://bucket-blog.helios.id.vn/posts/example.webp)
+![Mô tả ảnh](https://bucket-space.helios.id.vn/posts/example.webp)
 ```
 
-Chọn hoặc upload ảnh tại `/admin/bucket`, sau đó dùng URL do media manager trả về. Production hiện dùng custom domain `https://bucket-blog.helios.id.vn`; khi chưa cấu hình `R2_PUBLIC_URL`, URL ổn định có dạng `/api/media/<object-key>` và ảnh được đọc từ bucket R2 private qua server.
+Chọn hoặc upload ảnh tại `/admin/bucket`, sau đó dùng URL do media manager trả về. Production hiện dùng custom domain `https://bucket-space.helios.id.vn`; khi chưa cấu hình `R2_PUBLIC_URL`, URL ổn định có dạng `/api/media/<object-key>` và ảnh được đọc từ bucket R2 private qua server.
 
 Media manager nhận AVIF, GIF, JPEG, PNG và WebP, tối đa 10 MB mỗi file. SVG không được upload qua CMS để tránh nội dung thực thi khi media được phục vụ cùng origin.
 

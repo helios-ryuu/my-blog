@@ -16,8 +16,8 @@
         "useLightTheme": "Use light theme",
         "menu": "Menu",
         "tableOfContents": "Table of Contents",
-        "bannerText": "Follow Helios on Instagram for interesting posts!",
-        "bannerCta": "Visit now",
+        "bannerText": "🇻🇳 Welcome the 81st National Day of the Socialist Republic of Vietnam (02/09/1945 - 02/09/2026)",
+        "bannerCta": "Learn more",
         "refresh": "Refresh",
         "copy": "Copy",
         "records": "{count} records",
@@ -52,7 +52,7 @@
         "emptyPosts": "No posts have been published yet."
     },
     "footer": {
-        "copyright": "© {year} Helios Blog. All rights reserved.",
+        "copyright": "© {year} Helios Space. All rights reserved.",
         "tagline": "Personal notes on software and products.",
         "navigation": "Navigation",
         "contact": "Contact",
@@ -79,7 +79,7 @@
         "filterCategory": "Category",
         "filterType": "Type",
         "filterSort": "Sort",
-        "managePosts": "Manage posts",
+        "managePosts": "Advanced search",
         "filterAll": "All",
         "sortNewest": "Newest",
         "sortOldest": "Oldest",
@@ -133,9 +133,9 @@
     },
     "about": {
         "metadataTitle": "About",
-        "metadataDescription": "About Helios Blog and the topics published here.",
+        "metadataDescription": "About Helios Space and the topics published here.",
         "title": "About",
-        "subtitle": "Helios Blog is a personal space for software, learning journeys, and ideas worth keeping.",
+        "subtitle": "Helios Space is a personal space for software, learning journeys, and ideas worth keeping.",
         "aboutTitle": "About the blog",
         "paragraphOne": "Each post starts with something built, a problem understood more clearly, or a question worth following for longer.",
         "paragraphTwo": "The writing focuses on software engineering, tools, product design, and practical notes, with an emphasis on clarity, depth, and lasting usefulness.",
@@ -148,7 +148,7 @@
     },
     "auth": {
         "title": "Admin sign in",
-        "description": "Private access for managing Helios Blog content.",
+        "description": "Private access for managing Helios Space content.",
         "username": "Username",
         "password": "Password",
         "submit": "Sign in",
@@ -169,7 +169,7 @@
     },
     "admin": {
         "title": "ADMIN WORKSPACE",
-        "subtitle": "Manage posts, categories, tags, images, and the Helios Blog appearance.",
+        "subtitle": "Manage posts, categories, tags, images, and the Helios Space appearance.",
         "loadError": "Failed to load data",
         "appearanceTitle": "Accent color",
         "appearanceDescription": "Choose the shared accent color for the entire interface.",
@@ -298,7 +298,7 @@
         "dbPublic": "Public",
         "dbUpdatedAt": "Updated at",
         "databasePageTitle": "DATABASE",
-        "databasePageSubtitle": "Inspect posts, categories, tags, relations, and public Helios Blog settings.",
+        "databasePageSubtitle": "Inspect posts, categories, tags, relations, and public Helios Space settings.",
         "bucketPageTitle": "MEDIA LIBRARY",
         "bucketPageSubtitle": "Browse, upload, and manage images in Cloudflare R2.",
         "storageBucket": "Storage",
@@ -425,14 +425,14 @@
     },
     "faq": {
         "pageTitle": "Questions & Answers",
-        "pageSubtitle": "A few notes about how content on Helios Blog is organized.",
+        "pageSubtitle": "A few notes about how content on Helios Space is organized.",
         "adminPageTitle": "Admin Q&A",
         "adminPageSubtitle": "Operational notes for the CMS and site appearance.",
         "userSection": "About the blog",
         "adminSection": "Operations",
         "userItems": [
             {
-                "q": "What does Helios Blog cover?",
+                "q": "What does Helios Space cover?",
                 "a": "The writing focuses on software engineering, tools, product design, learning in public, and practical notes."
             },
             {

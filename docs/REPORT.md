@@ -2,11 +2,11 @@
 
 ## Kết quả
 
-Helios Blog v2.0.0 là một blog cá nhân tập trung, kèm CMS tối giản và schema dữ liệu mới.
+Helios Space v2.0.0 là một blog cá nhân tập trung, kèm CMS tối giản và schema dữ liệu mới.
 
 ## Thay đổi chính
 
-- Nhận diện, metadata, homepage, navigation, search, footer, About và Q&A được viết lại cho Helios Blog.
+- Nhận diện, metadata, homepage, navigation, search, footer, About và Q&A được viết lại cho Helios Space.
 - Auth được thu gọn thành một admin cấu hình bằng biến môi trường.
 - Database chỉ còn nội dung blog, danh mục, series, tag và site settings.
 - Database initialization được hợp nhất hoàn toàn vào `supabase/schema.sql`.

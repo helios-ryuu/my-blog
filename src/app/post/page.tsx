@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { getAllPostsMeta, getAllTags } from "@/lib/posts";
 import { PostListClient } from "@/components/features/post";
-import PageHeader from "@/components/layout/PageHeader";
 import { unstable_cache } from "next/cache";
 import { listCategories } from "@/lib/categories-db";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
@@ -26,9 +25,8 @@ export default async function PostPage() {
     const t = await getTranslations("post");
 
     return (
-        <div className="w-full px-4 py-8 md:px-10">
+        <div className="w-full px-3 pb-12 md:px-8">
             <div className="mx-auto">
-                <PageHeader title={t("pageTitle")} description={t("pageSubtitle")} />
 
                 <Suspense fallback={<div className="text-sm text-foreground/60">{t("loading")}</div>}>
                     <PostListClient

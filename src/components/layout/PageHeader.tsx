@@ -37,7 +37,7 @@ export default function PageHeader({
                     {eyebrow}
                 </div>
             )}
-            <div className={cn("flex w-full flex-col gap-2", isCentered ? "items-center" : "items-start")}>
+            <div className={cn("flex w-full flex-col gap-1", isCentered ? "items-center" : "items-start")}>
                 <h1
                     className={cn(
                         "text-2xl font-bold uppercase tracking-widest text-accent md:text-3xl",

@@ -11,7 +11,7 @@
   --foreground: #ffffff;
   --accent: #1f51ff;
   --accent-hover: #4770ff;
-  --border-color: #303030;
+  --border-color: #343434;
   --border-color-hover: #3a3a3a;
   --foreground-dim: #666666;
   --post-card: #1c1c1c;
@@ -35,8 +35,8 @@
   --muted-foreground: #ababab;
   --accent-foreground: #ffffff;
   --destructive: #dc2626;
-  --border: #303030;
-  --input: #303030;
+  --border: #343434;
+  --input: #343434;
   --ring: #666666;
   --chart-1: #1f51ff;
   --chart-2: #60a5fa;
@@ -52,10 +52,10 @@
   --foreground: #151515;
   --accent: #1f51ff;
   --accent-hover: #0b3ee8;
-  --border-color: #d8d8d8;
+  --border-color: #d2d2d2;
   --border-color-hover: #c8c8c8;
   --foreground-dim: #8f8f8f;
-  --post-card: #f7f7f7;
+  --post-card: #f9f9f9;
   --post-card-hover: #ececec;
   --scrollbar-track: #f2f2f2;
   --scrollbar-thumb: #bcbcbc;

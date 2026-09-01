@@ -1,6 +1,6 @@
-# Helios Blog
+# Helios Space
 
-Helios Blog v2.0 là blog cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
+Helios Space v2.1 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
 
 ## Tính năng
 
@@ -115,7 +115,7 @@ Media manager dùng AWS SDK với S3 API của R2. Tạo R2 API token có quyề
 
 Bucket có thể giữ private. Khi `R2_PUBLIC_URL` trống, ứng dụng tạo URL `/api/media/<object-key>` và stream object qua server. Khi đã gắn custom domain production, đặt domain đó vào `R2_PUBLIC_URL` để media được phục vụ trực tiếp qua Cloudflare cache. `r2.dev` chỉ phù hợp cho development.
 
-Cấu hình hiện tại dùng `https://bucket-blog.helios.id.vn` làm custom domain của bucket `my-blog`.
+Cấu hình hiện tại dùng `https://bucket-space.helios.id.vn` làm custom domain của bucket `my-blog`.
 
 Media manager hỗ trợ tạo folder marker, upload, đổi tên và xoá. Folder vừa tạo được làm mới ngay trong danh sách; tên trống bị từ chối ở UI và API.
 

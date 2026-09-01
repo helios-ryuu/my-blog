@@ -35,6 +35,9 @@ interface ShareQRPopupProps {
 
 const IMAGE_LOAD_TIMEOUT_MS = 15_000;
 const IMAGE_RETRY_DELAYS_MS = [0, 250, 750] as const;
+const CAPTURE_RETRY_COUNT = 3;
+const BLUR_BACKGROUND_PX = 24; // matches Tailwind's blur-xl
+const BLUR_LAYER_OPACITY = 0.16; // matches Tailwind's opacity-16
 
 type CaptureStatus = "preparing" | "ready" | "error";
 
@@ -97,6 +100,47 @@ async function loadImageDataUrl(src: string): Promise<string> {
     throw lastError instanceof Error ? lastError : new Error("Unable to load the post image");
 }
 
+function loadHtmlImage(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("Unable to decode image for blur pre-render"));
+        img.src = src;
+    });
+}
+
+/**
+ * Root-cause fix: html-to-image serializes the DOM to an SVG <foreignObject> before
+ * rasterizing it to canvas. Live CSS `filter: blur()` on an element inside that
+ * foreignObject is rasterized unreliably across browsers/GPU drivers — it is a known
+ * source of "randomly missing content" in html-to-image/dom-to-image output.
+ *
+ * Instead of relying on the browser to blur the layer *during* capture, we pre-render
+ * the blurred background once (via canvas 2D `ctx.filter`, which is reliable outside
+ * of the foreignObject/SVG pipeline) and embed the *result* as a plain, already-blurred
+ * <img>. No live filter is present in the DOM at capture time.
+ */
+async function createBlurredBackgroundDataUrl(sourceDataUrl: string): Promise<string> {
+    const img = await loadHtmlImage(sourceDataUrl);
+
+    // Small canvas is enough — this is a decorative, heavily blurred background.
+    const targetWidth = 160;
+    const targetHeight = Math.round((img.height / img.width) * targetWidth) || targetWidth;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas 2D context unavailable for blur pre-render");
+
+    ctx.filter = `blur(${BLUR_BACKGROUND_PX}px)`;
+    ctx.globalAlpha = BLUR_LAYER_OPACITY;
+    // Draw slightly oversized to avoid transparent blur fringes at the edges.
+    ctx.drawImage(img, -8, -8, targetWidth + 16, targetHeight + 16);
+
+    return canvas.toDataURL("image/png");
+}
+
 function waitForPaint(): Promise<void> {
     return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 }
@@ -142,13 +186,88 @@ async function waitForCaptureAssets(element: HTMLElement): Promise<void> {
     await waitForPaint();
 }
 
+/**
+ * Safety net for any *other* source of missing content (not just the blur layer above).
+ * Decodes the produced blob and samples pixels inside the primary image region; a real
+ * photo always has pixel variance, whereas a region that failed to rasterize renders as
+ * a flat background color. Sampling several points avoids a false negative from
+ * landing on a single flat-colored area of a legitimate photo.
+ */
+async function hasVisibleImageContent(blob: Blob, imageRegion: DOMRect, elementRegion: DOMRect, canvasSize: { width: number; height: number }): Promise<boolean> {
+    let bitmap: ImageBitmap;
+    try {
+        bitmap = await createImageBitmap(blob);
+    } catch {
+        // If we can't even decode it, treat as invalid so the caller retries.
+        return false;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return true; // can't validate, don't block on it
+    ctx.drawImage(bitmap, 0, 0);
+
+    const scaleX = canvasSize.width / elementRegion.width;
+    const scaleY = canvasSize.height / elementRegion.height;
+
+    const samplePoints: Array<[number, number]> = [
+        [0.5, 0.5], [0.2, 0.3], [0.8, 0.3], [0.2, 0.7], [0.8, 0.7],
+    ];
+
+    let identicalNeighborCount = 0;
+    let previous: Uint8ClampedArray | null = null;
+
+    for (const [fx, fy] of samplePoints) {
+        const x = Math.min(
+            canvasSize.width - 1,
+            Math.max(0, Math.round((imageRegion.left - elementRegion.left + imageRegion.width * fx) * scaleX)),
+        );
+        const y = Math.min(
+            canvasSize.height - 1,
+            Math.max(0, Math.round((imageRegion.top - elementRegion.top + imageRegion.height * fy) * scaleY)),
+        );
+
+        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        if (previous && pixel[0] === previous[0] && pixel[1] === previous[1] && pixel[2] === previous[2]) {
+            identicalNeighborCount += 1;
+        }
+        previous = pixel;
+    }
+
+    // A real photo will virtually never produce 4+ identical consecutive samples.
+    return identicalNeighborCount < 4;
+}
+
 async function createShareBlob(element: HTMLElement): Promise<Blob> {
+    const primaryImageLayer = element.querySelector<HTMLElement>("[data-capture-role='primary-image']");
+
     let lastError: unknown;
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    for (let attempt = 0; attempt < CAPTURE_RETRY_COUNT; attempt += 1) {
         try {
             await waitForCaptureAssets(element);
+
+            // Warm-up pass: html-to-image's first foreignObject decode on a given DOM
+            // shape is the least reliable one (browser image-decode cache is cold).
+            // Discard this result and capture again once the pipeline is "warm".
+            await toBlob(element, { pixelRatio: 2 });
+            await waitForPaint();
+
             const blob = await toBlob(element, { pixelRatio: 2 });
             if (!blob?.size) throw new Error("Unable to create the share image");
+
+            if (primaryImageLayer) {
+                const elementRegion = element.getBoundingClientRect();
+                const imageRegion = primaryImageLayer.getBoundingClientRect();
+                const dpr = 2; // matches pixelRatio above
+                const valid = await hasVisibleImageContent(blob, imageRegion, elementRegion, {
+                    width: Math.round(elementRegion.width * dpr),
+                    height: Math.round(elementRegion.height * dpr),
+                });
+                if (!valid) throw new Error("Captured image is missing its photo layer");
+            }
+
             return blob;
         } catch (error) {
             lastError = error;
@@ -178,6 +297,7 @@ export default function ShareQRPopup({
     const [copied, setCopied] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [embeddedImageUrl, setEmbeddedImageUrl] = useState<string | null>(null);
+    const [blurredBackgroundUrl, setBlurredBackgroundUrl] = useState<string | null>(null);
     const [preparedBlob, setPreparedBlob] = useState<Blob | null>(null);
     const [captureStatus, setCaptureStatus] = useState<CaptureStatus>("preparing");
     const { showToast } = useToast();
@@ -189,13 +309,15 @@ export default function ShareQRPopup({
 
     useEscapeKey(onClose);
 
+    // Step 1: fetch the source image as a data URL (unchanged from before).
     useEffect(() => {
         let cancelled = false;
         setPreparedBlob(null);
+        setEmbeddedImageUrl(null);
+        setBlurredBackgroundUrl(null);
         setCaptureStatus("preparing");
 
         if (!captureImageUrl) {
-            setEmbeddedImageUrl(null);
             return () => {
                 cancelled = true;
             };
@@ -215,8 +337,34 @@ export default function ShareQRPopup({
         };
     }, [captureImageUrl, showToast, t]);
 
+    // Step 2: once we have the source image, pre-render the blurred background as a
+    // static image *before* capture — this is what removes the live CSS filter that
+    // was causing content to go missing.
     useEffect(() => {
-        if (image && !embeddedImageUrl) return;
+        if (!embeddedImageUrl) return;
+
+        let cancelled = false;
+        void createBlurredBackgroundDataUrl(embeddedImageUrl).then((url) => {
+            if (!cancelled) setBlurredBackgroundUrl(url);
+        }).catch((error) => {
+            if (cancelled) return;
+            console.error("Failed to pre-render blurred background:", error);
+            // Non-fatal: fall back to no background layer rather than blocking export.
+            setBlurredBackgroundUrl(null);
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [embeddedImageUrl]);
+
+    // Step 3: capture the card once all image layers (including the pre-blurred one)
+    // are settled.
+    useEffect(() => {
+        // Wait for both the source image and its pre-blurred background to be ready
+        // before capturing, so no image layer is still swapping in mid-capture.
+        if (image && (!embeddedImageUrl || blurredBackgroundUrl === null)) return;
+
         const card = cardRef.current;
         if (!card) return;
 
@@ -237,7 +385,8 @@ export default function ShareQRPopup({
         return () => {
             cancelled = true;
         };
-    }, [embeddedImageUrl, image, postUrl, showToast, t]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [embeddedImageUrl, blurredBackgroundUrl, image, postUrl, showToast, t]);
 
     useEffect(() => {
         if (captureStatus === "ready" && !toastShownRef.current) {
@@ -350,16 +499,28 @@ export default function ShareQRPopup({
                     <div className="relative w-full h-44 md:h-42 mb-4 rounded-xl overflow-hidden">
                         {embeddedImageUrl ? (
                             <>
-                                <div className="absolute -inset-1 blur-xl opacity-16 transform-gpu">
-                                    <Image
-                                        src={embeddedImageUrl}
-                                        alt=""
-                                        fill
-                                        className="object-cover"
-                                        unoptimized
-                                    />
-                                </div>
-                                <div className="relative w-full h-full z-10">
+                                {/*
+                                  Background layer: a *pre-blurred, static* image, not a live
+                                  CSS filter. This is what fixes the intermittent missing-image
+                                  export bug — see createBlurredBackgroundDataUrl above.
+                                  Rendered only once blurredBackgroundUrl is ready so nothing
+                                  shifts mid-capture; falls back to nothing if pre-render fails.
+                                */}
+                                {blurredBackgroundUrl && (
+                                    <div className="absolute -inset-1 transform-gpu" aria-hidden="true">
+                                        <Image
+                                            src={blurredBackgroundUrl}
+                                            alt=""
+                                            fill
+                                            className="object-cover"
+                                            unoptimized
+                                        />
+                                    </div>
+                                )}
+                                <div
+                                    className="relative w-full h-full z-10"
+                                    data-capture-role="primary-image"
+                                >
                                     <Image
                                         src={embeddedImageUrl}
                                         alt={title}
@@ -403,7 +564,7 @@ export default function ShareQRPopup({
                 {/* QR Code Section */}
                 <div className="flex items-center justify-between mt-4 pt-2 border-t border-(--border-color)">
                     <div className="flex items-center ml-8 gap-2 text-xs text-foreground/60">
-                        <Image src="/favicon.ico" alt="Helios Blog" width={26} height={26} className="rounded-sm" unoptimized />
+                        <Image src="/favicon.ico" alt="Helios Space" width={26} height={26} className="rounded-sm" unoptimized />
                         <span className="font-medium text-accent/80 tracking-widest text-[10px]">{t("findOutMore")}</span>
                     </div>
                     <div className="bg-[#fcfcfc] mr-12 p-1 rounded text-[#1a1a1a]">

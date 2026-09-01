@@ -2,7 +2,7 @@
 
 ## Public blog
 
-- Homepage hiển thị tên Helios Blog, mô tả ngắn và các bài gần đây.
+- Homepage hiển thị tên Helios Space, mô tả ngắn và các bài gần đây.
 - Chỉ bài `published = true` được hiển thị công khai.
 - Người đọc có thể lọc theo tag, danh mục, mức độ, kiểu Standalone/Series và sắp xếp bài viết.
 - Card, list, QR và trang chi tiết hiển thị ngày, thời gian đọc, mức độ và kiểu bài.

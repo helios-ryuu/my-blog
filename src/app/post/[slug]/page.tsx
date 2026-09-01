@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
             title: post.title,
             description: post.description,
-            siteName: "Helios Blog",
+            siteName: "Helios Space",
             images: post.image ? [
                 {
                     url: post.image,

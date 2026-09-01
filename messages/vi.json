@@ -16,8 +16,8 @@
         "useLightTheme": "Dùng giao diện sáng",
         "menu": "Menu",
         "tableOfContents": "Mục lục",
-        "bannerText": "Theo dõi Helios trên Instagram để xem những bài viết thú vị!",
-        "bannerCta": "Truy cập ngay",
+        "bannerText": "🇻🇳 Chào mừng kỷ niệm 81 năm ngày Quốc khánh nước Cộng hòa Xã hội Chủ nghĩa Việt Nam (02/09/1945 - 02/09/2026)",
+        "bannerCta": "Tìm hiểu thêm",
         "refresh": "Làm mới",
         "copy": "Sao chép",
         "records": "{count} bản ghi",
@@ -52,7 +52,7 @@
         "emptyPosts": "Chưa có bài viết nào được đăng tải."
     },
     "footer": {
-        "copyright": "© {year} Helios Blog. Bảo lưu mọi quyền.",
+        "copyright": "© {year} Helios Space. Bảo lưu mọi quyền.",
         "tagline": "Ghi chép cá nhân về phần mềm và sản phẩm.",
         "navigation": "Điều hướng",
         "contact": "Liên hệ",
@@ -79,7 +79,7 @@
         "filterCategory": "Loại",
         "filterType": "Kiểu bài",
         "filterSort": "Sắp xếp",
-        "managePosts": "Quản lý bài viết",
+        "managePosts": "Tìm kiếm nâng cao",
         "filterAll": "Tất cả",
         "sortNewest": "Mới nhất",
         "sortOldest": "Cũ nhất",
@@ -133,9 +133,9 @@
     },
     "about": {
         "metadataTitle": "Giới thiệu",
-        "metadataDescription": "Về Helios Blog và những chủ đề được viết tại đây.",
+        "metadataDescription": "Về Helios Space và những chủ đề được viết tại đây.",
         "title": "Giới thiệu",
-        "subtitle": "Helios Blog là góc viết cá nhân về phần mềm, quá trình học hỏi và những ý tưởng đáng để ghi lại.",
+        "subtitle": "Helios Space là góc viết cá nhân về phần mềm, quá trình học hỏi và những ý tưởng đáng để ghi lại.",
         "aboutTitle": "Về blog",
         "paragraphOne": "Mỗi bài viết bắt đầu từ một điều đã được xây dựng, một vấn đề vừa được hiểu rõ hơn hoặc một câu hỏi đáng theo đuổi lâu dài.",
         "paragraphTwo": "Nội dung tập trung vào kỹ thuật phần mềm, công cụ, thiết kế sản phẩm và các ghi chú thực hành, với mục tiêu rõ ràng, có chiều sâu và hữu ích khi đọc lại.",
@@ -148,7 +148,7 @@
     },
     "auth": {
         "title": "Đăng nhập quản trị",
-        "description": "Khu vực riêng để quản lý nội dung Helios Blog.",
+        "description": "Khu vực riêng để quản lý nội dung Helios Space.",
         "username": "Tên đăng nhập",
         "password": "Mật khẩu",
         "submit": "Đăng nhập",
@@ -169,7 +169,7 @@
     },
     "admin": {
         "title": "KHÔNG GIAN QUẢN TRỊ",
-        "subtitle": "Quản lý bài viết, danh mục, tag, hình ảnh và giao diện Helios Blog.",
+        "subtitle": "Quản lý bài viết, danh mục, tag, hình ảnh và giao diện Helios Space.",
         "loadError": "Lỗi tải dữ liệu",
         "appearanceTitle": "Màu chủ đề",
         "appearanceDescription": "Chọn màu accent dùng chung cho toàn bộ giao diện.",
@@ -298,7 +298,7 @@
         "dbPublic": "Công khai",
         "dbUpdatedAt": "Ngày cập nhật",
         "databasePageTitle": "CƠ SỞ DỮ LIỆU",
-        "databasePageSubtitle": "Kiểm tra bài viết, danh mục, tag, quan hệ và cấu hình công khai của Helios Blog.",
+        "databasePageSubtitle": "Kiểm tra bài viết, danh mục, tag, quan hệ và cấu hình công khai của Helios Space.",
         "bucketPageTitle": "THƯ VIỆN ẢNH",
         "bucketPageSubtitle": "Duyệt, tải lên và quản lý ảnh trong Cloudflare R2.",
         "storageBucket": "Kho lưu trữ",
@@ -425,14 +425,14 @@
     },
     "faq": {
         "pageTitle": "Hỏi & Đáp",
-        "pageSubtitle": "Một vài thông tin về cách nội dung trên Helios Blog được tổ chức.",
+        "pageSubtitle": "Một vài thông tin về cách nội dung trên Helios Space được tổ chức.",
         "adminPageTitle": "Hỏi & Đáp Admin",
         "adminPageSubtitle": "Ghi chú vận hành CMS và cấu hình giao diện.",
         "userSection": "Về blog",
         "adminSection": "Vận hành",
         "userItems": [
             {
-                "q": "Helios Blog viết về chủ đề gì?",
+                "q": "Helios Space viết về chủ đề gì?",
                 "a": "Nội dung tập trung vào kỹ thuật phần mềm, công cụ, thiết kế sản phẩm, quá trình học hỏi và các ghi chú thực hành."
             },
             {
