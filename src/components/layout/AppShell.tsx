@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ThemeProvider } from "next-themes";
 import Banner from "@/components/layout/Banner";
 import Header from "@/components/layout/Header";
@@ -14,14 +14,16 @@ import { PixelBlast } from "@/components/ui";
 import { ToastProvider } from "@/components/ui/Toast";
 import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { UserProvider } from "@/contexts/UserContext";
-import { SOCIAL_LINKS as REFERENCE_LINKS } from "@/config/site";
+import { SOCIAL_LINKS as REFERENCE_LINKS, DEFAULT_BANNER_CONFIG } from "@/config/site";
 import { NAVIGATION_START_EVENT, startNavigationLoading } from "@/lib/navigation-loading";
 import { PostFilterProvider } from "@/contexts/PostFilterContext";
 
 function AppShellContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const locale = useLocale();
     const tCommon = useTranslations("common");
-    const { accentColor } = useSiteSettings();
+    const { accentColor, bannerConfig } = useSiteSettings();
+    const cfg = bannerConfig || DEFAULT_BANNER_CONFIG;
     const isHomePage = pathname === "/";
     const [navigationTarget, setNavigationTarget] = useState<string | null>(null);
 
@@ -79,23 +81,34 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             )}
 
             <div className="relative z-20">
-                <Banner
-                    id="personal-facebook"
-                    gradient="linear-gradient(to right, #f2f536, #ca2800, #ca0000)"
-                    content={
-                        <div className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-                            <span className="text-xs">{tCommon("bannerText")}</span>
-                            <a
-                                href={REFERENCE_LINKS.other}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="rounded-[7px] border border-yellow-500 bg-yellow-600 px-3 py-0.5 text-xs text-white transition-colors hover:border-yellow-400 hover:bg-yellow-500"
-                            >
-                                {tCommon("bannerCta")}
-                            </a>
-                        </div>
-                    }
-                />
+                {cfg.enabled && (
+                    <Banner
+                        id="site-banner"
+                        gradient={`linear-gradient(to right, ${cfg.color1}, ${cfg.color2}, ${cfg.color3})`}
+                        height={cfg.height}
+                        cooldownMinutes={cfg.cooldownMinutes}
+                        content={
+                            <div className="inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+                                <span dangerouslySetInnerHTML={{ __html: typeof cfg.content === "object" ? (cfg.content[locale as "vi" | "en"] ?? cfg.content.vi) : cfg.content }} />
+                                {cfg.hasButton && (
+                                    <a
+                                        href={cfg.buttonLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            backgroundColor: `color-mix(in srgb, ${cfg.buttonBgColor} ${cfg.buttonOpacity ?? 100}%, transparent)`,
+                                            borderColor: cfg.buttonBorderColor ?? cfg.buttonBgColor,
+                                            color: cfg.buttonTextColor,
+                                        }}
+                                        className="rounded-[7px] border px-3 py-0.5 text-xs transition-colors hover:opacity-85"
+                                    >
+                                        {typeof cfg.buttonText === "object" ? (cfg.buttonText[locale as "vi" | "en"] ?? cfg.buttonText.vi) : cfg.buttonText}
+                                    </a>
+                                )}
+                            </div>
+                        }
+                    />
+                )}
             </div>
 
             <div className="relative z-10 flex flex-1 flex-col md:min-h-0">
@@ -122,13 +135,15 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 export default function AppShell({
     children,
     initialAccentColor,
+    initialBannerConfig,
 }: {
     children: React.ReactNode;
     initialAccentColor: string;
+    initialBannerConfig?: any;
 }) {
     return (
         <ThemeProvider attribute="class" defaultTheme="dark" storageKey="helios-blog-theme" enableSystem={false}>
-            <SiteSettingsProvider initialAccentColor={initialAccentColor}>
+            <SiteSettingsProvider initialAccentColor={initialAccentColor} initialBannerConfig={initialBannerConfig}>
                 <UserProvider>
                     <ToastProvider>
                         <AppShellContent>{children}</AppShellContent>

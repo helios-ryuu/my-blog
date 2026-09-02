@@ -69,12 +69,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref
     ) => {
         const iconSize = iconSizes[size];
-        const isDisabled = Boolean(disabled || isLoading);
+        const isDisabled = disabled || isLoading;
 
         return (
             <button
                 ref={ref}
-                disabled={isDisabled}
+                disabled={isDisabled || undefined}
                 className={`
                     inline-flex items-center justify-center font-medium rounded-md
                     transition-colors cursor-pointer

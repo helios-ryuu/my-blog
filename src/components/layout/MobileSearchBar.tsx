@@ -1,16 +1,23 @@
 "use client";
 
 import { useCallback } from "react";
+import { usePathname } from "next/navigation";
 import SearchBar from "@/components/layout/Header/SearchBar";
 import { SlidersHorizontal } from "lucide-react";
 import { usePostFilter } from "@/contexts/PostFilterContext";
 
 export default function MobileSearchBar() {
     const { isMobileFilterOpen, setIsMobileFilterOpen } = usePostFilter();
+    const pathname = usePathname();
     
     const handleFilterClick = useCallback(() => {
         setIsMobileFilterOpen(!isMobileFilterOpen);
     }, [isMobileFilterOpen, setIsMobileFilterOpen]);
+
+    // Ẩn thanh tìm kiếm trên trang chi tiết bài viết và trang admin
+    if (pathname.startsWith("/post/") || pathname.startsWith("/admin")) {
+        return null;
+    }
 
     return (
         <div className="md:hidden top-0 z-40 bg-background border-b border-(--border-color)">

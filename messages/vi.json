@@ -136,7 +136,7 @@
         "metadataDescription": "Về Helios Space và những chủ đề được viết tại đây.",
         "title": "Giới thiệu",
         "subtitle": "Helios Space là góc viết cá nhân về phần mềm, quá trình học hỏi và những ý tưởng đáng để ghi lại.",
-        "aboutTitle": "Về blog",
+        "aboutTitle": "Về space",
         "paragraphOne": "Mỗi bài viết bắt đầu từ một điều đã được xây dựng, một vấn đề vừa được hiểu rõ hơn hoặc một câu hỏi đáng theo đuổi lâu dài.",
         "paragraphTwo": "Nội dung tập trung vào kỹ thuật phần mềm, công cụ, thiết kế sản phẩm và các ghi chú thực hành, với mục tiêu rõ ràng, có chiều sâu và hữu ích khi đọc lại.",
         "topicsTitle": "Chủ đề",
@@ -180,9 +180,25 @@
         "accentSaving": "Đang lưu…",
         "accentSaveSuccess": "Đã cập nhật màu accent.",
         "accentSaveError": "Không thể lưu màu accent.",
+        "bannerTitle": "Banner",
+        "bannerDescription": "Tuỳ chỉnh thanh thông báo hiển thị trên đầu trang.",
+        "bannerEnabled": "Kích hoạt Banner",
+        "bannerContent": "Nội dung văn bản (hỗ trợ HTML)",
+        "bannerGradient": "Dải màu nền (Gradient 3 màu)",
+        "bannerHeight": "Chiều cao Banner (px)",
+        "bannerCooldown": "Thời gian phục hồi khi tắt (phút)",
+        "bannerShowButton": "Hiển thị nút bấm",
+        "bannerButtonText": "Tên nút",
+        "bannerButtonLink": "Đường dẫn (Link)",
+        "bannerButtonBg": "Màu nền nút",
+        "bannerButtonColor": "Màu chữ nút",
+        "bannerButtonBorder": "Màu viền nút",
+        "bannerButtonOpacity": "Độ mờ màu nền nút",
+        "bannerSaveSuccess": "Đã cập nhật cài đặt.",
+        "bannerEditLang": "Ngôn ngữ chỉnh sửa",
         "managementTitle": "Quản lý nội dung",
         "categoriesTitle": "Danh mục",
-        "categoriesDescription": "Tạo và duy trì các nhóm nội dung dùng trên toàn blog.",
+        "categoriesDescription": "Tạo và duy trì các nhóm nội dung dùng trên toàn space.",
         "addCategory": "Thêm danh mục",
         "editCategory": "Sửa danh mục",
         "deleteCategory": "Xoá danh mục",
@@ -428,7 +444,7 @@
         "pageSubtitle": "Một vài thông tin về cách nội dung trên Helios Space được tổ chức.",
         "adminPageTitle": "Hỏi & Đáp Admin",
         "adminPageSubtitle": "Ghi chú vận hành CMS và cấu hình giao diện.",
-        "userSection": "Về blog",
+        "userSection": "Về space",
         "adminSection": "Vận hành",
         "userItems": [
             {
@@ -441,7 +457,7 @@
             },
             {
                 "q": "Các danh mục bài viết có ý nghĩa gì?",
-                "a": "Danh mục phân tách bài kiến thức, dự án, ghi chú, ý tưởng, hành trình, snippet, review, tài nguyên, cuộc sống, hình ảnh và cập nhật blog. Category Series chỉ là một nhóm nội dung, độc lập với tính năng chuỗi bài có thứ tự."
+                "a": "Danh mục phân tách bài kiến thức, dự án, ghi chú, ý tưởng, hành trình, snippet, review, tài nguyên, cuộc sống, hình ảnh và cập nhật space. Category Series chỉ là một nhóm nội dung, độc lập với tính năng chuỗi bài có thứ tự."
             },
             {
                 "q": "Tôi có thể chia sẻ bài viết như thế nào?",

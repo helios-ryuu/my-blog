@@ -26,11 +26,7 @@ export default function AuthSection() {
     if (isLoading) return <div className="h-7 w-7 animate-pulse rounded-full bg-foreground/10" />;
 
     if (!user) {
-        return (
-            <Link href="/auth" className="rounded-md px-2 py-1 text-sm text-foreground/70 transition-colors hover:bg-accent/10 hover:text-accent">
-                {t("signIn")}
-            </Link>
-        );
+        return null;
     }
 
     async function handleLogout() {

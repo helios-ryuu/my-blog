@@ -1,7 +1,7 @@
 import { unstable_cache, revalidateTag } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabasePublicClient, hasSupabasePublicConfig } from "@/lib/supabase/public";
-import { ACCENT_COLOR_PATTERN, DEFAULT_ACCENT_COLOR } from "@/config/site";
+import { ACCENT_COLOR_PATTERN, DEFAULT_ACCENT_COLOR, BannerConfig, DEFAULT_BANNER_CONFIG } from "@/config/site";
 import { HttpError } from "@/lib/api-helpers";
 
 function normalizeAccentColor(value: unknown): string {
@@ -52,4 +52,54 @@ export async function updateAccentColor(value: unknown): Promise<string> {
     if (error) throw new Error(error.message);
     revalidateTag("site-settings", "max");
     return accentColor;
+}
+
+const getCachedBannerConfig = unstable_cache(
+    async (): Promise<BannerConfig> => {
+        if (!hasSupabasePublicConfig()) return DEFAULT_BANNER_CONFIG;
+        try {
+            const supabase = createSupabasePublicClient();
+            const { data, error } = await supabase
+                .from("site_settings")
+                .select("value")
+                .eq("key", "banner_config")
+                .maybeSingle();
+            if (error) throw new Error(error.message);
+            if (data?.value) {
+                try {
+                    const parsed = typeof data.value === "string" ? JSON.parse(data.value) : data.value;
+                    return { ...DEFAULT_BANNER_CONFIG, ...parsed };
+                } catch {
+                    return DEFAULT_BANNER_CONFIG;
+                }
+            }
+            return DEFAULT_BANNER_CONFIG;
+        } catch (error) {
+            console.error("Unable to load banner config:", error);
+            return DEFAULT_BANNER_CONFIG;
+        }
+    },
+    ["site-banner-config"],
+    { revalidate: 3600, tags: ["site-settings"] },
+);
+
+export async function getBannerConfig(): Promise<BannerConfig> {
+    return getCachedBannerConfig();
+}
+
+export async function updateBannerConfig(value: Partial<BannerConfig>): Promise<BannerConfig> {
+    const supabase = createSupabaseAdminClient();
+    const currentConfig = await getBannerConfig();
+    const newConfig = { ...currentConfig, ...value };
+    
+    const { error } = await supabase.from("site_settings").upsert({
+        key: "banner_config",
+        value: JSON.stringify(newConfig),
+        is_public: true,
+        updated_at: new Date().toISOString(),
+    });
+    
+    if (error) throw new Error(error.message);
+    revalidateTag("site-settings", "max");
+    return newConfig;
 }

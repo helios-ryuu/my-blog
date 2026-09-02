@@ -1,10 +1,11 @@
 # Helios Space
 
-Helios Space v2.1 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
+Helios Space v2.2 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
 
 ## Tính năng
 
-- Trang chủ tập trung vào bài viết mới.
+- Trang chủ tập trung vào bài viết mới, giao diện tối giản loại bỏ các chi tiết thừa.
+- Hệ thống Banner thông báo động đa ngôn ngữ, cấu hình trực tiếp (màu sắc, CTA button, thời gian phục hồi) từ CMS.
 - Danh sách bài viết có lọc tag, danh mục, mức độ, kiểu Standalone/Series, sắp xếp và hai chế độ hiển thị.
 - Trang chi tiết MDX có syntax highlighting, mục lục, bài liên quan, điều hướng phần trước/sau trong series, công cụ chia sẻ và tải Markdown.
 - CMS quản lý bài viết, danh mục, tag, series, trạng thái xuất bản và thư viện ảnh.
@@ -12,8 +13,8 @@ Helios Space v2.1 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng b�
 - Mỗi bài có một danh mục, ba mức độ và thời gian đọc do tác giả nhập thủ công.
 - Series độc lập với danh mục: bài có thể là Standalone hoặc nhận `series_id` cùng thứ tự dương duy nhất trong series. Series đang có bài không thể bị xoá.
 - Field chọn post/tag hỗ trợ tìm nhanh; nút bộ lọc nâng cao mở tìm kiếm nhiều tiêu chí và phân trang khi dữ liệu lớn.
-- Một tài khoản admin duy nhất, cấu hình bằng biến môi trường.
-- Màu accent toàn site được lưu trong Supabase và chỉnh bằng color selector.
+- Một tài khoản admin duy nhất, cấu hình bằng biến môi trường (nút Đăng nhập ẩn với khách).
+- Cài đặt giao diện (màu accent toàn site, cấu hình banner) được lưu trong Supabase và chỉnh bằng CMS.
 - API ghi dữ liệu kiểm tra field, kiểu, độ dài, slug, URL, category, level, thời gian đọc và giới hạn tag trước khi chạm database.
 - Card, list, preview và ảnh QR dùng cùng badge Type; trang chi tiết chỉ điều hướng qua các bài đã xuất bản trong series.
 - Giao diện tiếng Việt/Anh, sáng/tối và responsive.
@@ -137,9 +138,9 @@ Không có route public `/series`: badge và điều hướng nằm trực tiế
 | `pnpm typecheck` | Kiểm tra TypeScript |
 | `pnpm check` | Chạy typecheck, lint và production build |
 
-## Accent color
+## Giao diện & Banner (Site Settings)
 
-Admin chỉnh màu tại `/admin`. API `PATCH /api/admin/settings` validate mã `#RRGGBB`, lưu vào `public.site_settings`, revalidate cache và cập nhật CSS token toàn site. Giá trị mặc định là `#1f51ff`.
+Admin có thể thay đổi màu chủ đề (Accent color) và cấu hình Banner thông báo động (hiển thị, đa ngôn ngữ, màu sắc gradient, nút CTA) ngay tại trang CMS `/admin`. API `PATCH /api/admin/settings` lưu cài đặt vào bảng `public.site_settings`, tự động revalidate cache và cập nhật toàn site ngay lập tức mà không cần deploy lại.
 
 ## Tài liệu
 

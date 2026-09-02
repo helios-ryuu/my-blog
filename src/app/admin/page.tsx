@@ -22,7 +22,7 @@ function AdminWorkspace() {
     const [posts, setPosts] = useState<AdminPost[]>([]);
     const [tags, setTags] = useState<AdminTag[]>([]);
     const [categories, setCategories] = useState<AdminCategory[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [showAddTag, setShowAddTag] = useState(false);
     const [editTag, setEditTag] = useState<AdminTag | null>(null);
@@ -75,6 +75,7 @@ function AdminWorkspace() {
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-8">
+            <h1 className="text-lg font-semibold text-foreground mb-6">{t("title")}</h1>
             <SiteSettingsSection />
 
             <ManagementTab

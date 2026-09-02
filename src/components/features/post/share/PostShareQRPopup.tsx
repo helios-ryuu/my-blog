@@ -492,7 +492,7 @@ export default function ShareQRPopup({
                 ref={cardRef}
                 key={postUrl}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-94 p-3 rounded-xl border border-(--border-color) bg-(--post-card)"
+                className="w-full max-w-92 p-4 rounded-xl border border-(--border-color) bg-(--post-card)"
             >
                 {/* Image */}
                 {image && (

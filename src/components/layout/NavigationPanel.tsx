@@ -29,7 +29,7 @@ export default function NavigationPanel() {
                             className={`inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${
                                 active
                                     ? "bg-accent/15 text-accent"
-                                    : "text-foreground/65 hover:bg-foreground/5 hover:text-foreground"
+                                    : "text-foreground/85 hover:bg-foreground/5 hover:text-foreground"
                             }`}
                         >
                             <Icon className="h-4 w-4" strokeWidth={2.5} />

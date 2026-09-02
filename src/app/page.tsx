@@ -50,32 +50,24 @@ export default async function Home() {
     const [leadPost, ...morePosts] = posts.slice(0, 4);
 
     return (
-        <div className="mx-auto w-full max-w-7xl px-4 py-10 md:py-24">
+        <div className="mx-auto w-full max-w-7xl px-4 py-10 md:py-30">
             <section className="grid min-h-[430px] items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(420px,1.1fr)]">
                 <div className="max-w-2xl">
-                    <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-foreground/60">
-                        <PenLine className="h-4 w-4 text-accent" />
-                        {t("heroEyebrow")}
-                    </div>
                     <h1 className="text-4xl font-extrabold leading-tight text-accent md:text-5xl">Helios Space</h1>
-                    <p className="mt-5 max-w-xl text-base leading-8 text-foreground/78">{t("heroLead")}</p>
+                    <p className="mt-5 max-w-xl text-base leading-8 text-foreground/90">{t("heroLead")}</p>
                     <div className="mt-7 flex flex-wrap gap-3">
-                        <Link href="/post" className="inline-flex h-10 items-center gap-2 rounded-[8px] border border-accent bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-hover">
+                        <Link href="/post" className="inline-flex h-10 items-center gap-2 rounded-[4px] border border-accent bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-hover">
                             {t("explorePosts")}
                             <ArrowRight className="h-4 w-4" />
                         </Link>
-                        <Link href="/about" className="inline-flex h-10 items-center rounded-[8px] border border-(--border-color) bg-background/70 px-4 text-sm font-semibold transition-colors hover:border-accent/60 hover:text-accent">
+                        <Link href="/about" className="inline-flex h-10 items-center rounded-[4px] border border-(--border-color) bg-background/70 px-4 text-sm font-semibold transition-colors hover:border-accent/60 hover:text-accent">
                             {t("aboutAuthor")}
                         </Link>
                     </div>
                 </div>
 
                 <div>
-                    <div className="mb-4 flex items-end justify-between gap-4">
-                        <div>
-                            <p className="text-xs font-semibold uppercase tracking-widest text-foreground/55">{t("latestEyebrow")}</p>
-                            <h2 className="mt-1 text-xl font-bold">{t("latestPosts")}</h2>
-                        </div>
+                    <div className="mb-4 flex items-end justify-end gap-4">
                         <Link href="/post" className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
                             {t("viewAll")} <ArrowRight className="h-3 w-3" />
                         </Link>

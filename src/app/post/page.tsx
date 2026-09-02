@@ -27,6 +27,9 @@ export default async function PostPage() {
     return (
         <div className="w-full px-3 pb-12 md:px-8">
             <div className="mx-auto">
+                <div className="mt-6">
+                    <h1 className="text-lg font-semibold text-foreground">{t("postLabel")}</h1>
+                </div>
 
                 <Suspense fallback={<div className="text-sm text-foreground/60">{t("loading")}</div>}>
                     <PostListClient

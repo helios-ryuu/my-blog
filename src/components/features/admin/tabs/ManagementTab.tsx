@@ -52,7 +52,7 @@ export default function ManagementTab({
                     variant="utility"
                     size="sm"
                     onClick={onRefresh}
-                    disabled={isLoading}
+                    disabled={isLoading ? true : undefined}
                     isLoading={isLoading}
                     loadingText={tCommon("loading")}
                     icon={<RefreshCw size={14} />}

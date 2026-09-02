@@ -20,7 +20,8 @@ export default function Banner({
     cooldownMinutes = 5,
     gradient,
     bgColor = "#ef4444",
-}: BannerProps) {
+    height = 40,
+}: BannerProps & { height?: number }) {
     const t = useTranslations("common");
     const isVisible = useBannerVisibility(id, cooldownMinutes);
 
@@ -28,8 +29,8 @@ export default function Banner({
 
     return (
         <div
-            className="flex min-h-10 items-center px-3 py-1 text-sm text-white/90"
-            style={{ background: gradient || bgColor }}
+            className="flex items-center px-3 py-1 text-sm text-white/90"
+            style={{ background: gradient || bgColor, minHeight: `${height}px` }}
         >
             <div className="min-w-0 flex-1 text-center">{content}</div>
             {dismissible && (

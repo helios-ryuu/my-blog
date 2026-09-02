@@ -5,7 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import AppShell from "@/components/layout/AppShell";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/config/site";
-import { getAccentColor } from "@/lib/site-settings";
+import { getAccentColor, getBannerConfig } from "@/lib/site-settings";
 import "./globals.css";
 
 const lexend = Lexend({
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    const [locale, messages, accentColor] = await Promise.all([getLocale(), getMessages(), getAccentColor()]);
+    const [locale, messages, accentColor, bannerConfig] = await Promise.all([getLocale(), getMessages(), getAccentColor(), getBannerConfig()]);
     const accentStyle = {
         "--accent": accentColor,
         "--accent-hover": `color-mix(in srgb, ${accentColor} 84%, white)`,
@@ -50,7 +50,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <html lang={locale} suppressHydrationWarning style={accentStyle}>
             <body className={`${lexend.variable} max-h-screen antialiased`}>
                 <NextIntlClientProvider locale={locale} messages={messages}>
-                    <AppShell initialAccentColor={accentColor}>{children}</AppShell>
+                    <AppShell initialAccentColor={accentColor} initialBannerConfig={bannerConfig}>{children}</AppShell>
                 </NextIntlClientProvider>
             </body>
         </html>

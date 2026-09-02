@@ -6,8 +6,8 @@
 :root {
   --font-lexend: "Lexend", "Avenir Next", "Segoe UI", sans-serif;
   --font-fira-code: "Fira Code", "SFMono-Regular", "Consolas", monospace;
-  --background: #111111;
-  --background-hover: #2b2b2b;
+  --background: #101010;
+  --background-hover: #2a2a2a;
   --foreground: #ffffff;
   --accent: #1f51ff;
   --accent-hover: #4770ff;
@@ -23,9 +23,9 @@
   --scrollbar-thumb-hover: #4d4d4d;
   --radius: 0.625rem;
   /* shadcn variables - dark theme values */
-  --card: #202020;
+  --card: #1e1e1e;
   --card-foreground: #ffffff;
-  --popover: #202020;
+  --popover: #1e1e1e;
   --popover-foreground: #ffffff;
   --primary: #ffffff;
   --primary-foreground: #171717;
