@@ -8,7 +8,7 @@
   --font-fira-code: "Fira Code", "SFMono-Regular", "Consolas", monospace;
   --background: #101010;
   --background-hover: #2a2a2a;
-  --foreground: #ffffff;
+  --foreground: #f5f5f5;
   --accent: #1f51ff;
   --accent-hover: #4770ff;
   --border-color: #343434;
@@ -180,6 +180,30 @@ aside {
 
 .animate-slide-in {
   animation: slide-in 0.3s ease-out forwards;
+}
+
+/* Collapsible Navigation Panel on laptop (md+) */
+@media (min-width: 768px) {
+  .nav-panel-collapsible {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    pointer-events: none;
+    transition-property: grid-template-rows, opacity;
+    transition-duration: 350ms, 250ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1), ease-out;
+  }
+
+  .nav-panel-collapsible.is-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-panel-collapsible > div {
+    min-height: 0;
+    overflow: hidden;
+  }
 }
 
 /* .dark class inherits from :root which is already dark theme */

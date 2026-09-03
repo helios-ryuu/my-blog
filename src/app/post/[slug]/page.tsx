@@ -131,7 +131,7 @@ export default async function BlogPostPage({ params }: Props) {
                         <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
                         <p className="text-sm mt-2 text-foreground/70">{post.description}</p>
                         <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} type={post.type} seriesOrder={post.seriesOrder} />
-                        {post.tags && <TagList tags={post.tags} />}
+                        {post.tags && <TagList tags={post.tags} showLeadingHash />}
                     </header>
 
                     <div className="prose prose-lg dark:prose-invert max-w-none pb-8">

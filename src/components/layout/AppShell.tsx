@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { usePathname } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { ThemeProvider } from "next-themes";
 import Banner from "@/components/layout/Banner";
 import Header from "@/components/layout/Header";
@@ -14,14 +14,13 @@ import { PixelBlast } from "@/components/ui";
 import { ToastProvider } from "@/components/ui/Toast";
 import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { UserProvider } from "@/contexts/UserContext";
-import { SOCIAL_LINKS as REFERENCE_LINKS, DEFAULT_BANNER_CONFIG } from "@/config/site";
+import { DEFAULT_BANNER_CONFIG, type BannerConfig } from "@/config/site";
 import { NAVIGATION_START_EVENT, startNavigationLoading } from "@/lib/navigation-loading";
 import { PostFilterProvider } from "@/contexts/PostFilterContext";
 
 function AppShellContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const locale = useLocale();
-    const tCommon = useTranslations("common");
     const { accentColor, bannerConfig } = useSiteSettings();
     const cfg = bannerConfig || DEFAULT_BANNER_CONFIG;
     const isHomePage = pathname === "/";
@@ -139,7 +138,7 @@ export default function AppShell({
 }: {
     children: React.ReactNode;
     initialAccentColor: string;
-    initialBannerConfig?: any;
+    initialBannerConfig?: BannerConfig;
 }) {
     return (
         <ThemeProvider attribute="class" defaultTheme="dark" storageKey="helios-blog-theme" enableSystem={false}>

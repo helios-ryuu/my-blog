@@ -1,9 +1,7 @@
-import { getTranslations } from "next-intl/server";
 import BucketManager from "@/components/features/admin/tabs/BucketManager";
 import { ToastProvider } from "@/components/ui/Toast";
 
 export default async function BucketPage() {
-    const t = await getTranslations("admin");
 
     return (
         <ToastProvider>

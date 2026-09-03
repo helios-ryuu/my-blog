@@ -7,9 +7,10 @@ interface TagListProps {
     tags: string[];
     variant?: "compact" | "default";
     className?: string;
+    showLeadingHash?: boolean;
 }
 
-export default function TagList({ tags, variant = "default", className = "" }: TagListProps) {
+export default function TagList({ tags, variant = "default", className = "", showLeadingHash = false }: TagListProps) {
     if (!tags || tags.length === 0) return null;
 
     const variants = {
@@ -27,7 +28,10 @@ export default function TagList({ tags, variant = "default", className = "" }: T
     };
 
     return (
-        <div className={`flex flex-wrap ${variants[variant]} ${className}`}>
+        <div className={`flex flex-wrap items-center ${variants[variant]} ${className}`}>
+            {showLeadingHash && (
+                <span className="text-xs font-semibold text-accent/90 select-none">#</span>
+            )}
             {tags.map((tag) => (
                 <Link
                     key={tag}

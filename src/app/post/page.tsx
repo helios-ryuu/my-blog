@@ -25,9 +25,9 @@ export default async function PostPage() {
     const t = await getTranslations("post");
 
     return (
-        <div className="w-full px-3 pb-12 md:px-8">
+        <div className="w-full px-3 pb-12 md:px-12">
             <div className="mx-auto">
-                <div className="mt-6">
+                <div className="mt-4">
                     <h1 className="text-lg font-semibold text-foreground">{t("postLabel")}</h1>
                 </div>
 

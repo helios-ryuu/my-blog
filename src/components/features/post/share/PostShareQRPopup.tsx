@@ -385,7 +385,6 @@ export default function ShareQRPopup({
         return () => {
             cancelled = true;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [embeddedImageUrl, blurredBackgroundUrl, image, postUrl, showToast, t]);
 
     useEffect(() => {
@@ -557,7 +556,7 @@ export default function ShareQRPopup({
                 {/* Tags */}
                 {tags && (
                     <div className="mt-4">
-                        <TagList tags={tags} variant="compact" />
+                        <TagList tags={tags} variant="compact" showLeadingHash />
                     </div>
                 )}
 
@@ -587,7 +586,9 @@ export default function ShareQRPopup({
                     { label: t("read"), value: t("readingMinutes", { count: readingTime }) },
                     { label: t("level"), value: <PostLevelBadge level={level} /> },
                 ]} />
-                <PostTypeBadge type={type} order={seriesOrder} fullWidth className="mt-2" />
+                {type === "series" && (
+                    <PostTypeBadge type={type} order={seriesOrder} fullWidth className="mt-2" />
+                )}
 
             </div>
         </div>

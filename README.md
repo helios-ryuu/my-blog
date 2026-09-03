@@ -1,11 +1,16 @@
 # Helios Space
 
-Helios Space v2.2 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
+Helios Space v2.2.1 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
 
 ## Tính năng
 
 - Trang chủ tập trung vào bài viết mới, giao diện tối giản loại bỏ các chi tiết thừa.
 - Hệ thống Banner thông báo động đa ngôn ngữ, cấu hình trực tiếp (màu sắc, CTA button, thời gian phục hồi) từ CMS.
+- Navigation Panel thông minh: tự động thu gọn trên laptop (màn hình `md` trở lên) để tối ưu không gian hiển thị, tự bung mở mượt mà và đẩy nội dung xuống khi di chuột lại gần mép trên; trên thiết bị di động giữ nguyên hiển thị cố định. Các tab được căn giữa trên desktop và căn lề trái tự nhiên trên mobile tránh mất tab khi cuộn.
+- Mục lục bài viết (TOC) trên desktop hỗ trợ cuộn con trỏ nhảy nhanh qua từng đề mục (Header jump) với độ phản hồi tức thì và đồng nhất vị trí dừng giữa click và scroll.
+- Thanh tìm kiếm (Search Bar) luôn căn giữa màn hình tuyệt đối trên desktop; chuyển đổi đồng bộ sang Mobile Search Bar ở breakpoint `lg` (< 1024px); nút bộ lọc (Advanced Search) chỉ hiển thị riêng trên trang `/post`.
+- Header tinh gọn: tích hợp nút GitHub và Instagram với hiệu ứng hover accent đồng nhất; hoán đổi vị trí nút Profile Admin lên trước nút Đổi ngôn ngữ.
+- Thống nhất tiền tố `#` cho tag ở cả danh sách post card và trang chi tiết bài viết.
 - Danh sách bài viết có lọc tag, danh mục, mức độ, kiểu Standalone/Series, sắp xếp và hai chế độ hiển thị.
 - Trang chi tiết MDX có syntax highlighting, mục lục, bài liên quan, điều hướng phần trước/sau trong series, công cụ chia sẻ và tải Markdown.
 - CMS quản lý bài viết, danh mục, tag, series, trạng thái xuất bản và thư viện ảnh.
@@ -55,10 +60,9 @@ supabase/
 
 ## Cài đặt
 
-Yêu cầu Node.js 24 trở lên và Corepack.
+Yêu cầu Node.js 24 trở lên và pnpm.
 
 ```bash
-corepack enable
 pnpm install
 cp .env.example .env
 ```
@@ -145,8 +149,4 @@ Admin có thể thay đổi màu chủ đề (Accent color) và cấu hình Bann
 ## Tài liệu
 
 - [Hướng dẫn viết MDX](docs/INSTRUCTION.md)
-- [Project Charter](docs/PROJECT_CHARTER.md)
-- [Requirements](docs/REQUIREMENTS.md)
 - [Processes](docs/PROCESSES.md)
-- [Schema](docs/SCHEMA.md)
-- [Release Report](docs/REPORT.md)

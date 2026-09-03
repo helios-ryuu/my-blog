@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
-import { ArrowRight, PenLine } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { shouldBypassImageOptimization } from "@/lib/images";
 import { getAllPostsMeta } from "@/lib/posts";
@@ -75,7 +75,7 @@ export default async function Home() {
                     {leadPost ? (
                         <div className="grid gap-3">
                             <LatestPost post={leadPost} prominent />
-                            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                            <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
                                 {morePosts.map((post) => <LatestPost key={post.slug} post={post} />)}
                             </div>
                         </div>

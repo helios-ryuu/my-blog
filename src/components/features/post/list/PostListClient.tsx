@@ -69,7 +69,7 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
     useEffect(() => {
         const handleResize = () => {
             const width = window.innerWidth;
-            const mobile = width < 640;
+            const mobile = width < 768;
             setIsMobile(mobile);
 
             if (viewMode === "list") {
@@ -230,13 +230,13 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
     return (
         <>
             {/* Filters & Sort Bar */}
-            <div className="mt-2 mb-2 md:mt-8 px-2">
+            <div className="mt-2 mb-4 md:mt-6 px-2">
                 <div
                     id="post-management-controls"
-                    className={`${isMobileFilterOpen ? "grid" : "hidden"} grid-cols-1 gap-4 border-b border-(--border-color) py-4 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:border-0 sm:py-0`}
+                    className={`${isMobileFilterOpen ? "grid" : "hidden"} grid-cols-1 gap-4 border-b border-(--border-color) py-4 lg:flex lg:flex-row lg:flex-wrap lg:items-center lg:border-0 lg:py-0`}
                 >
-                    <div className="flex flex-col sm:flex-row flex-wrap gap-4 flex-1">
-                        <div className="grid grid-cols-[3.5rem_1fr] sm:flex items-center gap-2">
+                    <div className="flex flex-col lg:flex-row flex-wrap gap-4 flex-1">
+                        <div className="grid grid-cols-[3.5rem_1fr] lg:flex items-center gap-2">
                             <label className="text-xs text-(--foreground-dim) shrink-0">{t("filterTag")}:</label>
                             <MultiSelect
                                 values={selectedTags}
@@ -248,7 +248,7 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                             />
                         </div>
 
-                        <div className="grid grid-cols-[3.5rem_1fr] sm:flex items-center gap-2">
+                        <div className="grid grid-cols-[3.5rem_1fr] lg:flex items-center gap-2">
                             <label className="text-xs text-(--foreground-dim) shrink-0">{t("filterLevel")}:</label>
                             <MultiSelect
                                 values={selectedLevels}
@@ -260,7 +260,7 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                             />
                         </div>
 
-                        <div className="grid grid-cols-[3.5rem_1fr] sm:flex items-center gap-2">
+                        <div className="grid grid-cols-[3.5rem_1fr] lg:flex items-center gap-2">
                             <label className="text-xs text-(--foreground-dim) shrink-0">{t("filterCategory")}:</label>
                             <Select
                                 value={selectedCategory}
@@ -272,7 +272,7 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                             />
                         </div>
 
-                        <div className="grid grid-cols-[3.5rem_1fr] sm:flex items-center gap-2">
+                        <div className="grid grid-cols-[3.5rem_1fr] lg:flex items-center gap-2">
                             <label className="text-xs text-(--foreground-dim) shrink-0">{t("filterType")}:</label>
                             <Select
                                 value={selectedType}
@@ -284,7 +284,7 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                             />
                         </div>
 
-                        <div className="grid grid-cols-[3.5rem_1fr] sm:flex items-center gap-2">
+                        <div className="grid grid-cols-[3.5rem_1fr] lg:flex items-center gap-2">
                             <label className="text-xs text-(--foreground-dim) shrink-0">{t("filterSort")}:</label>
                             <Select
                                 value={selectedSort}
@@ -300,14 +300,14 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                             <Button
                                 onClick={clearFilters}
                                 variant="secondary"
-                                className="w-full sm:mx-0 sm:w-auto"
+                                className="w-full lg:mx-0 lg:w-auto"
                             >
                                 {t("resetFilters")}
                             </Button>
                         )}
                     </div>
 
-                    <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto sm:self-end">
+                    <div className="flex w-full items-center gap-2 lg:ml-auto lg:w-auto lg:self-end">
                         <div className="flex items-center gap-1.5 text-xs text-(--foreground-dim)">
                             {viewMode === "card" ? <LayoutGrid className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
                         </div>
@@ -319,13 +319,13 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                             }}
                             options={viewOptions.map(o => ({ value: o.value, label: o.label }))}
                             placeholder={t("viewCard")}
-                            className="flex-1 cursor-pointer text-xs sm:flex-none"
+                            className="flex-1 cursor-pointer text-xs lg:flex-none"
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="mt-2 hidden w-full border-t border-(--foreground-dim)/30 sm:block"></div>
+            <div className="mt-2 hidden w-full border-t border-(--foreground-dim)/30 lg:block"></div>
 
             <p className="mt-2 mb-2 text-xs text-(--foreground-dim)">
                 {t("showingCount", { shown: filteredPosts.length, total: posts.length })}
@@ -394,7 +394,7 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                         </div>
                     </div>
                 ) : isMobile ? (
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-1.5">
                         {filteredPosts.map((post) => (
                             <PostCard
                                 key={post.slug}
@@ -425,7 +425,7 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
                             animate="center"
                             exit="exit"
                             transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
                         >
                             {filteredPosts
                                 .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)

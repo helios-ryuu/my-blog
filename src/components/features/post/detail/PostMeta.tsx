@@ -15,8 +15,12 @@ export default function PostMeta({ date, readingTime, level, type, seriesOrder }
             <span>{t("readingMinutes", { count: readingTime })}</span>
             <span aria-hidden="true">•</span>
             <PostLevelBadge level={level} />
-            <span aria-hidden="true">•</span>
-            <PostTypeBadge type={type} order={seriesOrder} />
+            {type === "series" && (
+                <>
+                    <span aria-hidden="true">•</span>
+                    <PostTypeBadge type={type} order={seriesOrder} />
+                </>
+            )}
         </div>
     );
 }

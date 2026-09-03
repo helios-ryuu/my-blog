@@ -311,7 +311,7 @@ export default function PostAdvancedSelector({ value, tags, categories, onChange
                                                 <span>{categoryNames.get(post.category) ?? post.category}</span>
                                                 <span>{tPost(POST_LEVEL_LABEL_KEYS[post.level])}</span>
                                                 <span>{tPost("readingMinutes", { count: post.reading_time })}</span>
-                                                <span>{post.series_id ? `${t("typeSeries")} #${post.series_order}` : t("typeStandalone")}</span>
+                                                {post.series_id && <span>{`${t("typeSeries")} #${post.series_order}`}</span>}
                                                 {formatDate(post.updated_at ?? post.created_at) && <span>{formatDate(post.updated_at ?? post.created_at)}</span>}
                                                 {post.tags?.map((postTag) => <span key={postTag.id}>#{postTag.name}</span>)}
                                             </div>

@@ -107,6 +107,7 @@ export default function PostCard({
                             <TagList
                                 tags={tags}
                                 variant="compact"
+                                showLeadingHash
                             />
                         </div>
                     )}
@@ -124,7 +125,9 @@ export default function PostCard({
                         { label: t("read"), value: t("readingMinutes", { count: readingTime }) },
                         { label: t("level"), value: <PostLevelBadge level={level} compact /> },
                     ]} />
-                    <PostTypeBadge type={type} order={seriesOrder} fullWidth tightPadding className="mt-2" />
+                    {type === "series" && (
+                        <PostTypeBadge type={type} order={seriesOrder} fullWidth tightPadding className="mt-2" />
+                    )}
                 </div>
             </div>
 

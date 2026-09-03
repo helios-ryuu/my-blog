@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { unstable_cache } from "next/cache";
-import PageHeader from "@/components/layout/PageHeader";
 import PostLevelBadge from "@/components/features/post/card/PostLevelBadge";
 import { SOCIAL_LINKS } from "@/config/site";
 import { POST_LEVELS } from "@/types/database";

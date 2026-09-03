@@ -23,12 +23,12 @@ const alertConfig = {
     note: {
         icon: Info,
         title: "Note",
-        bg: "rgba(59, 130, 246, 0.08)",
+        bg: "rgba(59, 130, 246, 0.16)",
         border: "rgba(59, 130, 246, 0.3)",
-        color: "#60a5fa",
-        textColor: "#4d94f8",
+        color: "#4d94f8",
+        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
         darkText: "#e2e8f0",
-        lightBg: "rgba(59, 130, 246, 0.1)",
+        lightBg: "rgba(59, 130, 246, 0.16)",
         lightBorder: "rgba(59, 130, 246, 0.6)",
         lightColor: "#2563eb",
         lightText: "#1e293b",
@@ -36,12 +36,12 @@ const alertConfig = {
     tip: {
         icon: Lightbulb,
         title: "Tip",
-        bg: "rgba(34, 197, 94, 0.08)",
+        bg: "rgba(34, 197, 94, 0.16)",
         border: "rgba(34, 197, 94, 0.3)",
-        color: "#4ade80",
-        textColor: "#36d36f",
+        color: "#36d36f",
+        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
         darkText: "#e2e8f0",
-        lightBg: "rgba(34, 197, 94, 0.1)",
+        lightBg: "rgba(34, 197, 94, 0.16)",
         lightBorder: "rgba(34, 197, 94, 0.6)",
         lightColor: "#16a34a",
         lightText: "#1e293b",
@@ -49,12 +49,12 @@ const alertConfig = {
     important: {
         icon: AlertCircle,
         title: "Important",
-        bg: "rgba(168, 85, 247, 0.08)",
+        bg: "rgba(168, 85, 247, 0.16)",
         border: "rgba(168, 85, 247, 0.3)",
-        color: "#c084fc",
-        textColor: "#b36dfa",
+        color: "#b36dfa",
+        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
         darkText: "#e2e8f0",
-        lightBg: "rgba(168, 85, 247, 0.1)",
+        lightBg: "rgba(168, 85, 247, 0.16)",
         lightBorder: "rgba(168, 85, 247, 0.6)",
         lightColor: "#9333ea",
         lightText: "#1e293b",
@@ -62,12 +62,12 @@ const alertConfig = {
     warning: {
         icon: AlertTriangle,
         title: "Warning",
-        bg: "rgba(245, 158, 11, 0.08)",
+        bg: "rgba(245, 158, 11, 0.16)",
         border: "rgba(245, 158, 11, 0.3)",
-        color: "#fbbf24",
-        textColor: "#f7af18",
+        color: "#f7af18",
+        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
         darkText: "#e2e8f0",
-        lightBg: "rgba(245, 158, 11, 0.1)",
+        lightBg: "rgba(245, 158, 11, 0.16)",
         lightBorder: "rgba(245, 158, 11, 0.6)",
         lightColor: "#d97706",
         lightText: "#1e293b",
@@ -75,12 +75,12 @@ const alertConfig = {
     caution: {
         icon: ShieldAlert,
         title: "Caution",
-        bg: "rgba(239, 68, 68, 0.08)",
+        bg: "rgba(239, 68, 68, 0.16)",
         border: "rgba(239, 68, 68, 0.3)",
-        color: "#f87171",
-        textColor: "#f55a5a",
+        color: "#f55a5a",
+        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
         darkText: "#e2e8f0",
-        lightBg: "rgba(239, 68, 68, 0.1)",
+        lightBg: "rgba(239, 68, 68, 0.16)",
         lightBorder: "rgba(239, 68, 68, 0.6)",
         lightColor: "#dc2626",
         lightText: "#1e293b",
@@ -107,7 +107,7 @@ function Alert({ type = "note", title, children }: { type?: AlertType; title?: s
                 <Icon size={18} strokeWidth={3} />
                 <span>{displayTitle}</span>
             </div>
-            <div className="text-sm leading-relaxed my-2" style={{ color: config.textColor }}>
+            <div className="text-sm leading-relaxed my-2 text-foreground/85" style={{ color: config.textColor }}>
                 {children}
             </div>
         </div>

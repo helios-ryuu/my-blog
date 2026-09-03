@@ -72,7 +72,7 @@ export default async function TagPage({ params }: Props) {
                 {items.length === 0 ? (
                     <p className="mt-6 text-foreground/50">{t("empty")}</p>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {items.map((p) => {
                             const date = p.published_at ?? p.created_at;
                             const category = categoryMap.get(p.category);

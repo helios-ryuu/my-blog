@@ -72,3 +72,84 @@ pnpm check
 ```
 
 Sau đó kiểm tra homepage, search, bài showcase MDX, đăng nhập, series CRUD/order/navigation, CMS, selector nâng cao, database viewer, tạo folder/upload R2, banner cooldown, theme và accent trên desktop/mobile.
+
+## Quy trình Gitflow (Branching Strategy)
+
+Dự án áp dụng mô hình Gitflow tiêu chuẩn với 5 loại nhánh:
+
+```text
+main ──────────────────────────────● (v2.2.1) ───────────────● (v2.3.0) ───
+      \                           /     \                   /
+hotfix \─────────────────────────/       \                 /
+        \                                 \               /
+release  \                                 \───●─────────/
+          \                                   / \       /
+develop ───●─────────────────────────────────●───\─────●──────────────────
+            \                               /     \   /
+feature      \───●─────────────────────────/       \─/
+```
+
+### 1. `main` (Production)
+- Chứa mã nguồn ổn định nhất đang chạy thực tế trên production.
+- Không commit trực tiếp vào `main`.
+- Chỉ nhận merge từ nhánh `release/*` (khi ra mắt bản mới) hoặc `hotfix/*` (khi sửa lỗi khẩn cấp).
+- Mỗi lần merge vào `main` luôn tạo một Git Tag tương ứng (`vX.Y.Z`).
+
+### 2. `develop` (Integration)
+- Nhánh cơ sở tích hợp cho toàn bộ quá trình phát triển.
+- Chứa các tính năng đã hoàn thành và sẵn sàng cho lần phát hành tiếp theo.
+- Tách từ `main` ban đầu; nhận merge từ các nhánh `feature/*`, `release/*` và `hotfix/*`.
+
+### 3. `feature/*` (Tính năng mới)
+- **Tách từ**: `develop`.
+- **Merge vào**: `develop`.
+- **Đặt tên**: `feature/<tên-tính-năng>` (ví dụ: `feature/dark-mode-toggle`, `feature/comment-system`).
+- **Quy trình**:
+  ```bash
+  git checkout develop
+  git pull origin develop
+  git checkout -b feature/awesome-feature
+  # Code và commit...
+  git checkout develop
+  git merge --no-ff feature/awesome-feature
+  git branch -d feature/awesome-feature
+  ```
+
+### 4. `release/*` (Chuẩn bị phát hành)
+- **Tách từ**: `develop` khi đã đủ tính năng cho một phiên bản mới.
+- **Merge vào**: Cả `main` (để release) VÀ `develop` (để đồng bộ các chỉnh sửa cuối cùng).
+- **Đặt tên**: `release/vX.Y.Z` (ví dụ: `release/v2.3.0`).
+- **Nhiệm vụ**: Chạy `pnpm check`, cập nhật số phiên bản trong `package.json`, hoàn thiện `README.md`, changelog và sửa các lỗi phát sinh nhỏ.
+- **Quy trình hoàn tất**:
+  ```bash
+  # Merge vào main & gắn tag
+  git checkout main
+  git merge --no-ff release/v2.3.0
+  git tag -a v2.3.0 -m "Release version v2.3.0"
+
+  # Merge ngược lại vào develop để đồng bộ
+  git checkout develop
+  git merge --no-ff release/v2.3.0
+
+  # Xóa nhánh release
+  git branch -d release/v2.3.0
+  ```
+
+### 5. `hotfix/*` (Sửa lỗi khẩn cấp trên Production)
+- **Tách từ**: `main` khi phát hiện lỗi nghiêm trọng trên production cần xử lý ngay lập tức mà không chờ chu kỳ release.
+- **Merge vào**: Cả `main` (gắn tag patch, ví dụ: `v2.2.2`) VÀ `develop`.
+- **Đặt tên**: `hotfix/vX.Y.Z` hoặc `hotfix/<tên-lỗi>`.
+- **Quy trình**:
+  ```bash
+  git checkout main
+  git checkout -b hotfix/v2.2.2
+  # Sửa lỗi, kiểm tra pnpm check...
+  git checkout main
+  git merge --no-ff hotfix/v2.2.2
+  git tag -a v2.2.2 -m "Hotfix version v2.2.2"
+
+  git checkout develop
+  git merge --no-ff hotfix/v2.2.2
+
+  git branch -d hotfix/v2.2.2
+  ```

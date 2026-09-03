@@ -72,7 +72,9 @@ export default function PostListItem({
                 <span className="text-xs text-(--foreground-dim)">{date}</span>
                 <span className="text-xs text-(--foreground-dim)">{t("readingMinutes", { count: readingTime })}</span>
                 <PostLevelBadge level={level} className="w-fit" />
-                <PostTypeBadge type={type} order={seriesOrder} compact />
+                <span className="w-fit">
+                    <PostTypeBadge type={type} order={seriesOrder} compact />
+                </span>
                 <span className="w-fit">
                     {category ? <PostCategoryBadge category={category} name={categoryName} icon={categoryIcon} /> : <span className="text-xs text-foreground/40">-</span>}
                 </span>
