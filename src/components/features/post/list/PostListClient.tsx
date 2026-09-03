@@ -119,7 +119,10 @@ export default function PostListClient({ posts, allTags, allCategories }: PostLi
     };
 
     const handleLevelsChange = (values: string[]) => {
-        updateUrl({ levels: values.filter((value): value is PostLevel => POST_LEVELS.includes(value as PostLevel)) });
+        const newLevels = values.includes("")
+            ? []
+            : values.filter((value): value is PostLevel => POST_LEVELS.includes(value as PostLevel));
+        updateUrl({ levels: newLevels });
     };
 
     const handleSortChange = (value: string) => {
