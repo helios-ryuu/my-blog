@@ -1,6 +1,6 @@
 # Helios Space
 
-Helios Space v2.2.1 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
+Helios Space v2.2.2 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
 
 ## Tính năng
 

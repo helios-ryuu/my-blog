@@ -20,19 +20,32 @@ export default function MultiSelect({
     className = "",
     isActive = false,
 }: MultiSelectProps) {
+    const activeValues = values.filter((v) => v !== "");
+
     const handleToggle = (value: string) => {
-        if (values.includes(value)) {
-            onValuesChange(values.filter((v) => v !== value));
+        if (value === "") {
+            onValuesChange([]);
+            return;
+        }
+        if (activeValues.includes(value)) {
+            onValuesChange(activeValues.filter((v) => v !== value));
         } else {
-            onValuesChange([...values, value]);
+            onValuesChange([...activeValues, value]);
         }
     };
 
-    const displayText = values.length === 0
+    const isOptionChecked = (optionValue: string) => {
+        if (optionValue === "") {
+            return activeValues.length === 0;
+        }
+        return activeValues.includes(optionValue);
+    };
+
+    const displayText = activeValues.length === 0
         ? placeholder
-        : values.length === 1
-            ? options.find((o) => o.value === values[0])?.label || values[0]
-            : `${values.length} selected`;
+        : activeValues.length === 1
+            ? options.find((o) => o.value === activeValues[0])?.label || activeValues[0]
+            : `${activeValues.length} selected`;
 
     return (
         <DropdownMenu.Root>
@@ -55,7 +68,7 @@ export default function MultiSelect({
                     {options.map((option) => (
                         <DropdownMenu.CheckboxItem
                             key={option.value}
-                            checked={values.includes(option.value)}
+                            checked={isOptionChecked(option.value)}
                             onCheckedChange={() => handleToggle(option.value)}
                             onSelect={(e) => e.preventDefault()}
                             className="relative flex items-center px-6 py-1.5 text-sm text-foreground rounded-md cursor-pointer select-none hover:bg-background-hover focus:bg-background-hover focus:outline-none data-highlighted:bg-background-hover"
