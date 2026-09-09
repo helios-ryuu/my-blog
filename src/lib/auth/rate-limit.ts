@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export interface RateLimitStatus {
@@ -50,23 +50,54 @@ function getMemoryRecord(ip: string): MemoryRecord {
     return rec;
 }
 
+export function normalizeIp(raw: string): string {
+    let ip = (raw || "").trim();
+    if (ip.startsWith("[") && ip.includes("]")) {
+        ip = ip.replace(/^\[([^\]]+)\].*$/, "$1");
+    } else if (ip.includes(":") && ip.includes(".") && ip.indexOf(":") === ip.lastIndexOf(":")) {
+        ip = ip.split(":")[0];
+    }
+    if (ip.startsWith("::ffff:")) {
+        ip = ip.substring(7);
+    }
+    if (ip === "::1" || ip === "localhost") {
+        ip = "127.0.0.1";
+    }
+    return ip;
+}
+
 export function getClientIp(req: NextRequest): string {
     const cfIp = req.headers.get("cf-connecting-ip");
-    if (cfIp) return cfIp.trim();
+    if (cfIp) return normalizeIp(cfIp);
+
+    const xRealIp = req.headers.get("x-real-ip");
+    if (xRealIp) return normalizeIp(xRealIp);
 
     const forwardedFor = req.headers.get("x-forwarded-for");
     if (forwardedFor) {
         const first = forwardedFor.split(",")[0]?.trim();
-        if (first) return first;
+        if (first) return normalizeIp(first);
     }
 
-    const realIp = req.headers.get("x-real-ip");
-    if (realIp) return realIp.trim();
+    const trueClientIp = req.headers.get("true-client-ip");
+    if (trueClientIp) return normalizeIp(trueClientIp);
+
+    const xClientIp = req.headers.get("x-client-ip");
+    if (xClientIp) return normalizeIp(xClientIp);
+
+    const forwarded = req.headers.get("forwarded");
+    if (forwarded) {
+        const match = forwarded.match(/for="?([^";,]+)/i);
+        if (match && match[1]) return normalizeIp(match[1]);
+    }
+
+    if (req.ip) return normalizeIp(req.ip);
 
     return "127.0.0.1";
 }
 
-export async function checkRateLimit(ip: string): Promise<RateLimitStatus> {
+export async function checkRateLimit(rawIp: string): Promise<RateLimitStatus> {
+    const ip = normalizeIp(rawIp);
     const now = Date.now();
     try {
         const supabase = createSupabaseAdminClient();
@@ -156,7 +187,8 @@ export async function checkRateLimit(ip: string): Promise<RateLimitStatus> {
     }
 }
 
-export async function recordFailedAttempt(ip: string): Promise<RateLimitStatus> {
+export async function recordFailedAttempt(rawIp: string): Promise<RateLimitStatus> {
+    const ip = normalizeIp(rawIp);
     const current = await checkRateLimit(ip);
     const now = Date.now();
     const newCount = current.attemptsCount + 1;
@@ -192,10 +224,20 @@ export async function recordFailedAttempt(ip: string): Promise<RateLimitStatus> 
     mem.lastAttemptAt = now;
     mem.updatedAt = now;
 
+    // Also update rawIp in memory if different
+    if (rawIp && rawIp !== ip) {
+        const rawMem = getMemoryRecord(rawIp);
+        rawMem.attemptCount = newCount;
+        rawMem.escalationLevel = newEscalation;
+        rawMem.lockedUntil = mem.lockedUntil;
+        rawMem.lastAttemptAt = now;
+        rawMem.updatedAt = now;
+    }
+
     // Save to Supabase
     try {
         const supabase = createSupabaseAdminClient();
-        await supabase
+        const { error } = await supabase
             .from("auth_rate_limits")
             .upsert({
                 ip,
@@ -205,6 +247,9 @@ export async function recordFailedAttempt(ip: string): Promise<RateLimitStatus> 
                 last_attempt_at: new Date(now).toISOString(),
                 updated_at: new Date(now).toISOString(),
             });
+        if (error) {
+            console.error("[RateLimit] Supabase upsert error:", error);
+        }
     } catch (err) {
         console.warn("[RateLimit] Supabase upsert failed:", err);
     }
@@ -219,9 +264,11 @@ export async function recordFailedAttempt(ip: string): Promise<RateLimitStatus> 
     };
 }
 
-export async function recordSuccessfulLogin(ip: string): Promise<void> {
+export async function recordSuccessfulLogin(rawIp: string): Promise<void> {
+    const ip = normalizeIp(rawIp);
     // Clear in-memory
     memoryStore.delete(ip);
+    if (rawIp && rawIp !== ip) memoryStore.delete(rawIp);
 
     // Clear Supabase record
     try {
@@ -229,21 +276,23 @@ export async function recordSuccessfulLogin(ip: string): Promise<void> {
         await supabase
             .from("auth_rate_limits")
             .delete()
-            .eq("ip", ip);
+            .or(`ip.eq.${ip},ip.eq.${rawIp}`);
     } catch (err) {
         console.warn("[RateLimit] Supabase delete on success failed:", err);
     }
 }
 
-export async function unblockIp(ip: string): Promise<boolean> {
+export async function unblockIp(rawIp: string): Promise<boolean> {
+    const ip = normalizeIp(rawIp);
     memoryStore.delete(ip);
+    if (rawIp && rawIp !== ip) memoryStore.delete(rawIp);
 
     try {
         const supabase = createSupabaseAdminClient();
         const { error } = await supabase
             .from("auth_rate_limits")
             .delete()
-            .eq("ip", ip);
+            .or(`ip.eq.${ip},ip.eq.${rawIp}`);
         if (error) throw error;
         return true;
     } catch (err) {
@@ -253,41 +302,61 @@ export async function unblockIp(ip: string): Promise<boolean> {
 }
 
 export async function listBlockedIps(): Promise<BlockedIpEntry[]> {
-    const nowIso = new Date().toISOString();
+    const now = Date.now();
+    const map = new Map<string, BlockedIpEntry>();
+
+    // 1. First collect all in-memory records
+    memoryStore.forEach((val, key) => {
+        const normIp = normalizeIp(key);
+        const isLocked = val.lockedUntil !== null && val.lockedUntil > now;
+        if (isLocked || val.attemptCount > 0) {
+            map.set(normIp, {
+                ip: normIp,
+                attemptsCount: val.attemptCount,
+                escalationLevel: val.escalationLevel,
+                lockedUntil: val.lockedUntil ? new Date(val.lockedUntil).toISOString() : null,
+                lastAttemptAt: new Date(val.lastAttemptAt).toISOString(),
+                updatedAt: new Date(val.updatedAt).toISOString(),
+            });
+        }
+    });
+
+    // 2. Fetch from Supabase and merge
     try {
         const supabase = createSupabaseAdminClient();
         const { data, error } = await supabase
             .from("auth_rate_limits")
             .select("ip, attempt_count, escalation_level, locked_until, last_attempt_at, updated_at")
-            .or(`locked_until.gt.${nowIso},attempt_count.gt.0`)
             .order("updated_at", { ascending: false })
-            .limit(50);
+            .limit(100);
 
-        if (error) throw error;
-
-        return (data || []).map((row) => ({
-            ip: row.ip,
-            attemptsCount: row.attempt_count,
-            escalationLevel: row.escalation_level,
-            lockedUntil: row.locked_until,
-            lastAttemptAt: row.last_attempt_at,
-            updatedAt: row.updated_at,
-        }));
-    } catch (err) {
-        console.warn("[RateLimit] Supabase listBlockedIps failed, returning memory records:", err);
-        const entries: BlockedIpEntry[] = [];
-        memoryStore.forEach((val, key) => {
-            if ((val.lockedUntil && val.lockedUntil > Date.now()) || val.attemptCount > 0) {
-                entries.push({
-                    ip: key,
-                    attemptsCount: val.attemptCount,
-                    escalationLevel: val.escalationLevel,
-                    lockedUntil: val.lockedUntil ? new Date(val.lockedUntil).toISOString() : null,
-                    lastAttemptAt: new Date(val.lastAttemptAt).toISOString(),
-                    updatedAt: new Date(val.updatedAt).toISOString(),
-                });
+        if (!error && data) {
+            for (const row of data) {
+                const normIp = normalizeIp(row.ip);
+                const lockedUntilTime = row.locked_until ? new Date(row.locked_until).getTime() : 0;
+                const isLocked = lockedUntilTime > now;
+                if (isLocked || row.attempt_count > 0) {
+                    const existing = map.get(normIp);
+                    if (!existing || new Date(row.updated_at).getTime() > new Date(existing.updatedAt).getTime()) {
+                        map.set(normIp, {
+                            ip: normIp,
+                            attemptsCount: Math.max(row.attempt_count, existing?.attemptsCount || 0),
+                            escalationLevel: Math.max(row.escalation_level, existing?.escalationLevel || 0),
+                            lockedUntil: row.locked_until || existing?.lockedUntil || null,
+                            lastAttemptAt: row.last_attempt_at || existing?.lastAttemptAt || new Date(now).toISOString(),
+                            updatedAt: row.updated_at || existing?.updatedAt || new Date(now).toISOString(),
+                        });
+                    }
+                }
             }
-        });
-        return entries;
+        } else if (error) {
+            console.error("[RateLimit] Supabase select error in listBlockedIps:", error);
+        }
+    } catch (err) {
+        console.warn("[RateLimit] Supabase query exception in listBlockedIps:", err);
     }
+
+    return Array.from(map.values()).sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
 }

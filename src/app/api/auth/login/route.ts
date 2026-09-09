@@ -5,6 +5,9 @@ import { getAdminUser, verifyAdminCredentials } from "@/lib/auth/admin";
 import { createSessionPayload, SESSION_COOKIE, sessionCookieOptions, signSession } from "@/lib/auth/session";
 import { checkRateLimit, getClientIp, recordFailedAttempt, recordSuccessfulLogin } from "@/lib/auth/rate-limit";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
     try {
         const clientIp = getClientIp(req);
