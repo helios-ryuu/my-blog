@@ -213,4 +213,16 @@ create policy "Public site settings are readable"
 grant usage on schema public to anon, authenticated;
 grant select on public.post, public.category, public.series, public.tag, public.post_tags, public.site_settings to anon, authenticated;
 
+-- Rate Limiting table for auth brute-force protection
+create table if not exists public.auth_rate_limits (
+    ip text primary key,
+    attempt_count int not null default 0,
+    escalation_level int not null default 0,
+    locked_until timestamptz,
+    last_attempt_at timestamptz not null default timezone('utc'::text, now()),
+    updated_at timestamptz not null default timezone('utc'::text, now())
+);
+
+alter table public.auth_rate_limits enable row level security;
+
 commit;
