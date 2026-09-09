@@ -153,7 +153,20 @@
         "password": "Mật khẩu",
         "submit": "Đăng nhập",
         "submitting": "Đang đăng nhập…",
-        "failed": "Đăng nhập thất bại."
+        "failed": "Đăng nhập thất bại.",
+        "lockedTitle": "Tạm thời bị khóa",
+        "lockedDescription": "Hệ thống đã tạm khóa do nhập sai mật khẩu nhiều lần. Vui lòng thử lại sau:",
+        "attemptsWarning": "Cảnh báo: Bạn còn {count} lần thử trước khi bị tạm khóa.",
+        "securityTitle": "Bảo mật đăng nhập",
+        "securityDescription": "Theo dõi và mở khóa các IP bị hạn chế do nhập sai mật khẩu.",
+        "unblock": "Mở khóa",
+        "unblockSuccess": "Đã mở khóa IP {ip}.",
+        "noBlockedIps": "Không có IP nào đang bị khóa hoặc cảnh báo.",
+        "ipAddress": "Địa chỉ IP",
+        "attempts": "Số lần thử",
+        "lockExpires": "Thời gian mở khóa",
+        "level": "Cấp độ",
+        "yourIp": "IP hiện tại của bạn"
     },
     "tagPage": {
         "notFound": "Tag không tồn tại",

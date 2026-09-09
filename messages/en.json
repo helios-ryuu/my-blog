@@ -154,7 +154,20 @@
         "password": "Password",
         "submit": "Sign in",
         "submitting": "Signing in…",
-        "failed": "Sign in failed."
+        "failed": "Sign in failed.",
+        "lockedTitle": "Temporarily locked",
+        "lockedDescription": "Too many failed login attempts. Access is locked. Please try again in:",
+        "attemptsWarning": "Warning: You have {count} attempts left before temporary lockout.",
+        "securityTitle": "Login Security & Rate Limits",
+        "securityDescription": "Monitor and unblock IP addresses restricted by failed login attempts.",
+        "unblock": "Unblock",
+        "unblockSuccess": "Unblocked IP {ip}.",
+        "noBlockedIps": "No IP addresses are currently locked or flagged.",
+        "ipAddress": "IP Address",
+        "attempts": "Attempts",
+        "lockExpires": "Unlock Time",
+        "level": "Level",
+        "yourIp": "Your current IP"
     },
     "tagPage": {
         "notFound": "Tag not found",
