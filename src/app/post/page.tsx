@@ -5,6 +5,7 @@ import { PostListClient } from "@/components/features/post";
 import { unstable_cache } from "next/cache";
 import { listCategories } from "@/lib/categories-db";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
+import PageHeader from "@/components/layout/PageHeader";
 
 // Cache post list data
 const getCachedPostsData = unstable_cache(
@@ -25,11 +26,13 @@ export default async function PostPage() {
     const t = await getTranslations("post");
 
     return (
-        <div className="w-full px-3 pb-12 md:px-12">
-            <div className="mx-auto">
-                <div className="mt-4">
-                    <h1 className="text-lg font-semibold text-foreground">{t("postLabel")}</h1>
-                </div>
+        <div className="relative min-h-screen w-full px-3 pb-4 md:px-18">
+            <div className="relative z-10 mx-auto">
+                <PageHeader
+                    title={t("postLabel")}
+                    className="mt-4 md:mt-10 mb-3"
+                    titleClassName="text-xl md:text-2xl"
+                />
 
                 <Suspense fallback={<div className="text-sm text-foreground/60">{t("loading")}</div>}>
                     <PostListClient
