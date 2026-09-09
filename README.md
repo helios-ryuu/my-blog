@@ -1,6 +1,6 @@
 # Helios Space
 
-Helios Space v3.0.0-beta.2 là không gian cá nhân kèm CMS hiện đại, hiệu năng cao, được xây dựng bằng Next.js 16, React 19, TypeScript, Supabase Postgres và Cloudflare R2. Dự án tích hợp hệ thống đồ họa WebGL tương tác, animation suite mượt mà, hệ thống bảo mật chống brute-force đa tầng, trình soạn thảo MDX phong phú, phân loại nội dung đa chiều (tag, danh mục động, series theo thứ tự) cùng giao diện quản trị 2 cột trực quan.
+Helios Space v3.0.0 là không gian cá nhân kèm CMS hiện đại, hiệu năng cao, được xây dựng bằng Next.js 16, React 19, TypeScript, Supabase Postgres và Cloudflare R2. Dự án tích hợp hệ thống đồ họa WebGL tương tác, animation suite mượt mà, hệ thống bảo mật chống brute-force đa tầng, trình soạn thảo MDX phong phú, phân loại nội dung đa chiều (tag, danh mục động, series theo thứ tự) cùng giao diện quản trị 2 cột trực quan.
 
 ## Tính năng nổi bật
 
