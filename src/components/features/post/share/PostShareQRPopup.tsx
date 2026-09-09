@@ -7,7 +7,7 @@ import { toBlob } from "html-to-image";
 import Image from "next/image";
 
 import { useTranslations } from "next-intl";
-import { TagList } from "@/components/ui";
+import TagList from "@/components/ui/TagList";
 import { useToast } from "@/components/ui/Toast";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import StatColumns from "../card/PostStatColumns";

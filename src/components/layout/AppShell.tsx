@@ -10,9 +10,12 @@ import Footer from "@/components/layout/Footer";
 import MobileSearchBar from "@/components/layout/MobileSearchBar";
 import NavigationPanel from "@/components/layout/NavigationPanel";
 import PageLoadingShell from "@/components/layout/PageLoadingShell";
-import { PixelBlast } from "@/components/ui";
+import dynamic from "next/dynamic";
 import { ToastProvider } from "@/components/ui/Toast";
 import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
+
+const HomeBackground = dynamic(() => import("@/components/ui/HomeBackground"), { ssr: false });
+const PostBackground = dynamic(() => import("@/components/ui/PostBackground"), { ssr: false });
 import { UserProvider } from "@/contexts/UserContext";
 import { DEFAULT_BANNER_CONFIG, type BannerConfig } from "@/config/site";
 import { NAVIGATION_START_EVENT, startNavigationLoading } from "@/lib/navigation-loading";
@@ -21,9 +24,10 @@ import { PostFilterProvider } from "@/contexts/PostFilterContext";
 function AppShellContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const locale = useLocale();
-    const { accentColor, bannerConfig } = useSiteSettings();
+    const { bannerConfig } = useSiteSettings();
     const cfg = bannerConfig || DEFAULT_BANNER_CONFIG;
     const isHomePage = pathname === "/";
+    const isPostPage = pathname === "/post";
     const [navigationTarget, setNavigationTarget] = useState<string | null>(null);
 
     useEffect(() => {
@@ -60,23 +64,12 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             onClickCapture={handleClickCapture}
         >
             {isHomePage && (
-                <div className="pointer-events-none absolute inset-0 z-0 opacity-65">
-                    <PixelBlast
-                        variant="square"
-                        pixelSize={4}
-                        color={accentColor}
-                        patternScale={2}
-                        patternDensity={0.85}
-                        pixelSizeJitter={0.12}
-                        enableRipples
-                        rippleSpeed={0.4}
-                        rippleThickness={0.12}
-                        rippleIntensityScale={1.45}
-                        speed={0.8}
-                        edgeFade={0.24}
-                        transparent
-                    />
+                <div className="pointer-events-none absolute inset-0 z-0">
+                    <HomeBackground />
                 </div>
+            )}
+            {isPostPage && (
+                <PostBackground />
             )}
 
             <div className="relative z-20">
@@ -97,9 +90,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                                         style={{
                                             backgroundColor: `color-mix(in srgb, ${cfg.buttonBgColor} ${cfg.buttonOpacity ?? 100}%, transparent)`,
                                             borderColor: cfg.buttonBorderColor ?? cfg.buttonBgColor,
+                                            borderWidth: "1.5px",
                                             color: cfg.buttonTextColor,
                                         }}
-                                        className="rounded-[7px] border px-3 py-0.5 text-xs transition-colors hover:opacity-85"
+                                        className="rounded-[7px] border-[1.5px] px-3 py-0.5 text-xs transition-colors hover:opacity-85"
                                     >
                                         {typeof cfg.buttonText === "object" ? (cfg.buttonText[locale as "vi" | "en"] ?? cfg.buttonText.vi) : cfg.buttonText}
                                     </a>
@@ -111,12 +105,14 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="relative z-10 flex flex-1 flex-col md:min-h-0">
-                <Header />
-                <NavigationPanel />
+                <div className="relative">
+                    <Header />
+                    <NavigationPanel floating={isHomePage || isPostPage} />
+                </div>
                 <PostFilterProvider>
                     <MobileSearchBar />
                     <div className="relative flex-1 md:min-h-0">
-                        <main className={`h-full overflow-auto ${isHomePage ? "bg-transparent" : "bg-background"}`}>
+                        <main className={`h-full overflow-auto ${isHomePage || isPostPage ? "bg-transparent" : "bg-background"}`}>
                             <div className="flex min-h-full flex-col pb-[env(safe-area-inset-bottom)]">
                                 <div className="min-h-0 flex-1">
                                     {navigationTarget ? <PageLoadingShell /> : children}
