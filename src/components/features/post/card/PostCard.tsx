@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { shouldBypassImageOptimization } from "@/lib/images";
-import { TagList } from "@/components/ui";
+import TagList from "@/components/ui/TagList";
 import StatColumns from "./PostStatColumns";
 import PostCardContextMenu from "./PostCardContextMenu";
 import PostCategoryBadge from "./PostCategoryBadge";
@@ -49,9 +49,18 @@ export default function PostCard({
         }
     }, [contextMenu, onClick, router, slug]);
 
+    const handleDragStart = (e: React.DragEvent) => {
+        const fullUrl = postUrl || (typeof window !== "undefined" ? `${window.location.origin}/post/${slug}` : `/post/${slug}`);
+        e.dataTransfer.setData("text/plain", fullUrl);
+        e.dataTransfer.setData("text/uri-list", fullUrl);
+        e.dataTransfer.effectAllowed = "copyLink";
+    };
+
     return (
         <>
             <div
+                draggable={true}
+                onDragStart={handleDragStart}
                 onClick={handleClick}
                 onContextMenu={handleContextMenu}
                 onTouchStart={handleTouchStart}
@@ -60,7 +69,7 @@ export default function PostCard({
                 className={`
                     relative flex flex-col w-full p-3
                     rounded-xl border border-(--border-color) bg-(--post-card)
-                    cursor-pointer
+                    cursor-grab active:cursor-grabbing
                     hover:border-(--border-color-hover) hover:bg-(--post-card-hover)
                     active:border-accent
                     select-none

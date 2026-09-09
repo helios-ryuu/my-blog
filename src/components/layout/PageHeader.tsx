@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import TextType from "@/components/ui/TextType";
 
 type PageHeaderProps = {
     title: ReactNode;
@@ -44,7 +47,21 @@ export default function PageHeader({
                         titleClassName,
                     )}
                 >
-                    {title}
+                    {typeof title === "string" ? (
+                        <TextType
+                            as="span"
+                            text={title}
+                            loop={true}
+                            typingSpeed={40}
+                            deletingSpeed={25}
+                            pauseDuration={3000}
+                            showCursor={true}
+                            cursorCharacter="|"
+                            cursorClassName="text-accent ml-1 font-mono font-normal opacity-90"
+                        />
+                    ) : (
+                        title
+                    )}
                 </h1>
                 {description && (
                     <p

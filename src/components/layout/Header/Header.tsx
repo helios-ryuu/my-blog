@@ -9,7 +9,7 @@ import { useTheme } from "next-themes";
 import AuthSection from "@/components/layout/Header/AuthSection";
 import LanguageSwitcher from "@/components/layout/Header/LanguageSwitcher";
 import SearchBar from "@/components/layout/Header/SearchBar";
-import { IconButton } from "@/components/ui";
+import IconButton from "@/components/ui/IconButton";
 import { menuItems } from "@/config/navigation";
 import { SITE_NAME, SOCIAL_LINKS } from "@/config/site";
 import { useMounted } from "@/hooks";
@@ -27,7 +27,7 @@ export default function Header() {
         .sort((a, b) => b.href.length - a.href.length)[0];
 
     return (
-        <header className="relative flex h-10 shrink-0 items-center border-b border-(--border-color) bg-background md:z-40">
+        <header className="relative flex h-10 shrink-0 items-center border-b border-(--border-color) bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 md:z-40">
             {/* Left: Logo & Breadcrumb */}
             <div className="relative z-10 hidden h-full max-w-[calc(50%-14rem)] shrink-0 items-center text-foreground md:flex">
                 <Link href="/" aria-label={SITE_NAME} className="ml-16 mr-2 transition-opacity hover:opacity-75">

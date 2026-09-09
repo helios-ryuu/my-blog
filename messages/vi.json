@@ -43,7 +43,7 @@
     },
     "home": {
         "heroEyebrow": "Ghi chép cá nhân",
-        "heroLead": "Nơi chia sẻ kiến thức và hành trình của bản thân về lập trình và các công nghệ.",
+        "heroLead": "Nơi chia sẻ kiến thức và hành trình của bản thân.",
         "explorePosts": "Khám phá bài viết",
         "aboutAuthor": "Giới thiệu",
         "latestEyebrow": "Bài viết mới",
@@ -153,7 +153,20 @@
         "password": "Mật khẩu",
         "submit": "Đăng nhập",
         "submitting": "Đang đăng nhập…",
-        "failed": "Đăng nhập thất bại."
+        "failed": "Đăng nhập thất bại.",
+        "lockedTitle": "Tạm thời bị khóa",
+        "lockedDescription": "Hệ thống đã tạm khóa do nhập sai mật khẩu nhiều lần. Vui lòng thử lại sau:",
+        "attemptsWarning": "Cảnh báo: Bạn còn {count} lần thử trước khi bị tạm khóa.",
+        "securityTitle": "Bảo mật đăng nhập",
+        "securityDescription": "Theo dõi và mở khóa các IP bị hạn chế do nhập sai mật khẩu.",
+        "unblock": "Mở khóa",
+        "unblockSuccess": "Đã mở khóa IP {ip}.",
+        "noBlockedIps": "Không có IP nào đang bị khóa hoặc cảnh báo.",
+        "ipAddress": "Địa chỉ IP",
+        "attempts": "Số lần thử",
+        "lockExpires": "Thời gian mở khóa",
+        "level": "Cấp độ",
+        "yourIp": "IP hiện tại của bạn"
     },
     "tagPage": {
         "notFound": "Tag không tồn tại",
@@ -170,6 +183,7 @@
     "admin": {
         "title": "KHÔNG GIAN QUẢN TRỊ",
         "subtitle": "Quản lý bài viết, danh mục, tag, hình ảnh và giao diện Helios Space.",
+        "siteSettingsTitle": "Cài đặt trang",
         "loadError": "Lỗi tải dữ liệu",
         "appearanceTitle": "Màu chủ đề",
         "appearanceDescription": "Chọn màu accent dùng chung cho toàn bộ giao diện.",
@@ -227,6 +241,13 @@
         "categoryDeleteError": "Không thể xoá danh mục.",
         "categoryDeleteBlocked": "Danh mục đang được {count} bài viết sử dụng.",
         "deleteCategoryMessage": "Danh mục chỉ có thể xoá khi không còn bài viết nào sử dụng.",
+        "categoryPickerTitle": "Tìm kiếm & Quản lý danh mục",
+        "categoryPickerDescription": "Tìm theo ID, tên, slug, mục đích hoặc ví dụ trong toàn bộ danh mục.",
+        "closeCategoryPicker": "Đóng trình chọn danh mục",
+        "advancedCategorySearch": "Tìm kiếm nâng cao",
+        "categoryPickerResults": "{count} danh mục",
+        "categorySummary": "Tổng cộng: {count} danh mục",
+        "categorySummaryWithPosts": "{categoriesCount} danh mục · {postsCount} bài viết",
         "sectionCreate": "Tạo mới",
         "createPost": "Bài viết mới",
         "createPostDesc": "Tạo bài viết và lưu nháp hoặc xuất bản ngay.",
@@ -346,6 +367,7 @@
         "useFilePicker": "Dùng",
         "openFile": "Mở",
         "bucketMedia": "my-blog",
+        "bucketMedia": "Media Storage",
         "addNewPost": "Thêm bài viết mới",
         "createPostBtn": "Tạo bài viết",
         "creatingPost": "Đang tạo...",
@@ -414,6 +436,9 @@
         "noTagsMatch": "Không có tag phù hợp",
         "postCreated": "Đã tạo bài viết.",
         "postUpdated": "Đã cập nhật bài viết.",
+        "draftSaved": "Đã lưu bản nháp.",
+        "totalStorage": "Tổng dung lượng",
+        "filesCount": "tệp",
         "savePostError": "Không thể lưu bài viết.",
         "publishError": "Không thể xuất bản bài viết.",
         "deleteSuccess": "Đã xoá {type}.",
@@ -468,7 +493,7 @@
                 "a": "Standalone là bài độc lập. Bài Series thuộc một chuỗi có thứ tự và trang chi tiết sẽ hiện phần hiện tại cùng liên kết bài trước, bài tiếp theo đã xuất bản."
             },
             {
-                "q": "Blog có hỗ trợ giao diện sáng và tối không?",
+                "q": "Space có hỗ trợ giao diện sáng và tối không?",
                 "a": "Có. Nút đổi giao diện nằm ở góc phải header và lựa chọn được lưu trên trình duyệt."
             }
         ],
@@ -483,7 +508,7 @@
             },
             {
                 "q": "Ảnh bài viết được lưu ở đâu?",
-                "a": "Ảnh được lưu trong bucket Cloudflare R2 my-blog. Thư viện ảnh hỗ trợ thư mục, upload, đổi tên, xoá và sao chép URL ổn định."
+                "a": "Ảnh được lưu trong bucket Cloudflare R2 media storage. Thư viện ảnh hỗ trợ thư mục, upload, đổi tên, xoá và sao chép URL ổn định."
             },
             {
                 "q": "Đổi màu accent có ảnh hưởng gì?",

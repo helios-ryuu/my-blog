@@ -3,18 +3,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ToastProvider, useToast } from "@/components/ui/Toast";
+import { useToast } from "@/components/ui/Toast";
 import ManagementTab from "@/components/features/admin/tabs/ManagementTab";
 import AddTagForm from "@/components/features/admin/forms/AddTagForm";
 import DeletePreviewPopup from "@/components/features/admin/common/DeletePreviewPopup";
 import EditTagForm from "@/components/features/admin/forms/EditTagForm";
 import SiteSettingsSection from "@/components/features/admin/sections/SiteSettingsSection";
+import SecuritySection from "@/components/features/admin/sections/SecuritySection";
 import SeriesForm from "@/components/features/admin/forms/SeriesForm";
 import { startNavigationLoading } from "@/lib/navigation-loading";
 import type { DeleteConfirmData } from "@/components/features/admin/sections/DeleteSection";
 import type { AdminCategory, AdminPost, AdminSeries, AdminTag } from "@/types/admin";
 
-function AdminWorkspace() {
+export default function AdminPage() {
     const router = useRouter();
     const { showToast } = useToast();
     const t = useTranslations("admin");
@@ -74,32 +75,43 @@ function AdminWorkspace() {
     }
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
-            <h1 className="text-lg font-semibold text-foreground mb-6">{t("title")}</h1>
-            <SiteSettingsSection />
+        <div className="max-w-[1440px] w-full mx-auto px-4 md:px-8 py-8 space-y-6">
+            <div>
+                <h1 className="text-xl font-bold uppercase tracking-wider text-foreground">{t("title")}</h1>
+                <p className="text-xs text-foreground/60 mt-1">{t("subtitle")}</p>
+            </div>
 
-            <ManagementTab
-                posts={posts}
-                tags={tags}
-                categories={categories}
-                isLoading={isLoading}
-                onRefresh={refresh}
-                onAddPost={() => {
-                    startNavigationLoading("/admin/posts/new");
-                    router.push("/admin/posts/new");
-                }}
-                onAddTag={() => setShowAddTag(true)}
-                onAddSeries={() => setShowAddSeries(true)}
-                onEditPost={(id) => {
-                    const href = `/admin/posts/${id}/edit`;
-                    startNavigationLoading(href);
-                    router.push(href);
-                }}
-                onEditTag={(tag) => setEditTag(tag)}
-                onEditSeries={(series) => setEditSeries(series)}
-                onDeleteConfirm={(data) => setDeleteTarget(data)}
-                onShowToast={showToast}
-            />
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                <div className="xl:col-span-7 2xl:col-span-8">
+                    <ManagementTab
+                        posts={posts}
+                        tags={tags}
+                        categories={categories}
+                        isLoading={isLoading}
+                        onRefresh={refresh}
+                        onAddPost={() => {
+                            startNavigationLoading("/admin/posts/new");
+                            router.push("/admin/posts/new");
+                        }}
+                        onAddTag={() => setShowAddTag(true)}
+                        onAddSeries={() => setShowAddSeries(true)}
+                        onEditPost={(id) => {
+                            const href = `/admin/posts/${id}/edit`;
+                            startNavigationLoading(href);
+                            router.push(href);
+                        }}
+                        onEditTag={(tag) => setEditTag(tag)}
+                        onEditSeries={(series) => setEditSeries(series)}
+                        onDeleteConfirm={(data) => setDeleteTarget(data)}
+                        onShowToast={showToast}
+                    />
+                </div>
+
+                <div className="xl:col-span-5 2xl:col-span-4 space-y-8">
+                    <SiteSettingsSection />
+                    <SecuritySection />
+                </div>
+            </div>
 
             {showAddTag && (
                 <AddTagForm
@@ -132,13 +144,5 @@ function AdminWorkspace() {
                 />
             )}
         </div>
-    );
-}
-
-export default function AdminPage() {
-    return (
-        <ToastProvider>
-            <AdminWorkspace />
-        </ToastProvider>
     );
 }

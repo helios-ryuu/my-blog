@@ -31,6 +31,8 @@ export interface MediaEntry {
 export interface MediaFolder {
     name: string;
     path: string;
+    size?: number;
+    fileCount?: number;
 }
 
 let cachedClient: S3Client | null = null;
@@ -101,48 +103,87 @@ function inferMimeType(path: string): string {
     return (extension && types[extension]) || "application/octet-stream";
 }
 
-export async function listMedia(prefix = ""): Promise<{ folders: MediaFolder[]; files: MediaEntry[] }> {
+export async function listMedia(prefix = ""): Promise<{
+    folders: MediaFolder[];
+    files: MediaEntry[];
+    totalSize: number;
+    totalFiles: number;
+}> {
     const cleanPrefix = cleanStoragePath(prefix);
     const objectPrefix = cleanPrefix ? `${cleanPrefix}/` : "";
-    const folders: MediaFolder[] = [];
+    const folderMap = new Map<string, { name: string; path: string; size: number; fileCount: number }>();
     const files: MediaEntry[] = [];
+    let totalSize = 0;
+    let totalFiles = 0;
     let continuationToken: string | undefined;
 
     do {
         const result = await getR2Client().send(new ListObjectsV2Command({
             Bucket: MEDIA_BUCKET_NAME,
             Prefix: objectPrefix,
-            Delimiter: "/",
             ContinuationToken: continuationToken,
         }));
 
-        for (const item of result.CommonPrefixes ?? []) {
-            const path = item.Prefix?.replace(/\/$/, "");
-            if (!path) continue;
-            folders.push({ name: path.slice(objectPrefix.length), path });
-        }
-
         for (const item of result.Contents ?? []) {
-            const path = item.Key;
-            if (!path || path === objectPrefix || path.endsWith("/.keep") || path === ".keep") continue;
-            const updatedAt = item.LastModified?.toISOString() ?? null;
-            files.push({
-                name: path.slice(objectPrefix.length),
-                path,
-                publicUrl: getMediaUrl(path),
-                size: item.Size ?? 0,
-                mimetype: inferMimeType(path),
-                createdAt: updatedAt,
-                updatedAt,
-            });
+            const key = item.Key;
+            if (!key || key === objectPrefix) continue;
+
+            const isDirMarker = key.endsWith("/");
+            const isKeepFile = key.endsWith("/.keep") || key === ".keep";
+            const relative = key.slice(objectPrefix.length);
+            if (!relative || relative === "/") continue;
+
+            const slashIndex = relative.indexOf("/");
+
+            if (slashIndex === -1) {
+                // Direct file in current directory
+                if (isDirMarker || isKeepFile) continue;
+                const updatedAt = item.LastModified?.toISOString() ?? null;
+                const size = item.Size ?? 0;
+                files.push({
+                    name: relative,
+                    path: key,
+                    publicUrl: getMediaUrl(key),
+                    size,
+                    mimetype: inferMimeType(key),
+                    createdAt: updatedAt,
+                    updatedAt,
+                });
+                totalSize += size;
+                totalFiles += 1;
+            } else {
+                // Inside an immediate subfolder
+                const folderName = relative.slice(0, slashIndex);
+                const folderPath = objectPrefix ? `${objectPrefix}${folderName}` : folderName;
+
+                if (!folderMap.has(folderName)) {
+                    folderMap.set(folderName, {
+                        name: folderName,
+                        path: folderPath,
+                        size: 0,
+                        fileCount: 0,
+                    });
+                }
+
+                if (!isKeepFile && !isDirMarker) {
+                    const current = folderMap.get(folderName)!;
+                    const size = item.Size ?? 0;
+                    current.size += size;
+                    current.fileCount += 1;
+                    totalSize += size;
+                    totalFiles += 1;
+                }
+            }
         }
 
         continuationToken = result.IsTruncated ? result.NextContinuationToken : undefined;
     } while (continuationToken);
 
     return {
-        folders: folders.sort((a, b) => a.name.localeCompare(b.name)),
+        folders: Array.from(folderMap.values()).sort((a, b) => a.name.localeCompare(b.name)),
         files: files.sort((a, b) => a.name.localeCompare(b.name)),
+        totalSize,
+        totalFiles,
     };
 }
 

@@ -43,7 +43,7 @@
     },
     "home": {
         "heroEyebrow": "Personal notes",
-        "heroLead": "A place to share knowledge and practical journeys through programming and technology.",
+        "heroLead": "A place to share knowledge and practical journeys.",
         "explorePosts": "Explore posts",
         "aboutAuthor": "About",
         "latestEyebrow": "Latest posts",
@@ -137,6 +137,7 @@
         "title": "About",
         "subtitle": "Helios Space is a personal space for software, learning journeys, and ideas worth keeping.",
         "aboutTitle": "About the blog",
+        "aboutTitle": "About Helios Space",
         "paragraphOne": "Each post starts with something built, a problem understood more clearly, or a question worth following for longer.",
         "paragraphTwo": "The writing focuses on software engineering, tools, product design, and practical notes, with an emphasis on clarity, depth, and lasting usefulness.",
         "topicsTitle": "Topics",
@@ -153,7 +154,20 @@
         "password": "Password",
         "submit": "Sign in",
         "submitting": "Signing in…",
-        "failed": "Sign in failed."
+        "failed": "Sign in failed.",
+        "lockedTitle": "Temporarily locked",
+        "lockedDescription": "Too many failed login attempts. Access is locked. Please try again in:",
+        "attemptsWarning": "Warning: You have {count} attempts left before temporary lockout.",
+        "securityTitle": "Login Security & Rate Limits",
+        "securityDescription": "Monitor and unblock IP addresses restricted by failed login attempts.",
+        "unblock": "Unblock",
+        "unblockSuccess": "Unblocked IP {ip}.",
+        "noBlockedIps": "No IP addresses are currently locked or flagged.",
+        "ipAddress": "IP Address",
+        "attempts": "Attempts",
+        "lockExpires": "Unlock Time",
+        "level": "Level",
+        "yourIp": "Your current IP"
     },
     "tagPage": {
         "notFound": "Tag not found",
@@ -170,6 +184,7 @@
     "admin": {
         "title": "ADMIN WORKSPACE",
         "subtitle": "Manage posts, categories, tags, images, and the Helios Space appearance.",
+        "siteSettingsTitle": "Site Settings",
         "loadError": "Failed to load data",
         "appearanceTitle": "Accent color",
         "appearanceDescription": "Choose the shared accent color for the entire interface.",
@@ -198,7 +213,7 @@
         "bannerEditLang": "Editing language",
         "managementTitle": "Content Management",
         "categoriesTitle": "Categories",
-        "categoriesDescription": "Create and maintain the content groups used throughout the blog.",
+        "categoriesDescription": "Create and maintain the content groups used throughout Helios Space.",
         "addCategory": "Add category",
         "editCategory": "Edit category",
         "deleteCategory": "Delete category",
@@ -227,6 +242,13 @@
         "categoryDeleteError": "Could not delete the category.",
         "categoryDeleteBlocked": "This category is used by {count} posts.",
         "deleteCategoryMessage": "A category can only be deleted when no posts are using it.",
+        "categoryPickerTitle": "Advanced Category Search & Management",
+        "categoryPickerDescription": "Search all categories by ID, name, slug, purpose, or examples.",
+        "closeCategoryPicker": "Close category selector",
+        "advancedCategorySearch": "Advanced search",
+        "categoryPickerResults": "{count} categories",
+        "categorySummary": "Total: {count} categories",
+        "categorySummaryWithPosts": "{categoriesCount} categories · {postsCount} posts",
         "sectionCreate": "Create",
         "createPost": "New Post",
         "createPostDesc": "Create a post and save it as a draft or publish it.",
@@ -346,6 +368,7 @@
         "useFilePicker": "Use",
         "openFile": "Open",
         "bucketMedia": "my-blog",
+        "bucketMedia": "Media Storage",
         "addNewPost": "Add New Post",
         "createPostBtn": "Create Post",
         "creatingPost": "Creating...",
@@ -414,6 +437,9 @@
         "noTagsMatch": "No tags match your search",
         "postCreated": "Post created.",
         "postUpdated": "Post updated.",
+        "draftSaved": "Draft saved.",
+        "totalStorage": "Total storage",
+        "filesCount": "files",
         "savePostError": "Could not save the post.",
         "publishError": "Could not publish the post.",
         "deleteSuccess": "Deleted {type}.",
@@ -445,6 +471,7 @@
         "adminPageTitle": "Admin Q&A",
         "adminPageSubtitle": "Operational notes for the CMS and site appearance.",
         "userSection": "About the blog",
+        "userSection": "About Helios Space",
         "adminSection": "Operations",
         "userItems": [
             {
@@ -457,7 +484,7 @@
             },
             {
                 "q": "What do the post categories mean?",
-                "a": "Categories separate articles, projects, notes, ideas, journeys, snippets, reviews, resources, life, gallery, and blog updates. The Series category is only a content group and is independent from ordered post series."
+                "a": "Categories separate articles, projects, notes, ideas, journeys, snippets, reviews, resources, life, gallery, and space updates. The Series category is only a content group and is independent from ordered post series."
             },
             {
                 "q": "How can I share a post?",
@@ -468,7 +495,7 @@
                 "a": "A Standalone post is independent. A Series post belongs to an ordered sequence, and its detail page links to the previous and next published parts."
             },
             {
-                "q": "Does the blog support light and dark themes?",
+                "q": "Does Helios Space support light and dark themes?",
                 "a": "Yes. The theme control is in the top-right corner and your choice is stored in the browser."
             }
         ],
@@ -483,7 +510,7 @@
             },
             {
                 "q": "Where are post images stored?",
-                "a": "Images live in the Cloudflare R2 my-blog bucket. The media library supports folders, uploads, renaming, deletion, and stable URL copying."
+                "a": "Images live in the Cloudflare R2 media storage bucket. The media library supports folders, uploads, renaming, deletion, and stable URL copying."
             },
             {
                 "q": "What changes when I update the accent color?",
