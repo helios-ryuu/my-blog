@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 
-export type FanMode = 'center' | 'left' | 'right';
+export type FanMode = 'center' | 'left' | 'right' | 'parallel';
 
 export interface WebThreadsProps {
   color1?: string;
@@ -15,6 +15,7 @@ export interface WebThreadsProps {
   spread?: number;
   taper?: number;
   position?: number;
+  waist?: number;
   fanMode?: FanMode;
   glow?: number;
   falloff?: number;
@@ -38,7 +39,7 @@ const hexToRgb = (hex: string): [number, number, number] => {
   return [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255];
 };
 
-const FAN_MODE: Record<FanMode, number> = { center: 0, left: 1, right: 2 };
+const FAN_MODE: Record<FanMode, number> = { center: 0, left: 1, right: 2, parallel: 3 };
 
 const vertex = `#version 300 es
 in vec2 position;
@@ -57,6 +58,7 @@ uniform float uFrequency;
 uniform float uSpread;
 uniform float uTaper;
 uniform float uPosition;
+uniform float uWaist;
 uniform float uFanMode;
 uniform float uGlow;
 uniform float uFalloff;
@@ -94,10 +96,10 @@ void main() {
     pinchX = mix(pinchX, uMouse.x, clamp(uMouseStrength, 0.0, 1.0) * uMouseActive);
   }
 
-  float spreadDx = uSpread * abs(uv.x - pinchX);
+  float spreadDx = uFanMode > 2.5 ? uSpread : uSpread * (uWaist + (1.0 - uWaist) * abs(uv.x - pinchX));
   float baseT = iTime * uSpeed;
   float tauOverN = TAU / n;
-  float mirror = uMirror > 0.5 ? sign(pinchX - uv.x) : 1.0;
+  float mirror = (uMirror > 0.5 && uFanMode <= 2.5) ? sign(pinchX - uv.x) : 1.0;
   bool doShimmer = uShimmer > 0.5;
   float shimmerT = iTime * 1.7;
   float invThickness = 1.0 / max(uThickness, 0.01);
@@ -116,7 +118,12 @@ void main() {
     float shimmer = doShimmer ? sin(shimmerT + i * 1.3) * 0.35 : 0.0;
     float phase = (baseT + i * tauOverN) * mirror + shimmer;
 
-    float sdf = abs(yOff + sin(xFreq + phase) * amplitude) * invThickness;
+    float threadYOff = yOff;
+    if (uFanMode > 2.5) {
+      threadYOff += (i - (n - 1.0) * 0.5) * (uSpread * 0.35);
+    }
+
+    float sdf = abs(threadYOff + sin(xFreq + phase) * amplitude) * invThickness;
 
     float g = glow(sdf, uFalloff, uGlow);
     float ci = i * ciScale;
@@ -186,6 +193,7 @@ const WebThreads: React.FC<WebThreadsProps> = ({
   spread = 0.18,
   taper = 1.0,
   position = 0.5,
+  waist = 0.0,
   fanMode = 'center',
   glow = 0.02,
   falloff = 0.6,
@@ -216,7 +224,7 @@ const WebThreads: React.FC<WebThreadsProps> = ({
         alpha: true,
         premultipliedAlpha: true,
         antialias: false,
-        dpr: Math.min(window.devicePixelRatio || 1, 2)
+        dpr: Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.25 : 2)
       });
     } catch {
       return;
@@ -243,6 +251,7 @@ const WebThreads: React.FC<WebThreadsProps> = ({
         uSpread: { value: 0.18 },
         uTaper: { value: 1.0 },
         uPosition: { value: 0.5 },
+        uWaist: { value: 0.0 },
         uFanMode: { value: 0 },
         uGlow: { value: 0.02 },
         uFalloff: { value: 0.6 },
@@ -387,6 +396,7 @@ const WebThreads: React.FC<WebThreadsProps> = ({
     u.uSpread.value = spread;
     u.uTaper.value = taper;
     u.uPosition.value = position;
+    u.uWaist.value = waist;
     u.uFanMode.value = FAN_MODE[fanMode] ?? 0;
     u.uGlow.value = glow;
     u.uFalloff.value = falloff;
@@ -432,6 +442,7 @@ const WebThreads: React.FC<WebThreadsProps> = ({
     spread,
     taper,
     position,
+    waist,
     fanMode,
     glow,
     falloff,

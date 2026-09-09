@@ -79,7 +79,7 @@ export default function HomeBackground({ className = '' }: HomeBackgroundProps) 
   const isLight = mounted && resolvedTheme === 'light';
   const effectiveAccent = accentColor || '#1f51ff';
 
-  if (!mounted || isMobile) {
+  if (!mounted) {
     return (
       <div
         className={`pointer-events-none absolute inset-0 z-0 overflow-hidden ${className}`}
@@ -99,34 +99,44 @@ export default function HomeBackground({ className = '' }: HomeBackgroundProps) 
         color1={effectiveAccent}
         color2={effectiveAccent}
         color3="#ffffff"
-        speed={0.17}
+        speed={isMobile ? 0.1 : 0.17}
         threadCount={6}
-        frequency={4.5}
-        spread={0.16}
-        taper={1.0}
-        position={0.5}
-        fanMode="center"
-        glow={0.021}
-        falloff={0.65}
-        thickness={0.85}
-        brightness={isLight ? 0.4 : 0.54}
-        opacity={isLight ? 0.7 : 0.85}
-        mirror={true}
+        frequency={isMobile ? 2.5 : 4.5}
+        spread={isMobile ? 0.05 : 0.16}
+        taper={isMobile ? 0.25 : 1.0}
+        position={isMobile ? 0.48 : 0.5}
+        fanMode={isMobile ? 'parallel' : 'center'}
+        glow={isMobile ? 0.018 : 0.021}
+        falloff={isMobile ? 0.75 : 0.65}
+        thickness={isMobile ? 0.65 : 0.85}
+        brightness={isLight ? (isMobile ? 0.30 : 0.4) : (isMobile ? 0.35 : 0.54)}
+        opacity={isLight ? (isMobile ? 0.45 : 0.7) : (isMobile ? 0.52 : 0.85)}
+        mirror={!isMobile}
         shimmer={false}
         grain={true}
         grainIntensity={0.04}
-        mouseInteraction={true}
+        mouseInteraction={!isMobile}
         mouseStrength={0.15}
         lightMode={isLight}
         backgroundColor={isLight ? '#fbfbfb' : '#0a0a0a'}
       />
 
-      {/* Interactive Cursor Light Spotlight (Subtle & Compact) */}
-      <div
-        ref={spotlightRef}
-        className="pointer-events-none absolute inset-0 transition-opacity duration-300 ease-out"
-        style={{ opacity: 0 }}
-      />
+      {/* Subtle ambient glow on mobile (replaces desktop cursor spotlight) */}
+      {isMobile ? (
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: `radial-gradient(ellipse at 50% 22%, color-mix(in srgb, ${effectiveAccent} ${isLight ? '6%' : '10%'}, transparent), transparent 65%)`,
+          }}
+        />
+      ) : (
+        /* Interactive Cursor Light Spotlight (Subtle & Compact) */
+        <div
+          ref={spotlightRef}
+          className="pointer-events-none absolute inset-0 transition-opacity duration-300 ease-out"
+          style={{ opacity: 0 }}
+        />
+      )}
     </div>
   );
 }
