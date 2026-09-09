@@ -7,7 +7,7 @@ import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
 import Image from "next/image";
 import { RelatedPosts, MobileTocBar, PostMeta, PostShareActions, PostCategoryBadge, SeriesNavigation, TableOfContents } from "@/components/features/post";
-import { TagList } from "@/components/ui";
+import TagList from "@/components/ui/TagList";
 import { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 import { getTranslations } from "next-intl/server";
