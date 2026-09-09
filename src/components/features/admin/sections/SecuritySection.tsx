@@ -22,10 +22,12 @@ export default function SecuritySection() {
     const [isLoading, setIsLoading] = useState(false);
     const [unblockingIp, setUnblockingIp] = useState<string | null>(null);
 
-    const loadSecurityData = useCallback(async () => {
-        setIsLoading(true);
+    const loadSecurityData = useCallback(async (showLoadingSpinner = true) => {
+        if (showLoadingSpinner) setIsLoading(true);
         try {
-            const res = await fetch("/api/admin/security/rate-limits");
+            const res = await fetch(`/api/admin/security/rate-limits?_t=${Date.now()}`, {
+                cache: "no-store",
+            });
             const json = await res.json();
             if (json.success && json.data) {
                 setCurrentIp(json.data.currentIp || "");
@@ -34,12 +36,16 @@ export default function SecuritySection() {
         } catch {
             // Ignore fetch error
         } finally {
-            setIsLoading(false);
+            if (showLoadingSpinner) setIsLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        loadSecurityData();
+        loadSecurityData(true);
+        const interval = setInterval(() => {
+            loadSecurityData(false);
+        }, 5000);
+        return () => clearInterval(interval);
     }, [loadSecurityData]);
 
     const handleUnblock = async (ip: string) => {
@@ -87,7 +93,9 @@ export default function SecuritySection() {
                 </div>
                 <button
                     type="button"
-                    onClick={loadSecurityData}
+                    onClick={() => {
+                        void loadSecurityData(true);
+                    }}
                     disabled={isLoading}
                     title="Refresh"
                     className="p-1 text-foreground/50 hover:text-foreground transition-colors disabled:opacity-50"
