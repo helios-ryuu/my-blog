@@ -7,6 +7,7 @@ import { SOCIAL_LINKS } from "@/config/site";
 import { POST_LEVELS } from "@/types/database";
 import { listCategories } from "@/lib/categories-db";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
+import PageHeader from "@/components/layout/PageHeader";
 
 const getCachedCategories = unstable_cache(
     async () => listCategories(createSupabasePublicClient()),
@@ -28,6 +29,12 @@ export default async function AboutPage() {
 
     return (
         <main className="mx-auto max-w-4xl px-4 py-10">
+            <PageHeader
+                title={t("title")}
+                description={t("subtitle")}
+                className="mb-8"
+                titleClassName="text-xl md:text-2xl"
+            />
             <div className="divide-y divide-(--border-color) border-y border-(--border-color)">
                 <section className="grid gap-5 py-7 md:grid-cols-[180px_1fr] md:gap-8">
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-accent">{t("aboutTitle")}</h2>
