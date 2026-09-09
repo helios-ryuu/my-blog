@@ -93,7 +93,9 @@ export default function SecuritySection() {
                 </div>
                 <button
                     type="button"
-                    onClick={loadSecurityData}
+                    onClick={() => {
+                        void loadSecurityData(true);
+                    }}
                     disabled={isLoading}
                     title="Refresh"
                     className="p-1 text-foreground/50 hover:text-foreground transition-colors disabled:opacity-50"

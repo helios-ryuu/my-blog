@@ -91,7 +91,8 @@ export function getClientIp(req: NextRequest): string {
         if (match && match[1]) return normalizeIp(match[1]);
     }
 
-    if (req.ip) return normalizeIp(req.ip);
+    const reqIp = (req as unknown as { ip?: string }).ip;
+    if (reqIp) return normalizeIp(reqIp);
 
     return "127.0.0.1";
 }
