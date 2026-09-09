@@ -9,6 +9,7 @@ import AddTagForm from "@/components/features/admin/forms/AddTagForm";
 import DeletePreviewPopup from "@/components/features/admin/common/DeletePreviewPopup";
 import EditTagForm from "@/components/features/admin/forms/EditTagForm";
 import SiteSettingsSection from "@/components/features/admin/sections/SiteSettingsSection";
+import SecuritySection from "@/components/features/admin/sections/SecuritySection";
 import SeriesForm from "@/components/features/admin/forms/SeriesForm";
 import { startNavigationLoading } from "@/lib/navigation-loading";
 import type { DeleteConfirmData } from "@/components/features/admin/sections/DeleteSection";
@@ -106,8 +107,9 @@ export default function AdminPage() {
                     />
                 </div>
 
-                <div className="xl:col-span-5 2xl:col-span-4">
+                <div className="xl:col-span-5 2xl:col-span-4 space-y-8">
                     <SiteSettingsSection />
+                    <SecuritySection />
                 </div>
             </div>
 

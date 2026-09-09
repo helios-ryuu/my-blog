@@ -354,13 +354,13 @@ const MAX_CLICKS = 10;
 
 const PixelBlast: React.FC<PixelBlastProps> = ({
   variant = 'square',
-  pixelSize = 3,
+  pixelSize = 4,
   color = '#B497CF',
   className,
   style,
   antialias = true,
   patternScale = 2,
-  patternDensity = 1,
+  patternDensity = 2,
   liquid = false,
   liquidStrength = 0.1,
   liquidRadius = 1,
@@ -368,10 +368,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   enableRipples = true,
   rippleIntensityScale = 1,
   rippleThickness = 0.1,
-  rippleSpeed = 0.3,
+  rippleSpeed = 0.4,
   liquidWobbleSpeed = 4.5,
   autoPauseOffscreen = true,
-  speed = 0.5,
+  speed = 0.7,
   transparent = true,
   edgeFade = 0.5,
   noiseAmount = 0
@@ -450,7 +450,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       });
       renderer.domElement.style.width = '100%';
       renderer.domElement.style.height = '100%';
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.25 : 2));
       container.appendChild(renderer.domElement);
       if (transparent) renderer.setClearAlpha(0);
       else renderer.setClearColor(0x000000, 1);

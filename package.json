@@ -1,6 +1,6 @@
 {
   "name": "helios-space",
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0-beta.2",
   "description": "Personal space and lightweight CMS for Helios",
   "private": true,
   "scripts": {

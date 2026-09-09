@@ -1,14 +1,15 @@
 # Helios Space
 
-Helios Space v3.0.0-beta.1 là không gian cá nhân kèm CMS hiện đại, hiệu năng cao, được xây dựng bằng Next.js 16, React 19, TypeScript, Supabase Postgres và Cloudflare R2. Dự án tích hợp hệ thống đồ họa WebGL tương tác, animation suite mượt mà, trình soạn thảo MDX phong phú, phân loại nội dung đa chiều (tag, danh mục động, series theo thứ tự) cùng giao diện quản trị 2 cột trực quan.
+Helios Space v3.0.0-beta.2 là không gian cá nhân kèm CMS hiện đại, hiệu năng cao, được xây dựng bằng Next.js 16, React 19, TypeScript, Supabase Postgres và Cloudflare R2. Dự án tích hợp hệ thống đồ họa WebGL tương tác, animation suite mượt mà, hệ thống bảo mật chống brute-force đa tầng, trình soạn thảo MDX phong phú, phân loại nội dung đa chiều (tag, danh mục động, series theo thứ tự) cùng giao diện quản trị 2 cột trực quan.
 
 ## Tính năng nổi bật
 
 ### Trải nghiệm người dùng & Giao diện (UI/UX)
 - **WebGL Backgrounds & Hiệu ứng tương tác**:
-  - Trang chủ tích hợp **WebThreads** (công nghệ OGL WebGL) kết hợp hiệu ứng đèn rọi spotlight chuyển động theo con trỏ chuột.
-  - Trang danh sách bài viết `/post` tích hợp hiệu ứng hạt phân rã **PixelBlast** (Three.js + Postprocessing).
-  - Tự động nhận diện thiết bị cảm ứng / màn hình di động để chuyển sang CSS Ambient Gradient siêu nhẹ, đảm bảo cuộn mượt mà 120Hz và không tiêu tốn tài nguyên phần cứng.
+  - Trang chủ tích hợp **WebThreads** (công nghệ OGL WebGL) kết hợp hiệu ứng đèn rọi spotlight chuyển động theo con trỏ chuột trên desktop.
+  - Trên thiết bị di động, tự động chuyển sang chế độ **6 sợi song song (`fanMode: "parallel"`)** mềm mại tựa cực quang, uốn lượn uyển chuyển qua khu vực hero mà không gây thắt nút chói sáng.
+  - Trang bài viết `/post` tích hợp hiệu ứng hạt phân rã **PixelBlast** (Three.js + Postprocessing) với độ mờ và mật độ tối ưu cho trải nghiệm đọc văn bản.
+  - Tối ưu hóa hiệu năng di động bằng cách giới hạn DPR ở mức `1.25` trên màn hình nhỏ (< 768px), giảm hơn 70% tải điểm ảnh (pixel fillrate), đảm bảo cuộn mượt mà 60–120Hz mà không tiêu hao pin hay nóng máy.
 - **Hero Showcase & Typography Animation**:
   - Tiêu đề phụ hiệu ứng đảo chữ ngẫu nhiên (**Shuffle**).
   - Khối trích dẫn mở đầu phân tách ký tự mượt mà (**SplitText**).
@@ -16,9 +17,23 @@ Helios Space v3.0.0-beta.1 là không gian cá nhân kèm CMS hiện đại, hi�
 - **Header & Navigation Panel**:
   - Navigation Panel thông minh: tự động thu gọn dạng floating trên màn hình lớn để tối ưu không gian hiển thị, tự bung mở khi di chuột lại gần mép trên; trên thiết bị di động giữ hiển thị cố định.
   - Thanh tìm kiếm (Search Bar) căn giữa tuyệt đối trên desktop, tự động chuyển đổi sang Mobile Search Bar ở màn hình nhỏ (< 1024px); nút bộ lọc (Advanced Search) xuất hiện riêng cho trang `/post`.
-  - Nút chuyển đổi giao diện Sáng / Tối, đổi ngôn ngữ Việt / Anh, và phím tắt tới trang quản trị.
+  - Menu tài khoản hỗ trợ con trỏ chuột trực quan (`cursor: pointer`) trên nút Đăng xuất; phím tắt nhanh chuyển đổi giao diện Sáng / Tối, đổi ngôn ngữ Việt / Anh và truy cập CMS.
 - **Hệ thống Banner thông báo động**:
   - Cấu hình đa ngôn ngữ trực tiếp từ CMS: nội dung HTML, dải màu gradient 3 màu, nút kêu gọi hành động (CTA button viền 1.5px nổi bật), độ trong suốt, chiều cao và thời gian hồi (cooldown) sau khi đóng.
+
+### Bảo mật xác thực & Chống Brute-force (Anti-Spam Protection)
+- **Kiểm soát tần suất IP đa tầng (Rate Limiting)**:
+  - Nhận diện chính xác địa chỉ IP của client qua `cf-connecting-ip`, `x-forwarded-for`, và `x-real-ip` (tương thích hoàn hảo sau Cloudflare và Vercel).
+  - Chính sách tạm khóa lũy tiến: 5 lần đăng nhập thất bại trong 15 phút sẽ tạm khóa 15 phút (Level 1); tiếp tục thử sai khi hết hạn sẽ khóa 60 phút (Level 2).
+  - Đăng nhập thành công ngay lập tức xoá lịch sử vi phạm của IP.
+  - Tích hợp sẵn cơ chế **in-memory fallback** chống gián đoạn: tự động bảo vệ hệ thống ngay cả khi database tạm thời mất kết nối.
+  - Độ trễ nhân tạo 500ms (anti-timing delay) triệt tiêu hoàn toàn các công cụ tấn công dò mật khẩu tốc độ cao.
+- **Phản hồi giao diện thời gian thực (`/auth`)**:
+  - Huy hiệu cảnh báo số lần thử còn lại khi người dùng nhập sai.
+  - Khi bị khóa, form đăng nhập tự động vô hiệu hóa các trường nhập liệu và nút bấm, đồng thời hiển thị đồng hồ đếm ngược trực tiếp (`mm:ss`) trước khi cho phép thử lại.
+- **Bảng điều khiển quản trị IP (`/admin`)**:
+  - Tích hợp mục **Bảo mật đăng nhập (Security Section)** trong cột Cài đặt hệ thống.
+  - Hiển thị địa chỉ IP hiện tại, số lượng IP bị khóa, bảng chi tiết thời gian khóa và nút **Mở khóa (Unblock)** tức thì 1-click cho quản trị viên.
 
 ### Trình đọc & Nội dung bài viết
 - **Typography Markdown đồng nhất**:
