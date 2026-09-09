@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 
 type ToastType = "success" | "error" | "info" | "warning";
@@ -25,6 +25,16 @@ export function useToast() {
     return context;
 }
 
+export function setFlashToast(type: ToastType, message: string) {
+    if (typeof window !== "undefined") {
+        try {
+            sessionStorage.setItem("flash_toast", JSON.stringify({ type, message }));
+        } catch {
+            // ignore storage errors
+        }
+    }
+}
+
 interface ToastProviderProps {
     children: ReactNode;
 }
@@ -41,6 +51,22 @@ export function ToastProvider({ children }: ToastProviderProps) {
             setToasts((prev) => prev.filter((t) => t.id !== id));
         }, 4000);
     }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        try {
+            const raw = sessionStorage.getItem("flash_toast");
+            if (raw) {
+                sessionStorage.removeItem("flash_toast");
+                const parsed = JSON.parse(raw);
+                if (parsed?.type && parsed?.message) {
+                    showToast(parsed.type, parsed.message);
+                }
+            }
+        } catch {
+            // ignore JSON error
+        }
+    }, [showToast]);
 
     const removeToast = useCallback((id: string) => {
         setToasts((prev) => prev.filter((t) => t.id !== id));

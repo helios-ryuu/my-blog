@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { TagList } from "@/components/ui";
+import TagList from "@/components/ui/TagList";
 import PostCardContextMenu from "./PostCardContextMenu";
 import PostCategoryBadge from "./PostCategoryBadge";
 import PostLevelBadge from "./PostLevelBadge";
@@ -49,9 +49,18 @@ export default function PostListItem({
         }
     }, [contextMenu, onClick, router, slug]);
 
+    const handleDragStart = (e: React.DragEvent) => {
+        const fullUrl = postUrl || (typeof window !== "undefined" ? `${window.location.origin}/post/${slug}` : `/post/${slug}`);
+        e.dataTransfer.setData("text/plain", fullUrl);
+        e.dataTransfer.setData("text/uri-list", fullUrl);
+        e.dataTransfer.effectAllowed = "copyLink";
+    };
+
     return (
         <>
             <div
+                draggable={true}
+                onDragStart={handleDragStart}
                 onClick={handleClick}
                 onContextMenu={handleContextMenu}
                 onTouchStart={handleTouchStart}
@@ -62,6 +71,7 @@ export default function PostListItem({
                     rounded-xl border border-(--border-color) bg-(--post-card)
                     hover:border-(--border-color-hover) hover:bg-(--post-card-hover)
                     cursor-pointer transition-colors items-center select-none
+                    cursor-grab active:cursor-grabbing transition-colors items-center select-none
                     ${className}
                 `}
             >

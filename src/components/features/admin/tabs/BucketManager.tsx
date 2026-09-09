@@ -36,11 +36,20 @@ interface BucketEntry {
 interface BucketFolder {
     name: string;
     path: string;
+    size?: number;
+    fileCount?: number;
 }
 
 interface BucketListResponse {
     success: boolean;
-    data?: { bucket: string; prefix: string; folders: BucketFolder[]; files: BucketEntry[] };
+    data?: {
+        bucket: string;
+        prefix: string;
+        folders: BucketFolder[];
+        files: BucketEntry[];
+        totalSize?: number;
+        totalFiles?: number;
+    };
     message?: string;
 }
 
@@ -78,6 +87,7 @@ export default function BucketManager({
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [renameState, setRenameState] = useState<{ from: string; to: string; type: "file" | "folder" } | null>(null);
     const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+    const [totalStats, setTotalStats] = useState<{ totalSize: number; totalFiles: number } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchEntries = useCallback(async () => {
@@ -90,6 +100,9 @@ export default function BucketManager({
             if (json.success && json.data) {
                 setFolders(json.data.folders);
                 setFiles(json.data.files);
+                if (json.data.totalSize !== undefined && json.data.totalFiles !== undefined) {
+                    setTotalStats({ totalSize: json.data.totalSize, totalFiles: json.data.totalFiles });
+                }
             } else {
                 showToast("error", json.message || t("loadFilesError"));
                 setFolders([]);
@@ -242,11 +255,16 @@ export default function BucketManager({
             {/* Header */}
             <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                         <h2 className="text-lg font-semibold text-foreground">{t("storageBucket")}</h2>
                         <span className="rounded-sm border border-(--border-color) bg-foreground/5 px-2 py-0.5 text-xs text-foreground/60">
                             Cloudflare R2
                         </span>
+                        {totalStats !== null && (
+                            <span className="rounded-sm border border-(--border-color) bg-foreground/5 px-2 py-0.5 text-xs text-foreground/60">
+                                {t("totalStorage")}: {formatSize(totalStats.totalSize)} ({totalStats.totalFiles} {t("filesCount")})
+                            </span>
+                        )}
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
@@ -402,6 +420,11 @@ export default function BucketManager({
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-foreground truncate">{f.name}/</p>
                                     <p className="text-xs text-foreground/50 break-all">{f.path}</p>
+                                    <div className="flex items-center gap-2 text-xs text-foreground/50">
+                                        <span>{formatSize(f.size ?? 0)}</span>
+                                        <span>•</span>
+                                        <span>{f.fileCount ?? 0} {t("filesCount")}</span>
+                                    </div>
                                 </div>
                                 <ChevronRight size={16} className="text-foreground/40" />
                             </button>

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PostCard, PostListItem } from "@/components/features/post";
 import Select from "@/components/ui/Select";
 import MultiSelect from "@/components/ui/MultiSelect";
-import { Button } from "@/components/ui";
+import Button from "@/components/ui/Button";
 import { ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { startNavigationLoading } from "@/lib/navigation-loading";

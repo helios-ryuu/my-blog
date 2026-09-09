@@ -1,152 +1,176 @@
 # Helios Space
 
-Helios Space v2.2.2 là không gian cá nhân kèm CMS gọn nhẹ, xây dựng bằng Next.js, React, TypeScript, Supabase Postgres và Cloudflare R2. Nội dung hỗ trợ MDX, tag, danh mục, series có thứ tự, mức độ, thời gian đọc, ảnh bìa, bản nháp, tìm kiếm và giao diện sáng/tối.
+Helios Space v3.0.0-beta.1 là không gian cá nhân kèm CMS hiện đại, hiệu năng cao, được xây dựng bằng Next.js 16, React 19, TypeScript, Supabase Postgres và Cloudflare R2. Dự án tích hợp hệ thống đồ họa WebGL tương tác, animation suite mượt mà, trình soạn thảo MDX phong phú, phân loại nội dung đa chiều (tag, danh mục động, series theo thứ tự) cùng giao diện quản trị 2 cột trực quan.
 
-## Tính năng
+## Tính năng nổi bật
 
-- Trang chủ tập trung vào bài viết mới, giao diện tối giản loại bỏ các chi tiết thừa.
-- Hệ thống Banner thông báo động đa ngôn ngữ, cấu hình trực tiếp (màu sắc, CTA button, thời gian phục hồi) từ CMS.
-- Navigation Panel thông minh: tự động thu gọn trên laptop (màn hình `md` trở lên) để tối ưu không gian hiển thị, tự bung mở mượt mà và đẩy nội dung xuống khi di chuột lại gần mép trên; trên thiết bị di động giữ nguyên hiển thị cố định. Các tab được căn giữa trên desktop và căn lề trái tự nhiên trên mobile tránh mất tab khi cuộn.
-- Mục lục bài viết (TOC) trên desktop hỗ trợ cuộn con trỏ nhảy nhanh qua từng đề mục (Header jump) với độ phản hồi tức thì và đồng nhất vị trí dừng giữa click và scroll.
-- Thanh tìm kiếm (Search Bar) luôn căn giữa màn hình tuyệt đối trên desktop; chuyển đổi đồng bộ sang Mobile Search Bar ở breakpoint `lg` (< 1024px); nút bộ lọc (Advanced Search) chỉ hiển thị riêng trên trang `/post`.
-- Header tinh gọn: tích hợp nút GitHub và Instagram với hiệu ứng hover accent đồng nhất; hoán đổi vị trí nút Profile Admin lên trước nút Đổi ngôn ngữ.
-- Thống nhất tiền tố `#` cho tag ở cả danh sách post card và trang chi tiết bài viết.
-- Danh sách bài viết có lọc tag, danh mục, mức độ, kiểu Standalone/Series, sắp xếp và hai chế độ hiển thị.
-- Trang chi tiết MDX có syntax highlighting, mục lục, bài liên quan, điều hướng phần trước/sau trong series, công cụ chia sẻ và tải Markdown.
-- CMS quản lý bài viết, danh mục, tag, series, trạng thái xuất bản và thư viện ảnh.
-- Danh mục là dữ liệu động có thể thêm, sửa, xoá; schema seed 12 nhóm cá nhân từ Articles đến Changelog.
-- Mỗi bài có một danh mục, ba mức độ và thời gian đọc do tác giả nhập thủ công.
-- Series độc lập với danh mục: bài có thể là Standalone hoặc nhận `series_id` cùng thứ tự dương duy nhất trong series. Series đang có bài không thể bị xoá.
-- Field chọn post/tag hỗ trợ tìm nhanh; nút bộ lọc nâng cao mở tìm kiếm nhiều tiêu chí và phân trang khi dữ liệu lớn.
-- Một tài khoản admin duy nhất, cấu hình bằng biến môi trường (nút Đăng nhập ẩn với khách).
-- Cài đặt giao diện (màu accent toàn site, cấu hình banner) được lưu trong Supabase và chỉnh bằng CMS.
-- API ghi dữ liệu kiểm tra field, kiểu, độ dài, slug, URL, category, level, thời gian đọc và giới hạn tag trước khi chạm database.
-- Card, list, preview và ảnh QR dùng cùng badge Type; trang chi tiết chỉ điều hướng qua các bài đã xuất bản trong series.
-- Giao diện tiếng Việt/Anh, sáng/tối và responsive.
+### Trải nghiệm người dùng & Giao diện (UI/UX)
+- **WebGL Backgrounds & Hiệu ứng tương tác**:
+  - Trang chủ tích hợp **WebThreads** (công nghệ OGL WebGL) kết hợp hiệu ứng đèn rọi spotlight chuyển động theo con trỏ chuột.
+  - Trang danh sách bài viết `/post` tích hợp hiệu ứng hạt phân rã **PixelBlast** (Three.js + Postprocessing).
+  - Tự động nhận diện thiết bị cảm ứng / màn hình di động để chuyển sang CSS Ambient Gradient siêu nhẹ, đảm bảo cuộn mượt mà 120Hz và không tiêu tốn tài nguyên phần cứng.
+- **Hero Showcase & Typography Animation**:
+  - Tiêu đề phụ hiệu ứng đảo chữ ngẫu nhiên (**Shuffle**).
+  - Khối trích dẫn mở đầu phân tách ký tự mượt mà (**SplitText**).
+  - Nút điều hướng phát sáng viền động (**BorderGlow**) thích ứng màu chủ đề sáng/tối.
+- **Header & Navigation Panel**:
+  - Navigation Panel thông minh: tự động thu gọn dạng floating trên màn hình lớn để tối ưu không gian hiển thị, tự bung mở khi di chuột lại gần mép trên; trên thiết bị di động giữ hiển thị cố định.
+  - Thanh tìm kiếm (Search Bar) căn giữa tuyệt đối trên desktop, tự động chuyển đổi sang Mobile Search Bar ở màn hình nhỏ (< 1024px); nút bộ lọc (Advanced Search) xuất hiện riêng cho trang `/post`.
+  - Nút chuyển đổi giao diện Sáng / Tối, đổi ngôn ngữ Việt / Anh, và phím tắt tới trang quản trị.
+- **Hệ thống Banner thông báo động**:
+  - Cấu hình đa ngôn ngữ trực tiếp từ CMS: nội dung HTML, dải màu gradient 3 màu, nút kêu gọi hành động (CTA button viền 1.5px nổi bật), độ trong suốt, chiều cao và thời gian hồi (cooldown) sau khi đóng.
 
-## Công nghệ
+### Trình đọc & Nội dung bài viết
+- **Typography Markdown đồng nhất**:
+  - Danh sách không thứ tự (`<ul>`) được chuẩn hoá hiển thị bằng dấu gạch đầu dòng (`- `) thay cho dấu chấm tròn (`•`), tạo phong cách thanh lịch và nhất quán.
+  - Tô màu cú pháp code với `rehype-pretty-code` và `Shiki`.
+  - Mục lục bài viết (TOC) trên desktop hỗ trợ cuộn con trỏ nhảy nhanh qua từng đề mục (Header jump) với độ phản hồi tức thì và đồng nhất vị trí dừng giữa click và scroll.
+  - Hỗ trợ công cụ chia sẻ xã hội, tạo ảnh card QR code sắc nét và tải bài viết dạng Markdown thô.
 
-| Phần | Công nghệ |
+### Quản trị nội dung & CMS (Admin Workspace)
+- **Bố cục 2 cột trực quan**:
+  - Cột trái: **Quản lý nội dung (Content Management)** tập trung cho Tạo bài viết, Quản lý bản nháp, Sửa/Xoá nội dung, Quản lý Danh mục và Phân nhóm.
+  - Cột phải: **Cài đặt hệ thống (Site Settings)** giúp tùy biến màu Accent Color toàn site và cấu hình Banner thông báo tức thì.
+- **Quản lý Danh mục (Categories) hiện đại**:
+  - Dòng hiển thị tổng hợp 1 dòng (1-line summary row) với các pill danh mục bo tròn cuộn ngang, hiển thị huy hiệu đếm số bài viết thuộc từng danh mục.
+  - Hộp thoại Tìm kiếm nâng cao (Advance Search Dialog) hỗ trợ tìm kiếm thời gian thực theo tên, slug, mục đích, ví dụ; thao tác Sửa modal và Xoá an toàn (chặn xoá danh mục đang có bài viết).
+- **Quản lý Series & Standalone**:
+  - Series độc lập với danh mục: bài viết có thể là Standalone hoặc nhận `series_id` kèm thứ tự duy nhất trong chuỗi.
+  - Form bài viết tự đề xuất thứ tự trống nhỏ nhất tiếp theo.
+- **Thư viện Media & Quản lý Storage Cloudflare R2**:
+  - Tính toán đệ quy kích thước thư mục và số lượng file thực tế trong từng folder.
+  - Thống kê tổng dung lượng lưu trữ (Total Storage) và tổng số file trên bucket R2.
+  - Hỗ trợ tạo thư mục, tải file lên, đổi tên, xoá và sao chép URL ổn định.
+- **Persistent Flash Toast**:
+  - Hệ thống thông báo thông minh lưu qua `sessionStorage`, giữ vững thông báo xác nhận khi lưu nháp hoặc xuất bản qua các lần điều hướng trang client-side.
+- **Bảo mật**:
+  - Một tài khoản admin duy nhất, hỗ trợ mật khẩu băm SHA-256 qua biến môi trường, bảo vệ bằng phiên làm việc HMAC-SHA256 cookie HTTP-only.
+
+---
+
+## Công nghệ sử dụng
+
+| Lớp | Công nghệ |
 | --- | --- |
-| Web | Next.js 16, React 19, TypeScript |
-| Styling | Tailwind CSS 4, Radix UI, next-themes |
-| Data | Supabase Postgres, Cloudflare R2 |
-| Content | MDX, Shiki, rehype-pretty-code, remark-gfm |
-| UI | Lucide React, Framer Motion, Three.js |
-| Package manager | pnpm 11 |
+| **Framework & Core** | Next.js 16 (App Router, Turbopack/Webpack), React 19, TypeScript |
+| **Styling & Theme** | Tailwind CSS 4, Radix UI, next-themes |
+| **Đồ họa & WebGL** | OGL 1.0 (WebThreads), Three.js & Postprocessing (PixelBlast) |
+| **Animation Suite** | GSAP 3.15, @gsap/react, Framer Motion 13, Motion |
+| **Cơ sở dữ liệu** | Supabase Postgres (Row Level Security) |
+| **Lưu trữ Media** | Cloudflare R2 (S3 API via AWS SDK v3) |
+| **Nội dung & MDX** | MDX, Shiki, rehype-pretty-code, remark-gfm |
+| **Đa ngôn ngữ** | next-intl (Tiếng Việt / English) |
+| **Quản lý gói** | pnpm 11 |
 
-## Cấu trúc chính
+---
+
+## Cấu trúc mã nguồn
 
 ```text
 src/
 ├── app/
-│   ├── admin/             # CMS, database viewer, media library
-│   ├── api/               # Public, auth và admin APIs
+│   ├── admin/             # CMS Workspace, Database Viewer, Media Library
+│   ├── api/               # Server API routes (Auth, Admin, Settings, Media)
 │   ├── post/              # Danh sách và chi tiết bài viết
-│   ├── tag/               # Bài viết theo tag
-│   ├── category/          # Bài viết theo danh mục
-│   └── page.tsx           # Trang chủ
+│   ├── tag/               # Lọc bài viết theo tag
+│   ├── category/          # Lọc bài viết theo danh mục
+│   └── page.tsx           # Trang chủ với Hero Showcase
 ├── components/
-│   ├── features/admin/    # Form và công cụ CMS
-│   ├── features/post/     # Card, list, detail và share
-│   └── layout/            # Header, navigation, footer, shell
-├── contexts/              # User và site settings
-├── lib/                   # Data access, auth, storage
-└── types/                 # Kiểu dữ liệu dùng chung
+│   ├── features/admin/    # Giao diện quản trị, SiteSettings, BucketManager
+│   ├── features/home/     # HomeHero section & animation controls
+│   ├── features/post/     # Card, list, TOC, meta và QR share popup
+│   ├── layout/            # AppShell, Header, NavigationPanel, Banner, Footer
+│   └── ui/                # UI primitives, WebThreads, PixelBlast, BorderGlow, TextType
+├── contexts/              # UserContext, SiteSettingsContext, PostFilterContext
+├── lib/                   # Database client, Storage R2, Auth, Navigation loading
+└── types/                 # Kiểu dữ liệu TypeScript dùng chung
 
 supabase/
-└── schema.sql             # Toàn bộ database initialization
+└── schema.sql             # Toàn bộ schema cơ sở dữ liệu và seed ban đầu
 ```
 
-## Cài đặt
+---
 
-Yêu cầu Node.js 24 trở lên và pnpm.
+## Cài đặt & Khởi chạy
+
+### 1. Yêu cầu môi trường
+- **Node.js**: phiên bản 24 trở lên
+- **pnpm**: phiên bản 11 trở lên
+
+### 2. Cài đặt dependency & biến môi trường
 
 ```bash
 pnpm install
 cp .env.example .env
 ```
 
-Điền các biến còn thiếu trong `.env`, sau đó mở Supabase SQL Editor và chạy [supabase/schema.sql](supabase/schema.sql) trên một database mới.
+Cấu hình các giá trị cần thiết trong `.env`. Mở **Supabase SQL Editor** và chạy toàn bộ nội dung file [supabase/schema.sql](supabase/schema.sql) để khởi tạo các bảng và dữ liệu mẫu ban đầu.
 
-Chạy môi trường phát triển:
+### 3. Khởi chạy môi trường phát triển
 
 ```bash
 pnpm dev
 ```
 
-Ứng dụng mở tại `http://localhost:3456`.
+Mở trình duyệt tại: `http://localhost:3456`.
 
-## Biến môi trường
+---
+
+## Cấu hình Biến môi trường (.env)
 
 | Biến | Bắt buộc | Mục đích |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Có | URL Supabase project |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Có | Public read theo Supabase RLS |
-| `SUPABASE_SECRET_KEY` | CMS | Server-side database write |
-| `NEXT_PUBLIC_SITE_URL` | Production | Canonical URL cho metadata |
-| `ADMIN_USERNAME` | Có | Username admin duy nhất |
-| `ADMIN_DISPLAY_NAME` | Không | Tên hiển thị trong header |
-| `ADMIN_PASSWORD` | Local | Mật khẩu dạng text trong env |
-| `ADMIN_PASSWORD_HASH` | Production | SHA-256 hex của mật khẩu |
-| `SESSION_SECRET` | Production | Khoá ký session cookie |
-| `R2_ENDPOINT` | Có | Cloudflare R2 S3 endpoint |
-| `R2_BUCKET_NAME` | Có | Tên bucket R2 |
-| `R2_ACCESS_KEY_ID` | Có | R2 API token access key ID |
-| `R2_SECRET_ACCESS_KEY` | Có | R2 API token secret access key |
-| `R2_PUBLIC_URL` | Không | Custom domain public của bucket |
+| `NEXT_PUBLIC_SUPABASE_URL` | Có | URL project Supabase |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Có | Public key truy vấn dữ liệu theo RLS |
+| `SUPABASE_SECRET_KEY` | Có (CMS) | Secret key cho quyền ghi server-side |
+| `NEXT_PUBLIC_SITE_URL` | Production | URL gốc của website cho metadata & SEO |
+| `ADMIN_USERNAME` | Có | Tên đăng nhập admin duy nhất |
+| `ADMIN_DISPLAY_NAME` | Không | Tên tác giả hiển thị ở header và footer |
+| `ADMIN_PASSWORD` | Môi trường Dev | Mật khẩu dạng plain-text (chỉ dùng local) |
+| `ADMIN_PASSWORD_HASH` | Production | Chuỗi băm SHA-256 hex 64 ký tự của mật khẩu |
+| `SESSION_SECRET` | Production | Khóa bí mật ký session cookie HMAC-SHA256 |
+| `R2_ENDPOINT` | Có | S3 Endpoint của Cloudflare R2 |
+| `R2_BUCKET_NAME` | Có | Tên bucket R2 (ví dụ: `my-blog`) |
+| `R2_ACCESS_KEY_ID` | Có | Access key ID của R2 API Token |
+| `R2_SECRET_ACCESS_KEY` | Có | Secret access key của R2 API Token |
+| `R2_PUBLIC_URL` | Không | Custom domain public liên kết tới bucket R2 |
 
-Chỉ cấu hình đúng một trong `ADMIN_PASSWORD` và `ADMIN_PASSWORD_HASH`. Ứng dụng trả `503` nếu cả hai cùng tồn tại, nếu cả hai cùng thiếu hoặc nếu hash không phải chuỗi SHA-256 gồm 64 ký tự hex.
+> [!TIP]
+> Tạo chuỗi băm mật khẩu SHA-256 cho Production:
+> ```bash
+> printf '%s' 'your-password' | sha256sum
+> ```
+> Tạo session secret 32 bytes ngẫu nhiên:
+> ```bash
+> openssl rand -hex 32
+> ```
 
-File `.env` đã nằm trong `.gitignore`. Trên máy Linux/macOS, nên giới hạn quyền đọc bằng `chmod 600 .env` vì file chứa credential server và khoá session.
+---
 
-Tạo password hash:
+## Cloudflare R2 Storage
 
-```bash
-printf '%s' 'your-password' | sha256sum
-```
+Media manager sử dụng AWS SDK tương thích giao thức S3 của Cloudflare R2:
+- Khi `R2_PUBLIC_URL` để trống, media được stream gián tiếp qua endpoint `/api/media/<object-key>`.
+- Khi gắn custom domain (ví dụ: `https://bucket-space.helios.id.vn`), các tệp media sẽ được phục vụ trực tiếp qua mạng lưới CDN Cloudflare với tốc độ tối ưu và khả năng cache cao.
+- Trình quản lý media hiển thị tổng dung lượng sử dụng và số lượng file, hỗ trợ quản lý theo thư mục, tạo folder marker, đổi tên và xoá an toàn.
 
-Với Vercel Production, giữ `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` và `SESSION_SECRET`, đồng thời xóa `ADMIN_PASSWORD`. Thay đổi biến môi trường chỉ có hiệu lực sau khi redeploy production.
+---
 
-Tạo session secret:
+## Scripts thường dùng
 
-```bash
-openssl rand -hex 32
-```
-
-## Cloudflare R2
-
-Media manager dùng AWS SDK với S3 API của R2. Tạo R2 API token có quyền Object Read & Write cho bucket, rồi điền `R2_ACCESS_KEY_ID` và `R2_SECRET_ACCESS_KEY`.
-
-Bucket có thể giữ private. Khi `R2_PUBLIC_URL` trống, ứng dụng tạo URL `/api/media/<object-key>` và stream object qua server. Khi đã gắn custom domain production, đặt domain đó vào `R2_PUBLIC_URL` để media được phục vụ trực tiếp qua Cloudflare cache. `r2.dev` chỉ phù hợp cho development.
-
-Cấu hình hiện tại dùng `https://bucket-space.helios.id.vn` làm custom domain của bucket `my-blog`.
-
-Media manager hỗ trợ tạo folder marker, upload, đổi tên và xoá. Folder vừa tạo được làm mới ngay trong danh sách; tên trống bị từ chối ở UI và API.
-
-## Series
-
-Admin có thể tạo series từ `/admin` hoặc ngay trong field Series của form bài viết. Form tự đề xuất order trống nhỏ nhất, vẫn cho nhập thủ công và hiển thị các order đang dùng. Chuyển bài về Standalone sẽ xoá cả `series_id` và `series_order`.
-
-Không có route public `/series`: badge và điều hướng nằm trực tiếp trên card, list, QR và trang bài viết. Danh mục seed tên `Series` chỉ là một category nội dung, không liên kết với bảng `public.series`.
-
-## Scripts
-
-| Lệnh | Mô tả |
+| Lệnh | Chức năng |
 | --- | --- |
 | `pnpm dev` | Chạy dev server tại port 3456 |
-| `pnpm build` | Build production bằng webpack |
-| `pnpm start` | Chạy production server |
-| `pnpm lint` | Kiểm tra ESLint |
-| `pnpm knip` | Kiểm tra file, export và dependency không được sử dụng |
-| `pnpm typecheck` | Kiểm tra TypeScript |
-| `pnpm check` | Chạy typecheck, lint và production build |
+| `pnpm build` | Build ứng dụng cho môi trường production |
+| `pnpm start` | Chạy production server sau khi build |
+| `pnpm lint` | Kiểm tra lỗi cú pháp và quy chuẩn với ESLint |
+| `pnpm typecheck` | Kiểm tra kiểu TypeScript toàn bộ dự án (`tsc --noEmit`) |
+| `pnpm knip` | Quét mã nguồn tìm tệp, dependency và export không dùng đến |
+| `pnpm check` | Chạy toàn bộ quy trình kiểm tra: typecheck, lint và build |
 
-## Giao diện & Banner (Site Settings)
+---
 
-Admin có thể thay đổi màu chủ đề (Accent color) và cấu hình Banner thông báo động (hiển thị, đa ngôn ngữ, màu sắc gradient, nút CTA) ngay tại trang CMS `/admin`. API `PATCH /api/admin/settings` lưu cài đặt vào bảng `public.site_settings`, tự động revalidate cache và cập nhật toàn site ngay lập tức mà không cần deploy lại.
+## Tài liệu chi tiết
 
-## Tài liệu
-
-- [Hướng dẫn viết MDX](docs/INSTRUCTION.md)
-- [Processes](docs/PROCESSES.md)
+- [Hướng dẫn viết bài MDX](docs/INSTRUCTION.md): Cú pháp bài viết, alert box, code block, hình ảnh và danh sách dấu gạch đầu dòng.
+- [Quy trình vận hành CMS (Processes)](docs/PROCESSES.md): Hướng dẫn chi tiết về xuất bản bài viết, quản lý danh mục, series và cài đặt hệ thống.

@@ -10,7 +10,12 @@ import { useUser } from "@/contexts/UserContext";
 const AUTO_HIDE_DELAY_MS = 2500;
 const LEAVE_HIDE_DELAY_MS = 600;
 
-export default function NavigationPanel() {
+interface NavigationPanelProps {
+    className?: string;
+    floating?: boolean;
+}
+
+export default function NavigationPanel({ className = "", floating = false }: NavigationPanelProps = {}) {
     const pathname = usePathname();
     const tNav = useTranslations("nav");
     const { user } = useUser();
@@ -147,7 +152,11 @@ export default function NavigationPanel() {
     }, [clearHideTimer, hidePanel, showPanel]);
 
     return (
-        <div className={`nav-panel-collapsible ${isOpen ? "is-open" : ""}`}>
+        <div
+            className={`nav-panel-collapsible ${isOpen ? "is-open" : ""} ${
+                floating ? "md:absolute md:top-full md:left-0 md:right-0 md:z-30 md:shadow-md" : ""
+            } ${className}`}
+        >
             <div className="min-h-0 overflow-hidden">
                 <nav
                     ref={navRef}
@@ -166,7 +175,7 @@ export default function NavigationPanel() {
                             hidePanel(300);
                         }
                     }}
-                    className="border-b border-(--border-color) bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+                    className="border-b border-(--border-color) bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70"
                 >
                     <div className="flex w-full overflow-x-auto px-4 py-1 md:px-10">
                         <div className="flex items-center gap-1 md:mx-auto md:justify-center">

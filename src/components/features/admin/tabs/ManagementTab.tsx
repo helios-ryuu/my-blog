@@ -45,9 +45,11 @@ export default function ManagementTab({
     const tCommon = useTranslations("common");
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground">{t("managementTitle")}</h2>
+        <div className="rounded-xl border border-(--border-color) bg-background/50 backdrop-blur-xs p-5 md:p-6 shadow-xs space-y-8">
+            <div className="flex items-center justify-between pb-3 border-b border-(--border-color)/70">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                    {t("managementTitle")}
+                </h2>
                 <Button
                     variant="utility"
                     size="sm"
@@ -62,6 +64,7 @@ export default function ManagementTab({
             </div>
 
             <CreateSection onAddPost={onAddPost} onAddTag={onAddTag} onAddSeries={onAddSeries} />
+
             <DraftPostsSection
                 posts={posts}
                 categories={categories}
@@ -70,13 +73,22 @@ export default function ManagementTab({
                 onPublished={onRefresh}
                 onShowToast={onShowToast}
             />
+
+            <EditSection
+                categories={categories}
+                tags={tags}
+                onEditPost={onEditPost}
+                onEditTag={onEditTag}
+                onEditSeries={onEditSeries}
+            />
+
             <CategoryManagementSection
                 categories={categories}
                 isLoading={isLoading}
                 onRefresh={onRefresh}
                 onShowToast={onShowToast ?? (() => undefined)}
             />
-            <EditSection categories={categories} tags={tags} onEditPost={onEditPost} onEditTag={onEditTag} onEditSeries={onEditSeries} />
+
             <DeleteSection categories={categories} tags={tags} onDeleteConfirm={onDeleteConfirm} />
         </div>
     );

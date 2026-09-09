@@ -92,6 +92,9 @@ Danh sách không thứ tự:
   - Mục lồng nhau
 ```
 
+> [!NOTE]
+> Từ phiên bản v3.0.0-beta.1, danh sách không thứ tự (`<ul>`) được chuẩn hoá hiển thị bằng dấu gạch đầu dòng (`- `) thay cho dấu chấm tròn (`•`).
+
 Danh sách có thứ tự:
 
 ```md
