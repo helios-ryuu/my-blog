@@ -1,4 +1,4 @@
-# Processes v2.0
+# Processes v3.0
 
 ## Khởi tạo
 
@@ -43,27 +43,32 @@ Khi sửa hoặc xoá, nhập trực tiếp vào field để tìm nhanh. Nút b�
 
 ## Quản lý danh mục
 
-1. Admin mở section Danh mục tại `/admin`.
-2. Tạo hoặc sửa tên, slug, mục đích, ví dụ và emoji tuỳ chọn.
-3. Khi đổi slug, foreign key tự cập nhật category của các bài đang dùng.
-4. Chỉ xoá danh mục có số bài bằng 0; UI và API đều chặn xoá khi còn tham chiếu.
+1. Admin mở section Danh mục tại `/admin` (hiển thị dưới dạng 1 dòng tóm tắt với các pill danh mục cuộn ngang và số lượng bài viết).
+2. Nhấn vào bất kỳ pill danh mục nào hoặc nút "Tìm kiếm nâng cao" để mở hộp thoại tìm kiếm nâng cao (Advance Search Dialog).
+3. Trong hộp thoại, có thể tìm kiếm thời gian thực theo tên, slug, mục đích hoặc ví dụ; nhấn "+ Thêm danh mục" để mở modal tạo mới.
+4. Thao tác Sửa mở modal chỉnh sửa. Thao tác Xoá yêu cầu xác nhận và tự động bị vô hiệu hoá nếu danh mục đang có bài viết (`post_count > 0`).
 
-## Quản lý ảnh
+## Quản lý ảnh & Thư viện Media
 
 1. Admin mở `/admin/bucket`.
-2. Nhập tên và nhấn Tạo thư mục; danh sách và bộ lọc được làm mới để folder mới xuất hiện ngay, sau đó mở folder và upload ảnh.
-3. Server ghi object qua S3 API của Cloudflare R2.
-4. Chọn ảnh trực tiếp trong form bài viết hoặc sao chép URL `/api/media/*`.
-5. Custom domain hiện tại là `https://bucket-space.helios.id.vn`, được cấu hình qua `R2_PUBLIC_URL` để URL mới dùng Cloudflare trực tiếp.
-6. Khi đổi tên hoặc xoá file, kiểm tra các bài đang tham chiếu URL cũ.
+2. Giao diện hiển thị thống kê tổng dung lượng lưu trữ (Total Storage) và tổng số file media trên Cloudflare R2 bucket.
+3. Mỗi thư mục hiển thị kích thước đệ quy thực tế và số lượng tệp bên trong (`size` và `fileCount`).
+4. Nhập tên và nhấn Tạo thư mục; danh sách được làm mới ngay để mở folder và upload ảnh.
+5. Server ghi object qua S3 API của Cloudflare R2.
+6. Chọn ảnh trực tiếp trong form bài viết hoặc sao chép URL `/api/media/*` (hoặc URL CDN qua custom domain).
+7. Khi đổi tên hoặc xoá file, kiểm tra các bài đang tham chiếu URL cũ.
 
-## Chỉnh màu accent
+## Cài đặt hệ thống (Site Settings & Banner)
 
-1. Admin mở `/admin`.
-2. Chọn màu hoặc nhập mã hex sáu chữ số.
-3. API lưu `accent_color` vào `site_settings`.
-4. Cache settings được revalidate.
-5. Context phía client cập nhật CSS token ngay sau khi lưu.
+1. Admin mở cột **Site Settings** (bên phải) tại `/admin`.
+2. **Accent Color**: Chọn màu hoặc nhập mã hex sáu chữ số để đồng bộ màu nhấn trên toàn bộ giao diện (Spotlight, Button, Link, Badge).
+3. **Banner thông báo**:
+   - Bật/tắt hiển thị banner.
+   - Nhập nội dung thông báo đa ngôn ngữ (hỗ trợ HTML).
+   - Tùy biến dải màu nền 3 gradient (`color1`, `color2`, `color3`) và độ trong suốt (opacity).
+   - Tùy biến nút kêu gọi hành động (CTA): nhãn đa ngôn ngữ, đường dẫn, màu nền, màu chữ và màu viền (1.5px).
+   - Điều chỉnh chiều cao banner (px) và thời gian giãn cách phục hồi sau khi đóng (cooldown minutes).
+4. Nhấn "Lưu cài đặt", API `PATCH /api/admin/settings` lưu cấu hình vào `site_settings` và tự động revalidate cache ngay lập tức.
 
 ## Kiểm tra trước release
 
