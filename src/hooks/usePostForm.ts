@@ -11,6 +11,7 @@ import {
 } from "./usePostFormValidation";
 import type { AdminCategory, AdminSeries, AdminTag } from "@/types/admin";
 import { useTranslations } from "next-intl";
+import { setFlashToast } from "@/components/ui/Toast";
 
 type ToastFn = (type: "success" | "error" | "info" | "warning", message: string) => void;
 
@@ -166,6 +167,13 @@ export function usePostForm(opts: UsePostFormOptions) {
             const json = await res.json();
             if (!json.success) throw new Error(json.message || t("savePostError"));
             onShowToast?.("success", mode === "create" ? t("postCreated") : t("postUpdated"));
+            const successMsg = !formData.published
+                ? t("draftSaved")
+                : mode === "create"
+                    ? t("postCreated")
+                    : t("postUpdated");
+            onShowToast?.("success", successMsg);
+            setFlashToast("success", successMsg);
             onSuccess?.({ id: json.data.id, slug: json.data.slug });
         } catch (e) {
             const msg = e instanceof Error ? e.message : t("unknownError");
