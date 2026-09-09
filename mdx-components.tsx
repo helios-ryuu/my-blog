@@ -167,11 +167,24 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
         p: ({ children }) => (
             <p className="text-sm my-2 leading-relaxed">{children}</p>
         ),
-        ul: ({ children }) => (
-            <ul className="text-sm list-disc list-inside my-2 ml-4 space-y-2">{children}</ul>
+        ul: ({ children, className, ...props }) => (
+            <ul
+                className={`text-sm list-inside my-2 ml-4 space-y-2 list-['-_'] ${className || ""}`}
+                style={{ listStyleType: "'- '" }}
+                {...props}
+            >
+                {children}
+            </ul>
         ),
-        ol: ({ children }) => (
-            <ol className="text-sm list-decimal list-inside my-2 ml-4 space-y-2">{children}</ol>
+        ol: ({ children, className, ...props }) => (
+            <ol className={`text-sm list-decimal list-inside my-2 ml-4 space-y-2 ${className || ""}`} {...props}>
+                {children}
+            </ol>
+        ),
+        li: ({ children, className, ...props }) => (
+            <li className={`leading-relaxed ${className || ""}`} {...props}>
+                {children}
+            </li>
         ),
 
         // Inline code - for code blocks, code inside pre will have styles reset
