@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { slugify } from "@/hooks/usePostFormValidation";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { AdminCategory } from "@/types/admin";
 import { Button } from "../common/Button";
 import { FormField, FormInput, FormMessage, FormTextarea } from "../common/FormFields";
@@ -25,13 +26,7 @@ export default function CategoryForm({ category, onSuccess, onClose }: CategoryF
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        const close = (event: KeyboardEvent) => {
-            if (event.key === "Escape" && !isLoading) onClose();
-        };
-        window.addEventListener("keydown", close);
-        return () => window.removeEventListener("keydown", close);
-    }, [isLoading, onClose]);
+    useEscapeKey(onClose, !isLoading);
 
     async function submit(event: React.FormEvent) {
         event.preventDefault();
@@ -71,7 +66,7 @@ export default function CategoryForm({ category, onSuccess, onClose }: CategoryF
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => !isLoading && onClose()}>
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/65 backdrop-blur-sm p-4" onClick={() => !isLoading && onClose()}>
             <div className="w-full max-w-xl rounded-lg border border-(--border-color) bg-background p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-lg font-semibold">{category ? t("editCategoryTitle") : t("addCategoryTitle")}</h2>
@@ -80,7 +75,7 @@ export default function CategoryForm({ category, onSuccess, onClose }: CategoryF
                         onClick={onClose}
                         disabled={isLoading}
                         aria-label={tCommon("close")}
-                        className="text-foreground/60 transition-colors hover:text-foreground disabled:opacity-50"
+                        className="text-foreground/60 transition-colors hover:text-foreground disabled:opacity-50 cursor-pointer"
                     >
                         <X size={18} />
                     </button>

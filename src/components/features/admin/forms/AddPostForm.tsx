@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, FileEdit } from "lucide-react";
 import Link from "next/link";
 import AddTagForm from "./AddTagForm";
 import { FormMessage } from "../common/FormFields";
@@ -23,6 +23,7 @@ interface AddPostFormProps {
 export default function AddPostForm({ onSuccess, onShowToast, existingTitles = [], existingSlugs = [] }: AddPostFormProps) {
     const t = useTranslations("admin");
     const tCommon = useTranslations("common");
+    const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
     const [showAddTag, setShowAddTag] = useState(false);
     const [showAddSeries, setShowAddSeries] = useState(false);
     const { ratio, containerRef, handleMouseDown } = useResizablePanel(0.5, 0.2);
@@ -37,21 +38,51 @@ export default function AddPostForm({ onSuccess, onShowToast, existingTitles = [
     const { formData, setFormData, tags, setTags, categories, series, setSeries, selectedTagIds, setSelectedTagIds, toggleTag, validation, submitted, mdxSource, isRendering, isLoading, error, submit } = form;
 
     return (
-        <div ref={containerRef} className="fixed inset-0 z-30 flex bg-background pt-[var(--header-height,0px)]">
+        <div ref={containerRef} className="fixed inset-0 z-30 flex bg-background">
             <form
                 onSubmit={(e) => { e.preventDefault(); submit(); }}
-                style={{ width: `${ratio * 100}%` }}
-                className="h-full flex flex-col border-r border-(--border-color)"
+                style={{ "--pane-width": `${ratio * 100}%` } as React.CSSProperties}
+                className={`h-full flex-col border-r border-(--border-color) ${
+                    mobileTab === "edit" ? "flex w-full" : "hidden"
+                } lg:flex lg:w-[var(--pane-width)]`}
             >
                 <div className="flex items-center justify-between p-4 border-b border-(--border-color)">
                     <div className="flex items-center gap-3">
                         <Link
                             href="/admin"
-                            className="p-1 rounded hover:bg-foreground/10 cursor-pointer text-foreground/60 hover:text-foreground"
+                            className="p-1 rounded hover:bg-foreground/10 cursor-pointer text-foreground/60 hover:text-foreground transition-colors"
                         >
                             <ArrowLeft size={18} />
                         </Link>
                         <h2 className="text-lg font-semibold">{t("addNewPost")}</h2>
+                    </div>
+
+                    {/* Mobile tab toggle */}
+                    <div className="flex items-center rounded-lg border border-(--border-color) bg-foreground/5 p-0.5 lg:hidden">
+                        <button
+                            type="button"
+                            onClick={() => setMobileTab("edit")}
+                            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                mobileTab === "edit"
+                                    ? "bg-accent text-accent-foreground shadow-sm"
+                                    : "text-foreground/60 hover:text-foreground"
+                            }`}
+                        >
+                            <FileEdit size={13} />
+                            <span>{t("editorTab")}</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setMobileTab("preview")}
+                            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                mobileTab === "preview"
+                                    ? "bg-accent text-accent-foreground shadow-sm"
+                                    : "text-foreground/60 hover:text-foreground"
+                            }`}
+                        >
+                            <Eye size={13} />
+                            <span>{t("previewTitle")}</span>
+                        </button>
                     </div>
                 </div>
 
@@ -93,10 +124,12 @@ export default function AddPostForm({ onSuccess, onShowToast, existingTitles = [
             {/* Drag handle */}
             <div
                 onMouseDown={handleMouseDown}
-                className="w-1 cursor-col-resize bg-transparent hover:bg-accent/40 active:bg-accent/60 transition-colors flex-shrink-0"
+                className="hidden lg:block w-1 cursor-col-resize bg-transparent hover:bg-accent/40 active:bg-accent/60 transition-colors flex-shrink-0"
             />
 
             <PostPreviewPanel
+                className={`${mobileTab === "preview" ? "flex w-full" : "hidden"} lg:flex lg:flex-1`}
+                onBackToEdit={() => setMobileTab("edit")}
                 title={formData.title}
                 description={formData.description}
                 imageUrl={formData.image_url}

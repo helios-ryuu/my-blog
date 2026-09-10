@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { mdxComponents } from "@/../mdx-components";
@@ -31,6 +31,8 @@ interface PostPreviewPanelProps {
     tags: AdminTag[];
     mdxSource: MDXRemoteSerializeResult | null;
     isRendering?: boolean;
+    className?: string;
+    onBackToEdit?: () => void;
 }
 
 export function PostPreviewPanel({
@@ -48,12 +50,24 @@ export function PostPreviewPanel({
     tags,
     mdxSource,
     isRendering,
+    className = "",
+    onBackToEdit,
 }: PostPreviewPanelProps) {
     const t = useTranslations("admin");
     const tPost = useTranslations("post");
     return (
-        <div className="flex-1 min-w-0 h-full flex flex-col bg-background">
+        <div className={`min-w-0 h-full flex flex-col bg-background ${className}`}>
             <div className="flex items-center gap-2 p-4 border-b border-(--border-color) text-foreground/70">
+                {onBackToEdit && (
+                    <button
+                        type="button"
+                        onClick={onBackToEdit}
+                        className="lg:hidden p-1 rounded hover:bg-foreground/10 cursor-pointer text-foreground/60 hover:text-foreground mr-1 transition-colors"
+                        aria-label="Back to editor"
+                    >
+                        <ArrowLeft size={18} />
+                    </button>
+                )}
                 <Eye size={18} />
                 <span className="font-semibold text-lg">{t("previewTitle")}</span>
                 {isRendering && (

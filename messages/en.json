@@ -378,6 +378,7 @@
         "openFile": "Open",
         "bucketMedia": "my-blog",
         "bucketMedia": "Media Storage",
+        "editorTab": "Editor",
         "addNewPost": "Add New Post",
         "createPostBtn": "Create Post",
         "creatingPost": "Creating...",

@@ -30,6 +30,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     const isPostPage = pathname === "/post";
     const isPostRoute = isPostPage || pathname.startsWith("/post/");
     const isProfilePage = pathname === "/profile" || pathname.startsWith("/profile/");
+    const isPostEditorPage = pathname === "/admin/posts/new" || /^\/admin\/posts\/[^/]+\/edit\/?$/.test(pathname);
     const [navigationTarget, setNavigationTarget] = useState<string | null>(null);
 
     useEffect(() => {
@@ -74,52 +75,56 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 <PostBackground />
             )}
 
-            <div className="relative z-20">
-                {cfg.enabled && (
-                    <Banner
-                        id="site-banner"
-                        gradient={`linear-gradient(to right, ${cfg.color1}, ${cfg.color2}, ${cfg.color3})`}
-                        height={cfg.height}
-                        cooldownMinutes={cfg.cooldownMinutes}
-                        content={
-                            <div className="inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-                                <span dangerouslySetInnerHTML={{ __html: typeof cfg.content === "object" ? (cfg.content[locale as "vi" | "en"] ?? cfg.content.vi) : cfg.content }} />
-                                {cfg.hasButton && (
-                                    <a
-                                        href={cfg.buttonLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            backgroundColor: `color-mix(in srgb, ${cfg.buttonBgColor} ${cfg.buttonOpacity ?? 100}%, transparent)`,
-                                            borderColor: cfg.buttonBorderColor ?? cfg.buttonBgColor,
-                                            borderWidth: "1.5px",
-                                            color: cfg.buttonTextColor,
-                                        }}
-                                        className="rounded-[7px] border-[1.5px] px-3 py-0.5 text-xs transition-colors hover:opacity-85"
-                                    >
-                                        {typeof cfg.buttonText === "object" ? (cfg.buttonText[locale as "vi" | "en"] ?? cfg.buttonText.vi) : cfg.buttonText}
-                                    </a>
-                                )}
-                            </div>
-                        }
-                    />
-                )}
-            </div>
+            {!isPostEditorPage && (
+                <div className="relative z-20">
+                    {cfg.enabled && (
+                        <Banner
+                            id="site-banner"
+                            gradient={`linear-gradient(to right, ${cfg.color1}, ${cfg.color2}, ${cfg.color3})`}
+                            height={cfg.height}
+                            cooldownMinutes={cfg.cooldownMinutes}
+                            content={
+                                <div className="inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+                                    <span dangerouslySetInnerHTML={{ __html: typeof cfg.content === "object" ? (cfg.content[locale as "vi" | "en"] ?? cfg.content.vi) : cfg.content }} />
+                                    {cfg.hasButton && (
+                                        <a
+                                            href={cfg.buttonLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{
+                                                backgroundColor: `color-mix(in srgb, ${cfg.buttonBgColor} ${cfg.buttonOpacity ?? 100}%, transparent)`,
+                                                borderColor: cfg.buttonBorderColor ?? cfg.buttonBgColor,
+                                                borderWidth: "1.5px",
+                                                color: cfg.buttonTextColor,
+                                            }}
+                                            className="rounded-[7px] border-[1.5px] px-3 py-0.5 text-xs transition-colors hover:opacity-85"
+                                        >
+                                            {typeof cfg.buttonText === "object" ? (cfg.buttonText[locale as "vi" | "en"] ?? cfg.buttonText.vi) : cfg.buttonText}
+                                        </a>
+                                    )}
+                                </div>
+                            }
+                        />
+                    )}
+                </div>
+            )}
 
             <div className="relative z-30 flex flex-1 flex-col md:min-h-0">
-                <div className="relative z-[100]">
-                    <Header />
-                    <NavigationPanel floating={true} />
-                </div>
+                {!isPostEditorPage && (
+                    <div className="relative z-[100]">
+                        <Header />
+                        <NavigationPanel floating={true} />
+                    </div>
+                )}
                 <PostFilterProvider>
-                    <MobileSearchBar />
+                    {!isPostEditorPage && <MobileSearchBar />}
                     <div className="relative flex-1 md:min-h-0">
-                        <main className={`h-full overflow-auto ${isHomePage || isPostRoute || isProfilePage ? "bg-transparent" : "bg-background"}`}>
+                        <main className={`h-full overflow-auto ${isHomePage || isPostRoute || isProfilePage || isPostEditorPage ? "bg-transparent" : "bg-background"}`}>
                             <div className="flex min-h-full flex-col pb-[env(safe-area-inset-bottom)]">
-                                <div className={`min-h-0 flex-1 ${!isHomePage && !isPostRoute && !isProfilePage ? "pt-3 sm:pt-4 md:pt-8 lg:pt-10" : ""}`}>
+                                <div className={`min-h-0 flex-1 ${!isHomePage && !isPostRoute && !isProfilePage && !isPostEditorPage ? "pt-3 sm:pt-4 md:pt-8 lg:pt-10" : ""}`}>
                                     {navigationTarget ? <PageLoadingShell /> : children}
                                 </div>
-                                <Footer />
+                                {!isPostEditorPage && <Footer />}
                             </div>
                         </main>
                     </div>
