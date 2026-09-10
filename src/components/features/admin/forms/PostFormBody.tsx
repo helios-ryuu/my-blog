@@ -15,6 +15,7 @@ import {
     type PostLevel,
 } from "@/types/database";
 import { useTranslations } from "next-intl";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import SeriesSelector from "../common/SeriesSelector";
 
 interface PostFormBodyProps {
@@ -59,6 +60,8 @@ export function PostFormBody({
     const [touched, setTouched] = useState<Set<string>>(new Set());
     const [usedSeriesOrders, setUsedSeriesOrders] = useState<number[]>([]);
     const [isLoadingSeriesOrders, setIsLoadingSeriesOrders] = useState(false);
+
+    useEscapeKey(() => setIsPickerOpen(false), isPickerOpen);
 
     const loadSeriesOrders = useCallback(async (seriesId: number, fillNext = false) => {
         setIsLoadingSeriesOrders(true);
@@ -316,8 +319,14 @@ export function PostFormBody({
             </FormField>
 
             {isPickerOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-                    <div className="bg-background border border-(--border-color) rounded-lg w-full max-w-5xl h-[80vh] flex flex-col shadow-xl">
+                <div
+                    className="fixed inset-0 z-[110] flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 sm:p-6"
+                    onClick={() => setIsPickerOpen(false)}
+                >
+                    <div
+                        className="bg-background border border-(--border-color) rounded-lg w-full max-w-5xl h-[80vh] flex flex-col shadow-xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="flex items-center justify-between px-6 py-4 border-b border-(--border-color)">
                             <h2 className="text-lg font-semibold">{t("pickImageModalTitle")}</h2>
                             <button

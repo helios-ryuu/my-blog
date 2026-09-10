@@ -1,81 +1,37 @@
 # Helios Space
 
-Helios Space v3.1.0 là không gian cá nhân kèm CMS hiện đại, hiệu năng cao, được xây dựng bằng Next.js 16, React 19, TypeScript, Supabase Postgres và Cloudflare R2. Dự án tích hợp hệ thống đồ họa WebGL tương tác, animation suite mượt mà, sơ đồ quan hệ CSDL trực quan với React Flow, khối Bento bài viết tương tác cao, thanh điều hướng floating dock với nút SpecularButton, thanh trượt đàn hồi ElasticSlider, hệ thống bảo mật chống brute-force đa tầng cùng giao diện quản trị 2 cột trực quan.
+Helios Space là không gian blog cá nhân kết hợp hệ quản trị nội dung (CMS) gọn nhẹ, hiện đại và hiệu năng cao. Dự án được xây dựng trên nền tảng **Next.js 16**, **React 19**, **TypeScript**, **Supabase Postgres** và **Cloudflare R2**, chú trọng trải nghiệm thị giác ấn tượng với đồ họa tương tác WebGL, hoạt ảnh mượt mà cùng giao diện quản trị trực quan, tiện lợi.
 
-## Tính năng nổi bật
+---
+
+## Tính năng chính
 
 ### Trải nghiệm người dùng & Giao diện (UI/UX)
-- **WebGL Backgrounds & Hiệu ứng tương tác**:
-  - Trang chủ tích hợp **WebThreads** (công nghệ OGL WebGL) kết hợp hiệu ứng đèn rọi spotlight chuyển động theo con trỏ chuột trên desktop.
-  - Trên thiết bị di động, tự động chuyển sang chế độ **6 sợi song song (`fanMode: "parallel"`)** mềm mại tựa cực quang, uốn lượn uyển chuyển qua khu vực hero mà không gây thắt nút chói sáng.
-  - Trang bài viết `/post` tích hợp hiệu ứng hạt phân rã **PixelBlast** (Three.js + Postprocessing) với độ mờ và mật độ tối ưu cho trải nghiệm đọc văn bản.
-  - Tiêu đề Hero sử dụng hiệu ứng hoán đổi ký tự **Shuffle** tinh gọn, dứt khoát kết hợp với chuyển động chữ **SplitText** mượt mà.
-  - Tối ưu hóa hiệu năng di động bằng cách giới hạn DPR ở mức `1.25` trên màn hình nhỏ (< 768px), giảm hơn 70% tải điểm ảnh (pixel fillrate), đảm bảo cuộn mượt mà 60–120Hz mà không tiêu hao pin hay nóng máy.
-- **Khối Bento Bài viết gần đây (`MagicBento`)**:
-  - Thay thế danh sách phẳng bằng cấu trúc lưới **Bento Grid** hiện đại với hiệu ứng đèn rọi toàn cục (**Global Spotlight**), viền sáng chuyển động theo con trỏ (**Border Glow**), hiệu ứng nghiêng 3D (**Tilt**) và hạt phát sáng (**Particle Stars**).
-  - Tích hợp hài hòa các thành phần thiết yếu từ PostCard: Huy hiệu Danh mục (Category Badge), Thời gian đọc & Ngày đăng, Ảnh bìa mềm và Tiêu đề + Tóm tắt ngắn gọn.
-  - Tiêu đề khu vực được tinh giản hiển thị duy nhất **"Bài viết gần đây"** với phong cách font-mono đậm nét thanh lịch, đồng bộ kiểu chữ với liên kết **"Xem tất cả"**.
-- **Header & Thanh điều hướng Dock (`SpecularButton`)**:
-  - Navigation Panel hoạt động đồng nhất dạng **Floating Dock** trên mọi tab/trang, tự động mở rộng vừa vặn toàn bộ các nút mà không xuất hiện thanh cuộn ngang, viền bo tròn mềm mại (`14px`) cùng đệm dock tinh chỉnh rộng rãi.
-  - Tối ưu trải nghiệm di động: dock hiển thị trực quan ở trạng thái cố định với các nút có viền phản hồi xúc giác rõ ràng, tự động cuộn định tâm tab đang kích hoạt (active item auto-scroll) mà không cần thao tác hover chuột.
-  - Tăng khoảng đệm trên (padding-top) cho các trang khác Home và Post, đảm bảo dock nổi không che lấp tiêu đề hoặc vùng điều khiển nội dung.
-  - Các mục điều hướng tích hợp nút **SpecularButton** (OGL WebGL, bán kính `8px`) với hiệu ứng quét sáng viền phản chiếu ánh sáng tự nhiên theo con trỏ chuột.
-    - Menu tài khoản hỗ trợ con trỏ chuột trực quan, tích hợp các phím tắt nhanh chuyển đổi giao diện Sáng / Tối, đổi ngôn ngữ Việt / Anh và liên kết mạng xã hội (GitHub, Instagram).
-    - Thanh tìm kiếm (Search Bar) căn giữa tuyệt đối trên desktop, tự động chuyển đổi sang Mobile Search Bar ở màn hình nhỏ (< 1024px); nút bộ lọc (Advanced Search) xuất hiện riêng cho trang `/post`.
-- **Trang Profile cá nhân (`/profile`) & Thẻ ProfileCard 3D Holographic**:
-  - Tích hợp hiệu ứng sóng nền **`<GradientWaves />`** (React Bits / OGL WebGL shader) với khả năng tương tác di chuột, tùy biến màu sắc và tự động tối ưu hóa tài nguyên (tự động điều tiết render khi ẩn tab).
-  - Thẻ nhận diện cá nhân **`<ProfileCard />`** (React Bits / TypeScript & Tailwind) với hiệu ứng 3D Tilt có quán tính chuyển động theo chuột, phản chiếu ánh sáng Holographic Foil Shine & Glare, đèn phát sáng Behind-Glow theo con trỏ và thanh điều khiển kính mờ (Frosted Glass) hiện đại.
-  - Bố cục hiển thị mở rộng (container 1440px): Thẻ Profile cố định bên cột trái (`xl:col-span-4`), nhường trọn không gian rộng rãi (`xl:col-span-8`) cho khung hồ sơ README.
-  - Đồng bộ và render trực tiếp nội dung hồ sơ Markdown từ GitHub Profile repo (`helios-ryuu/helios-ryuu`), hỗ trợ đầy đủ các thành phần phong phú như bảng thông tin, visitor badges, follower count, widget nghe nhạc Spotify gần đây, danh sách công nghệ (Skillicons) và biểu đồ đóng góp Galaga/Pacman sinh động kèm quốc tế hóa (i18n).
-- **Hệ thống Banner thông báo động & ElasticSlider**:
-  - Cấu hình đa ngôn ngữ trực tiếp từ CMS: nội dung HTML, dải màu gradient 3 màu, nút kêu gọi hành động (CTA button viền 1.5px nổi bật), độ trong suốt, chiều cao và thời gian hồi (cooldown) sau khi đóng.
-  - Tích hợp thanh trượt vật lý đàn hồi **ElasticSlider** (Motion) trong trang Quản trị giúp việc kéo thả chiều cao, thời gian cooldown và độ mờ banner trở nên trực quan và mượt mà.
+- **Thiết kế hiện đại & Tương tác phong phú**: Giao diện tối ưu theo phong cách hiện đại với hiệu ứng đồ họa WebGL (OGL, Three.js), đèn rọi (spotlight) và chuyển động viền sáng (glow effects) tương tác theo chuột.
+- **Bố cục Bento Grid**: Trình bày danh sách bài viết nổi bật dạng lưới Bento trực quan, hiển thị đầy đủ thông tin danh mục, thời gian đọc, ảnh bìa và tóm tắt.
+- **Thanh điều hướng nổi (Floating Dock)**: Menu điều hướng thông minh hỗ trợ chuyển đổi nhanh trang, tìm kiếm bài viết, đổi ngôn ngữ (i18n), chuyển đổi chủ đề (Dark/Light mode) và liên kết mạng xã hội.
+- **Trang Hồ sơ cá nhân (Profile)**: Tích hợp thẻ nhận diện 3D tương tác Holographic cùng khung hiển thị Markdown đồng bộ trực tiếp từ GitHub Profile.
+- **Tối ưu hóa đa thiết bị**: Tự động tinh chỉnh chất lượng hiển thị và hoạt ảnh phù hợp với cả màn hình lớn lẫn thiết bị di động, đảm bảo tốc độ khung hình mượt mà và tiết kiệm pin.
 
-### Bảo mật xác thực & Chống Brute-force (Anti-Spam Protection)
-- **Kiểm soát tần suất IP đa tầng (Rate Limiting)**:
-  - Nhận diện chính xác địa chỉ IP của client qua `cf-connecting-ip`, `x-forwarded-for`, và `x-real-ip` (tương thích hoàn hảo sau Cloudflare và Vercel).
-  - Chính sách tạm khóa lũy tiến: 5 lần đăng nhập thất bại trong 15 phút sẽ tạm khóa 15 phút (Level 1); tiếp tục thử sai khi hết hạn sẽ khóa 60 phút (Level 2).
-  - Đăng nhập thành công ngay lập tức xoá lịch sử vi phạm của IP.
-  - Tích hợp sẵn cơ chế **in-memory fallback** chống gián đoạn: tự động bảo vệ hệ thống ngay cả khi database tạm thời mất kết nối.
-  - Độ trễ nhân tạo 500ms (anti-timing delay) triệt tiêu hoàn toàn các công cụ tấn công dò mật khẩu tốc độ cao.
-- **Phản hồi giao diện thời gian thực (`/auth`)**:
-  - Huy hiệu cảnh báo số lần thử còn lại khi người dùng nhập sai.
-  - Khi bị khóa, form đăng nhập tự động vô hiệu hóa các trường nhập liệu và nút bấm, đồng thời hiển thị đồng hồ đếm ngược trực tiếp (`mm:ss`) trước khi cho phép thử lại.
-- **Bảng điều khiển quản trị IP (`/admin`)**:
-  - Tích hợp mục **Bảo mật đăng nhập (Security Section)** trong cột Cài đặt hệ thống.
-  - Hiển thị địa chỉ IP hiện tại, số lượng IP bị khóa, bảng chi tiết thời gian khóa và nút **Mở khóa (Unblock)** tức thì 1-click cho quản trị viên.
+### Đọc & Xuất bản nội dung (Content & Reading)
+- **Hỗ trợ định dạng MDX**: Soạn thảo và hiển thị bài viết với định dạng Markdown mở rộng, tô màu cú pháp code với Shiki, hỗ trợ các khối thông báo (callouts/alerts) và bảng dữ liệu.
+- **Mục lục bài viết (Table of Contents)**: Tự động tổng hợp đề mục từ nội dung bài viết và đồng bộ vị trí đọc theo thời gian thực khi cuộn trang.
+- **Phân loại bài viết linh hoạt**: Tổ chức nội dung theo Danh mục (Categories), Thẻ (Tags) và Chuỗi bài viết (Series) có thứ tự rõ ràng.
+- **Chia sẻ & Tải về**: Tạo ảnh card kèm mã QR để chia sẻ bài viết lên mạng xã hội hoặc tải về bản Markdown thô nhanh chóng.
+- **Chỉnh sửa nhanh**: Quản trị viên khi đăng nhập có thể truy cập nhanh vào trình biên tập của từng bài viết ngay từ giao diện đọc.
 
-### Trình đọc & Nội dung bài viết
-- **Typography Markdown đồng nhất**:
-  - Danh sách không thứ tự (`<ul>`) được chuẩn hoá hiển thị bằng dấu gạch đầu dòng (`- `) thay cho dấu chấm tròn (`•`), tạo phong cách thanh lịch và nhất quán.
-  - Tô màu cú pháp code với `rehype-pretty-code` và `Shiki`.
-  - Mục lục bài viết (TOC) trên desktop hỗ trợ cuộn con trỏ nhảy nhanh qua từng đề mục (Header jump) với độ phản hồi tức thì và đồng nhất vị trí dừng giữa click và scroll.
-  - Hỗ trợ công cụ chia sẻ xã hội, tạo ảnh card QR code sắc nét và tải bài viết dạng Markdown thô.
-  - **Chỉnh sửa nhanh cho Quản trị viên (Edit this post)**: Khi đăng nhập tài khoản quản trị, kế bên nút chia sẻ sẽ xuất hiện nút chỉnh sửa bài viết giúp điều hướng tức thì vào trình biên tập bài viết tương ứng mà không cần phải tìm kiếm trong trang quản trị.
+### Hệ thống Quản trị (CMS & Admin Workspace)
+- **Trình soạn thảo chuyên dụng**: Giao diện viết bài dạng 2 cột toàn màn hình độc lập, tích hợp khung soạn thảo Markdown và panel xem trước kết quả tức thì (Live Preview).
+- **Quản lý nội dung toàn diện**: Quản lý bài viết xuất bản và bản nháp, phân loại theo series, quản lý danh mục và hệ thống tags với các thao tác nhanh.
+- **Sơ đồ quan hệ CSDL (ER Diagram)**: Công cụ trực quan hóa cấu trúc cơ sở dữ liệu tương tác bằng React Flow, hỗ trợ kéo thả và xem chi tiết liên kết giữa các bảng.
+- **Quản lý Media Cloudflare R2**: Tích hợp lưu trữ đám mây chuẩn S3, cho phép tạo thư mục, tải tệp lên, xem trước, thống kê dung lượng và phân phối nhanh qua CDN.
+- **Cài đặt hệ thống**: Tùy chỉnh màu chủ đạo (Accent Color), cấu hình Banner thông báo toàn trang với nội dung đa ngôn ngữ và thanh trượt điều chỉnh trực quan.
 
-### Quản trị nội dung & CMS (Admin Workspace)
-- **Bố cục 2 cột trực quan**:
-  - Cột trái: **Quản lý nội dung (Content Management)** tập trung cho Tạo bài viết, Quản lý bản nháp, Sửa/Xoá nội dung, Quản lý Danh mục và Phân nhóm.
-  - Cột phải: **Cài đặt hệ thống (Site Settings)** giúp tùy biến màu Accent Color toàn site và cấu hình Banner thông báo tức thì.
-- **Quản lý Bản nháp (Drafts) & Danh mục (Categories) hiện đại**:
-  - Dòng hiển thị tổng hợp 1 dòng (1-line summary row) với các pill bo tròn cuộn ngang, hiển thị huy hiệu số lượng và các nút thao tác nhanh (Sửa, Xuất bản).
-  - Hộp thoại Tìm kiếm nâng cao (Advance Search Dialog) hỗ trợ tìm kiếm thời gian thực theo tiêu đề, slug, mô tả, lọc theo danh mục, phân trang trực quan.
-- **Quản lý Series & Standalone**:
-  - Series độc lập với danh mục: bài viết có thể là Standalone hoặc nhận `series_id` kèm thứ tự duy nhất trong chuỗi.
-  - Form bài viết tự đề xuất thứ tự trống nhỏ nhất tiếp theo.
-- **Sơ đồ quan hệ Cơ sở dữ liệu tương tác (`@xyflow/react`)**:
-  - Tích hợp công cụ trực quan hóa **Sơ đồ quan hệ ER (Entity-Relationship Diagram)** ngay trên trang `/admin/database`.
-  - Hỗ trợ chuyển đổi mượt mà giữa chế độ **Bảng dữ liệu (Data Tables)** truyền thống và **Sơ đồ quan hệ ER**.
-  - Cho phép người dùng kéo thả tự do vị trí các bảng dữ liệu trên canvas (`nodesDraggable`), phóng to, thu nhỏ và tối giản hóa không gian bằng cách loại bỏ watermark React Flow và Minimap.
-  - Hiển thị đầy đủ các Node bảng (`post`, `category`, `series`, `tag`, `post_tags`, `auth_rate_limits`, `site_settings`), trường dữ liệu, khóa chính (PK), khóa ngoại (FK), số lượng bản ghi thực tế và đường nối liên kết (edges) động.
-- **Thư viện Media & Quản lý Storage Cloudflare R2**:
-  - Tính toán đệ quy kích thước thư mục và số lượng file thực tế trong từng folder.
-  - Thống kê tổng dung lượng lưu trữ (Total Storage) và tổng số file trên bucket R2.
-  - Hỗ trợ tạo thư mục, tải file lên, đổi tên, xoá và sao chép URL ổn định.
-- **Persistent Flash Toast**:
-  - Hệ thống thông báo thông minh lưu qua `sessionStorage`, giữ vững thông báo xác nhận khi lưu nháp hoặc xuất bản qua các lần điều hướng trang client-side.
-- **Bảo mật**:
-  - Một tài khoản admin duy nhất, hỗ trợ mật khẩu băm SHA-256 qua biến môi trường, bảo vệ bằng phiên làm việc HMAC-SHA256 cookie HTTP-only.
+### Bảo mật & Vận hành (Security & Reliability)
+- **Bảo mật đăng nhập đa tầng**: Kiểm soát tần suất đăng nhập (Rate Limiting) theo địa chỉ IP thực tế, tự động khóa tạm thời theo cấp độ khi phát hiện tấn công brute-force.
+- **Bảng theo dõi an ninh**: Quản trị viên có thể theo dõi danh sách IP bị hạn chế và mở khóa ngay trên giao diện quản trị.
+- **Quản lý phiên an toàn**: Xác thực admin với mật khẩu băm SHA-256 và cookie phiên HTTP-only được ký bảo mật bằng HMAC-SHA256.
+- **Đa ngôn ngữ (i18n)**: Hỗ trợ chuyển đổi song ngữ Tiếng Việt và English xuyên suốt giao diện người dùng và nội dung hệ thống.
 
 ---
 
@@ -101,8 +57,9 @@ Helios Space v3.1.0 là không gian cá nhân kèm CMS hiện đại, hiệu nă
 src/
 ├── app/
 │   ├── admin/             # CMS Workspace, Database Viewer, Media Library
-│   ├── api/               # Server API routes (Auth, Admin, Settings, Media)
+│   ├── api/               # Server API routes (Auth, Admin, Settings, Media, Posts)
 │   ├── post/              # Danh sách và chi tiết bài viết
+│   ├── profile/           # Trang hồ sơ cá nhân
 │   ├── tag/               # Lọc bài viết theo tag
 │   ├── category/          # Lọc bài viết theo danh mục
 │   └── page.tsx           # Trang chủ với Hero Showcase

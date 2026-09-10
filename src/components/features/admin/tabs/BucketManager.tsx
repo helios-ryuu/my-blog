@@ -22,6 +22,7 @@ import {
 import Image from "next/image";
 import { Button } from "../common/Button";
 import { useToast } from "../../../ui/Toast";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface BucketEntry {
     name: string;
@@ -89,6 +90,12 @@ export default function BucketManager({
     const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
     const [totalStats, setTotalStats] = useState<{ totalSize: number; totalFiles: number } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEscapeKey(() => {
+        setSelectedFile(null);
+        setDeleteConfirm(null);
+        setRenameState(null);
+    }, Boolean(selectedFile));
 
     const fetchEntries = useCallback(async () => {
         setIsLoading(true);

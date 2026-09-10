@@ -21,7 +21,7 @@ export default function Header() {
     const tNav = useTranslations("nav");
     const { resolvedTheme, setTheme } = useTheme();
     const theme = mounted && resolvedTheme === "light" ? "light" : "dark";
-    const isPostEditor = pathname === "/admin/posts/new" || /^\/admin\/posts\/[^/]+\/edit$/.test(pathname);
+    const isPostEditor = pathname === "/admin/posts/new" || /^\/admin\/posts\/[^/]+\/edit\/?$/.test(pathname);
     const currentRoute = menuItems
         .filter((item) => item.href !== "/" && (pathname === item.href || pathname.startsWith(`${item.href}/`)))
         .sort((a, b) => b.href.length - a.href.length)[0];
