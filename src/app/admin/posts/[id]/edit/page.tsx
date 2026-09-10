@@ -42,7 +42,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="fixed inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-background">
                 <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
             </div>
         );
@@ -50,14 +50,14 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
     if (!resolvedId) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+            <div className="fixed inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-background p-4 text-center">
                 <p className="text-foreground/70">Không tìm thấy bài viết để chỉnh sửa.</p>
                 <button
                     onClick={() => {
                         startNavigationLoading("/admin");
                         router.push("/admin");
                     }}
-                    className="px-4 py-2 bg-accent text-accent-foreground rounded-lg cursor-pointer"
+                    className="px-4 py-2 bg-accent text-accent-foreground rounded-lg cursor-pointer hover:opacity-90 transition-opacity text-sm font-medium"
                 >
                     Về trang quản trị
                 </button>

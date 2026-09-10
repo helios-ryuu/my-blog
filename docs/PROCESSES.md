@@ -1,4 +1,4 @@
-# Processes v3.0
+# Processes v3.1
 
 ## Khởi tạo
 
@@ -21,17 +21,19 @@ Production nên chỉ dùng `ADMIN_PASSWORD_HASH`. Sau khi đặt lại env trê
 
 ## Viết và xuất bản
 
-1. Admin mở `/admin` và tạo bài mới.
-2. Nhập title, slug, description, category, level, thời gian đọc, kiểu bài, image, tag và nội dung MDX.
-3. Kiểm tra preview trước khi lưu.
-4. Lưu nháp để tiếp tục chỉnh sửa hoặc bật xuất bản ngay.
-5. Bài được revalidate trên homepage, danh sách và trang chi tiết.
+1. Admin mở `/admin` và tạo bài mới tại `/admin/posts/new` hoặc chọn sửa bài tại `/admin/posts/[id]/edit`.
+2. Không gian soạn thảo hoạt động ở chế độ chuyên dụng toàn màn hình độc lập (tự động ẩn Header, NavigationPanel và Banner để tối ưu diện tích làm việc).
+3. **Trên máy tính (Desktop)**: Giao diện hiển thị dạng 2 cột (split-view) song song giữa khung nhập liệu và panel xem trước (Live Preview), có thanh kéo divider điều chỉnh tỷ lệ độ rộng tùy ý.
+4. **Trên di động (Mobile)**: Tự động chuyển đổi giữa tab "Soạn thảo" và "Xem trước" qua nút chuyển đổi nhanh trên header, đảm bảo không gian thao tác không bị bóp nghẹt.
+5. Nhập title, slug, description, category, level, thời gian đọc, kiểu bài, image (tích hợp Cloudflare R2 picker modal), tag và nội dung MDX.
+6. Lưu nháp để tiếp tục chỉnh sửa hoặc bật xuất bản ngay.
+7. Bài được revalidate tức thì trên homepage, danh sách và trang chi tiết.
 
 Category chọn từ danh sách do CMS quản lý. Level chọn cơ bản, trung cấp hoặc nâng cao. Thời gian đọc là số phút do tác giả ước tính thủ công trong khoảng 1–120.
 
 Với bài độc lập, giữ chế độ Standalone. Với bài theo chuỗi, chọn Series, tìm series theo ID/tên/slug rồi dùng order được đề xuất hoặc nhập order khác chưa được dùng. Nút `+` trong field mở modal tạo series và tự chọn series mới. Chuyển lại Standalone sẽ xoá cả series và order khi lưu.
 
-Khi sửa hoặc xoá, nhập trực tiếp vào field để tìm nhanh. Nút bộ lọc trong field mở selector nâng cao: post có thể lọc theo từ khoá, category, level, type, trạng thái và tag; post/tag/series đều có phân trang để không phụ thuộc một dropdown dài.
+Khi sửa hoặc xoá, nhập trực tiếp vào field để tìm nhanh. Nút bộ lọc trong field mở selector nâng cao: post có thể lọc theo từ khoá, category, level, type, trạng thái và tag; post/tag/series đều có phân trang để không phụ thuộc một dropdown dài. Modal tạo/sửa hỗ trợ phím Escape và click ngoài backdrop để đóng nhanh.
 
 ## Quản lý series
 
