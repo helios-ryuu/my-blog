@@ -26,6 +26,7 @@
     "nav": {
         "home": "Trang chủ",
         "posts": "Bài viết",
+        "profile": "Profile cá nhân",
         "about": "Giới thiệu",
         "faq": "Hỏi & Đáp",
         "adminWorkspace": "Quản trị",
@@ -43,7 +44,7 @@
     },
     "home": {
         "heroEyebrow": "Ghi chép cá nhân",
-        "heroLead": "Nơi chia sẻ kiến thức và hành trình của bản thân.",
+        "heroLead": "Nơi chia sẻ tri thức và hành trình của bản thân.",
         "explorePosts": "Khám phá bài viết",
         "aboutAuthor": "Giới thiệu",
         "latestEyebrow": "Bài viết mới",
@@ -123,6 +124,7 @@
         "backToPosts": "Quay lại danh sách bài viết",
         "postLabel": "Bài viết",
         "shareThisPost": "Chia sẻ bài viết",
+        "editThisPost": "Chỉnh sửa bài viết",
         "shareAsLink": "Chia sẻ liên kết",
         "linkCopied": "Đã sao chép liên kết!",
         "shareAsQrCard": "Chia sẻ bằng thẻ QR",
@@ -256,6 +258,13 @@
         "createSeries": "Series mới",
         "createSeriesDesc": "Tạo chuỗi bài viết có thứ tự.",
         "draftPosts": "Bản nháp",
+        "draftSummary": "Bản nháp ({count})",
+        "advancedDraftSearch": "Tìm kiếm bản nháp nâng cao",
+        "draftPickerTitle": "Tìm kiếm & Quản lý bản nháp",
+        "draftPickerDescription": "Tìm kiếm thời gian thực, lọc theo danh mục, chỉnh sửa hoặc xuất bản bài viết nháp.",
+        "closeDraftPicker": "Đóng trình tìm kiếm bản nháp",
+        "draftSearchPlaceholder": "Tìm theo tiêu đề, slug hoặc tóm tắt bản nháp...",
+        "noMatchingDrafts": "Không tìm thấy bản nháp phù hợp.",
         "loadingDrafts": "Đang tải bản nháp...",
         "noDraftPosts": "Không có bản nháp.",
         "publishPost": "Xuất bản",
@@ -537,5 +546,13 @@
         "typeToConfirm": "Nhập {name} để xác nhận:",
         "confirmPlaceholder": "Nhập tên để xác nhận",
         "warning": "Hành động này không thể hoàn tác."
+    },
+    "profile": {
+        "title": "helios-ryuu / README.md",
+        "fromRepo": "Từ GitHub Profile Repository của helios-ryuu",
+        "viewOnGitHub": "Xem trên GitHub",
+        "parseError": "Không thể hiển thị nội dung README.",
+        "status": "Trực tuyến",
+        "contact": "Liên hệ"
     }
 }

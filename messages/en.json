@@ -26,6 +26,7 @@
     "nav": {
         "home": "Home",
         "posts": "Posts",
+        "profile": "Personal Profile",
         "about": "About",
         "faq": "Q&A",
         "adminWorkspace": "Admin",
@@ -123,6 +124,7 @@
         "backToPosts": "Back to posts",
         "postLabel": "Post",
         "shareThisPost": "Share this post",
+        "editThisPost": "Edit this post",
         "shareAsLink": "Share as link",
         "linkCopied": "Link copied!",
         "shareAsQrCard": "Share as QR card",
@@ -257,6 +259,13 @@
         "createSeries": "New Series",
         "createSeriesDesc": "Create an ordered sequence of posts.",
         "draftPosts": "Draft Posts",
+        "draftSummary": "Drafts ({count})",
+        "advancedDraftSearch": "Advanced Draft Search",
+        "draftPickerTitle": "Search & Manage Drafts",
+        "draftPickerDescription": "Real-time search, filter by category, edit or publish draft posts.",
+        "closeDraftPicker": "Close draft picker",
+        "draftSearchPlaceholder": "Search by title, slug, or summary...",
+        "noMatchingDrafts": "No matching drafts found.",
         "loadingDrafts": "Loading drafts...",
         "noDraftPosts": "No draft posts.",
         "publishPost": "Publish",
@@ -539,5 +548,13 @@
         "typeToConfirm": "Type {name} to confirm:",
         "confirmPlaceholder": "Enter the name to confirm",
         "warning": "This action cannot be undone."
+    },
+    "profile": {
+        "title": "helios-ryuu / README.md",
+        "fromRepo": "From GitHub Profile Repository of helios-ryuu",
+        "viewOnGitHub": "View on GitHub",
+        "parseError": "Unable to parse README content.",
+        "status": "Online",
+        "contact": "Contact Me"
     }
 }

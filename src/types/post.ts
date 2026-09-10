@@ -24,6 +24,7 @@ interface PostFrontmatter {
 }
 
 export interface Post extends PostFrontmatter {
+    id?: number;
     slug: string;
     content: string;
 }
