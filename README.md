@@ -1,6 +1,6 @@
 # Helios Space
 
-Helios Space v3.0.0 là không gian cá nhân kèm CMS hiện đại, hiệu năng cao, được xây dựng bằng Next.js 16, React 19, TypeScript, Supabase Postgres và Cloudflare R2. Dự án tích hợp hệ thống đồ họa WebGL tương tác, animation suite mượt mà, hệ thống bảo mật chống brute-force đa tầng, trình soạn thảo MDX phong phú, phân loại nội dung đa chiều (tag, danh mục động, series theo thứ tự) cùng giao diện quản trị 2 cột trực quan.
+Helios Space v3.1.0 là không gian cá nhân kèm CMS hiện đại, hiệu năng cao, được xây dựng bằng Next.js 16, React 19, TypeScript, Supabase Postgres và Cloudflare R2. Dự án tích hợp hệ thống đồ họa WebGL tương tác, animation suite mượt mà, sơ đồ quan hệ CSDL trực quan với React Flow, khối Bento bài viết tương tác cao, thanh điều hướng floating dock với nút SpecularButton, thanh trượt đàn hồi ElasticSlider, hệ thống bảo mật chống brute-force đa tầng cùng giao diện quản trị 2 cột trực quan.
 
 ## Tính năng nổi bật
 
@@ -9,17 +9,27 @@ Helios Space v3.0.0 là không gian cá nhân kèm CMS hiện đại, hiệu nă
   - Trang chủ tích hợp **WebThreads** (công nghệ OGL WebGL) kết hợp hiệu ứng đèn rọi spotlight chuyển động theo con trỏ chuột trên desktop.
   - Trên thiết bị di động, tự động chuyển sang chế độ **6 sợi song song (`fanMode: "parallel"`)** mềm mại tựa cực quang, uốn lượn uyển chuyển qua khu vực hero mà không gây thắt nút chói sáng.
   - Trang bài viết `/post` tích hợp hiệu ứng hạt phân rã **PixelBlast** (Three.js + Postprocessing) với độ mờ và mật độ tối ưu cho trải nghiệm đọc văn bản.
+  - Tiêu đề Hero sử dụng hiệu ứng hoán đổi ký tự **Shuffle** tinh gọn, dứt khoát kết hợp với chuyển động chữ **SplitText** mượt mà.
   - Tối ưu hóa hiệu năng di động bằng cách giới hạn DPR ở mức `1.25` trên màn hình nhỏ (< 768px), giảm hơn 70% tải điểm ảnh (pixel fillrate), đảm bảo cuộn mượt mà 60–120Hz mà không tiêu hao pin hay nóng máy.
-- **Hero Showcase & Typography Animation**:
-  - Tiêu đề phụ hiệu ứng đảo chữ ngẫu nhiên (**Shuffle**).
-  - Khối trích dẫn mở đầu phân tách ký tự mượt mà (**SplitText**).
-  - Nút điều hướng phát sáng viền động (**BorderGlow**) thích ứng màu chủ đề sáng/tối.
-- **Header & Navigation Panel**:
-  - Navigation Panel thông minh: tự động thu gọn dạng floating trên màn hình lớn để tối ưu không gian hiển thị, tự bung mở khi di chuột lại gần mép trên; trên thiết bị di động giữ hiển thị cố định.
-  - Thanh tìm kiếm (Search Bar) căn giữa tuyệt đối trên desktop, tự động chuyển đổi sang Mobile Search Bar ở màn hình nhỏ (< 1024px); nút bộ lọc (Advanced Search) xuất hiện riêng cho trang `/post`.
-  - Menu tài khoản hỗ trợ con trỏ chuột trực quan (`cursor: pointer`) trên nút Đăng xuất; phím tắt nhanh chuyển đổi giao diện Sáng / Tối, đổi ngôn ngữ Việt / Anh và truy cập CMS.
-- **Hệ thống Banner thông báo động**:
+- **Khối Bento Bài viết gần đây (`MagicBento`)**:
+  - Thay thế danh sách phẳng bằng cấu trúc lưới **Bento Grid** hiện đại với hiệu ứng đèn rọi toàn cục (**Global Spotlight**), viền sáng chuyển động theo con trỏ (**Border Glow**), hiệu ứng nghiêng 3D (**Tilt**) và hạt phát sáng (**Particle Stars**).
+  - Tích hợp hài hòa các thành phần thiết yếu từ PostCard: Huy hiệu Danh mục (Category Badge), Thời gian đọc & Ngày đăng, Ảnh bìa mềm và Tiêu đề + Tóm tắt ngắn gọn.
+  - Tiêu đề khu vực được tinh giản hiển thị duy nhất **"Bài viết gần đây"** với phong cách font-mono đậm nét thanh lịch, đồng bộ kiểu chữ với liên kết **"Xem tất cả"**.
+- **Header & Thanh điều hướng Dock (`SpecularButton`)**:
+  - Navigation Panel hoạt động đồng nhất dạng **Floating Dock** trên mọi tab/trang, tự động mở rộng vừa vặn toàn bộ các nút mà không xuất hiện thanh cuộn ngang, viền bo tròn mềm mại (`14px`) cùng đệm dock tinh chỉnh rộng rãi.
+  - Tối ưu trải nghiệm di động: dock hiển thị trực quan ở trạng thái cố định với các nút có viền phản hồi xúc giác rõ ràng, tự động cuộn định tâm tab đang kích hoạt (active item auto-scroll) mà không cần thao tác hover chuột.
+  - Tăng khoảng đệm trên (padding-top) cho các trang khác Home và Post, đảm bảo dock nổi không che lấp tiêu đề hoặc vùng điều khiển nội dung.
+  - Các mục điều hướng tích hợp nút **SpecularButton** (OGL WebGL, bán kính `8px`) với hiệu ứng quét sáng viền phản chiếu ánh sáng tự nhiên theo con trỏ chuột.
+    - Menu tài khoản hỗ trợ con trỏ chuột trực quan, tích hợp các phím tắt nhanh chuyển đổi giao diện Sáng / Tối, đổi ngôn ngữ Việt / Anh và liên kết mạng xã hội (GitHub, Instagram).
+    - Thanh tìm kiếm (Search Bar) căn giữa tuyệt đối trên desktop, tự động chuyển đổi sang Mobile Search Bar ở màn hình nhỏ (< 1024px); nút bộ lọc (Advanced Search) xuất hiện riêng cho trang `/post`.
+- **Trang Profile cá nhân (`/profile`) & Thẻ ProfileCard 3D Holographic**:
+  - Tích hợp hiệu ứng sóng nền **`<GradientWaves />`** (React Bits / OGL WebGL shader) với khả năng tương tác di chuột, tùy biến màu sắc và tự động tối ưu hóa tài nguyên (tự động điều tiết render khi ẩn tab).
+  - Thẻ nhận diện cá nhân **`<ProfileCard />`** (React Bits / TypeScript & Tailwind) với hiệu ứng 3D Tilt có quán tính chuyển động theo chuột, phản chiếu ánh sáng Holographic Foil Shine & Glare, đèn phát sáng Behind-Glow theo con trỏ và thanh điều khiển kính mờ (Frosted Glass) hiện đại.
+  - Bố cục hiển thị mở rộng (container 1440px): Thẻ Profile cố định bên cột trái (`xl:col-span-4`), nhường trọn không gian rộng rãi (`xl:col-span-8`) cho khung hồ sơ README.
+  - Đồng bộ và render trực tiếp nội dung hồ sơ Markdown từ GitHub Profile repo (`helios-ryuu/helios-ryuu`), hỗ trợ đầy đủ các thành phần phong phú như bảng thông tin, visitor badges, follower count, widget nghe nhạc Spotify gần đây, danh sách công nghệ (Skillicons) và biểu đồ đóng góp Galaga/Pacman sinh động kèm quốc tế hóa (i18n).
+- **Hệ thống Banner thông báo động & ElasticSlider**:
   - Cấu hình đa ngôn ngữ trực tiếp từ CMS: nội dung HTML, dải màu gradient 3 màu, nút kêu gọi hành động (CTA button viền 1.5px nổi bật), độ trong suốt, chiều cao và thời gian hồi (cooldown) sau khi đóng.
+  - Tích hợp thanh trượt vật lý đàn hồi **ElasticSlider** (Motion) trong trang Quản trị giúp việc kéo thả chiều cao, thời gian cooldown và độ mờ banner trở nên trực quan và mượt mà.
 
 ### Bảo mật xác thực & Chống Brute-force (Anti-Spam Protection)
 - **Kiểm soát tần suất IP đa tầng (Rate Limiting)**:
@@ -41,17 +51,23 @@ Helios Space v3.0.0 là không gian cá nhân kèm CMS hiện đại, hiệu nă
   - Tô màu cú pháp code với `rehype-pretty-code` và `Shiki`.
   - Mục lục bài viết (TOC) trên desktop hỗ trợ cuộn con trỏ nhảy nhanh qua từng đề mục (Header jump) với độ phản hồi tức thì và đồng nhất vị trí dừng giữa click và scroll.
   - Hỗ trợ công cụ chia sẻ xã hội, tạo ảnh card QR code sắc nét và tải bài viết dạng Markdown thô.
+  - **Chỉnh sửa nhanh cho Quản trị viên (Edit this post)**: Khi đăng nhập tài khoản quản trị, kế bên nút chia sẻ sẽ xuất hiện nút chỉnh sửa bài viết giúp điều hướng tức thì vào trình biên tập bài viết tương ứng mà không cần phải tìm kiếm trong trang quản trị.
 
 ### Quản trị nội dung & CMS (Admin Workspace)
 - **Bố cục 2 cột trực quan**:
   - Cột trái: **Quản lý nội dung (Content Management)** tập trung cho Tạo bài viết, Quản lý bản nháp, Sửa/Xoá nội dung, Quản lý Danh mục và Phân nhóm.
   - Cột phải: **Cài đặt hệ thống (Site Settings)** giúp tùy biến màu Accent Color toàn site và cấu hình Banner thông báo tức thì.
-- **Quản lý Danh mục (Categories) hiện đại**:
-  - Dòng hiển thị tổng hợp 1 dòng (1-line summary row) với các pill danh mục bo tròn cuộn ngang, hiển thị huy hiệu đếm số bài viết thuộc từng danh mục.
-  - Hộp thoại Tìm kiếm nâng cao (Advance Search Dialog) hỗ trợ tìm kiếm thời gian thực theo tên, slug, mục đích, ví dụ; thao tác Sửa modal và Xoá an toàn (chặn xoá danh mục đang có bài viết).
+- **Quản lý Bản nháp (Drafts) & Danh mục (Categories) hiện đại**:
+  - Dòng hiển thị tổng hợp 1 dòng (1-line summary row) với các pill bo tròn cuộn ngang, hiển thị huy hiệu số lượng và các nút thao tác nhanh (Sửa, Xuất bản).
+  - Hộp thoại Tìm kiếm nâng cao (Advance Search Dialog) hỗ trợ tìm kiếm thời gian thực theo tiêu đề, slug, mô tả, lọc theo danh mục, phân trang trực quan.
 - **Quản lý Series & Standalone**:
   - Series độc lập với danh mục: bài viết có thể là Standalone hoặc nhận `series_id` kèm thứ tự duy nhất trong chuỗi.
   - Form bài viết tự đề xuất thứ tự trống nhỏ nhất tiếp theo.
+- **Sơ đồ quan hệ Cơ sở dữ liệu tương tác (`@xyflow/react`)**:
+  - Tích hợp công cụ trực quan hóa **Sơ đồ quan hệ ER (Entity-Relationship Diagram)** ngay trên trang `/admin/database`.
+  - Hỗ trợ chuyển đổi mượt mà giữa chế độ **Bảng dữ liệu (Data Tables)** truyền thống và **Sơ đồ quan hệ ER**.
+  - Cho phép người dùng kéo thả tự do vị trí các bảng dữ liệu trên canvas (`nodesDraggable`), phóng to, thu nhỏ và tối giản hóa không gian bằng cách loại bỏ watermark React Flow và Minimap.
+  - Hiển thị đầy đủ các Node bảng (`post`, `category`, `series`, `tag`, `post_tags`, `auth_rate_limits`, `site_settings`), trường dữ liệu, khóa chính (PK), khóa ngoại (FK), số lượng bản ghi thực tế và đường nối liên kết (edges) động.
 - **Thư viện Media & Quản lý Storage Cloudflare R2**:
   - Tính toán đệ quy kích thước thư mục và số lượng file thực tế trong từng folder.
   - Thống kê tổng dung lượng lưu trữ (Total Storage) và tổng số file trên bucket R2.
@@ -71,7 +87,7 @@ Helios Space v3.0.0 là không gian cá nhân kèm CMS hiện đại, hiệu nă
 | **Styling & Theme** | Tailwind CSS 4, Radix UI, next-themes |
 | **Đồ họa & WebGL** | OGL 1.0 (WebThreads), Three.js & Postprocessing (PixelBlast) |
 | **Animation Suite** | GSAP 3.15, @gsap/react, Framer Motion 13, Motion |
-| **Cơ sở dữ liệu** | Supabase Postgres (Row Level Security) |
+| **Cơ sở dữ liệu & Sơ đồ** | Supabase Postgres (Row Level Security), React Flow (@xyflow/react) |
 | **Lưu trữ Media** | Cloudflare R2 (S3 API via AWS SDK v3) |
 | **Nội dung & MDX** | MDX, Shiki, rehype-pretty-code, remark-gfm |
 | **Đa ngôn ngữ** | next-intl (Tiếng Việt / English) |

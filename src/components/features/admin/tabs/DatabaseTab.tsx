@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Table, Network } from "lucide-react";
 import { useTranslations } from "next-intl";
 import DataTable from "../common/DataTable";
 import { Button } from "../common/Button";
 import { useToast } from "../../../ui/Toast";
+import DatabaseErDiagram from "../database/DatabaseErDiagram";
 
 interface TableData {
     post: Record<string, unknown>[];
@@ -24,6 +25,7 @@ export default function DatabaseTab() {
     const tCommon = useTranslations("common");
     const [data, setData] = useState<TableData>(EMPTY);
     const [isLoading, setIsLoading] = useState(true);
+    const [viewMode, setViewMode] = useState<"table" | "diagram">("table");
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -42,9 +44,37 @@ export default function DatabaseTab() {
     useEffect(() => { fetchData(); }, [fetchData]);
 
     return (
-        <div className="space-y-3">
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground">{t("database")}</h2>
+        <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <h2 className="text-lg font-semibold text-foreground">{t("database")}</h2>
+                    <div className="flex items-center rounded-lg border border-(--border-color) bg-foreground/5 p-0.5 text-xs">
+                        <button
+                            type="button"
+                            onClick={() => setViewMode("table")}
+                            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
+                                viewMode === "table"
+                                    ? "bg-background text-foreground font-semibold shadow-xs"
+                                    : "text-foreground/60 hover:text-foreground"
+                            }`}
+                        >
+                            <Table size={13} />
+                            <span>Bảng dữ liệu</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setViewMode("diagram")}
+                            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
+                                viewMode === "diagram"
+                                    ? "bg-background text-foreground font-semibold shadow-xs"
+                                    : "text-foreground/60 hover:text-foreground"
+                            }`}
+                        >
+                            <Network size={13} />
+                            <span>Sơ đồ quan hệ ER</span>
+                        </button>
+                    </div>
+                </div>
                 <Button
                     variant="utility"
                     size="sm"
@@ -57,6 +87,20 @@ export default function DatabaseTab() {
                     {tCommon("refresh")}
                 </Button>
             </div>
+
+            {viewMode === "diagram" ? (
+                <DatabaseErDiagram
+                    counts={{
+                        post: data.post.length,
+                        category: data.category.length,
+                        series: data.series.length,
+                        tag: data.tag.length,
+                        post_tags: data.post_tags.length,
+                        site_settings: data.site_settings.length
+                    }}
+                />
+            ) : (
+                <div className="space-y-3">
 
             <DataTable
                 title="post"
@@ -140,6 +184,8 @@ export default function DatabaseTab() {
                     { key: "updated_at", label: t("dbUpdatedAt") },
                 ]}
             />
+                </div>
+            )}
         </div>
     );
 }
