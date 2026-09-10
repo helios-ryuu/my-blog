@@ -69,14 +69,21 @@ export default function SecuritySection() {
         }
     };
 
+    const [now, setNow] = useState(() => Date.now());
+
+    useEffect(() => {
+        const interval = setInterval(() => setNow(Date.now()), 10000);
+        return () => clearInterval(interval);
+    }, []);
+
     const isLockedNow = (lockedUntil: string | null) => {
         if (!lockedUntil) return false;
-        return new Date(lockedUntil).getTime() > Date.now();
+        return new Date(lockedUntil).getTime() > now;
     };
 
     const formatRemainingLockTime = (lockedUntil: string | null) => {
         if (!lockedUntil) return "";
-        const diffMs = new Date(lockedUntil).getTime() - Date.now();
+        const diffMs = new Date(lockedUntil).getTime() - now;
         if (diffMs <= 0) return "";
         const diffMins = Math.ceil(diffMs / (60 * 1000));
         return `${diffMins}m`;

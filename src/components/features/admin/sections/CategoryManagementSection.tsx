@@ -105,14 +105,6 @@ export default function CategoryManagementSection({
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                    <button
-                        type="button"
-                        onClick={() => openAdvancedWithQuery("")}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--border-color) bg-background px-3 text-xs font-medium text-foreground/75 hover:border-accent hover:text-foreground hover:bg-accent/5 transition-colors cursor-pointer"
-                    >
-                        <Search size={13} className="text-foreground/50" />
-                        <span>{t("advancedCategorySearch")}</span>
-                    </button>
                     <Button
                         variant="primary"
                         size="sm"
@@ -156,15 +148,6 @@ export default function CategoryManagementSection({
                         </button>
                     ))
                 )}
-
-                <button
-                    type="button"
-                    onClick={() => openAdvancedWithQuery("")}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-md border border-dashed border-(--border-color) bg-foreground/5 px-2.5 py-1 text-xs text-foreground/60 hover:border-accent hover:text-accent transition-colors cursor-pointer"
-                >
-                    <Search size={12} />
-                    <span>{t("advancedCategorySearch")}</span>
-                </button>
             </div>
 
             {/* Advance Search Dialog (matching post, tag, and series pickers) */}

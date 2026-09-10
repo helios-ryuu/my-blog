@@ -5,9 +5,10 @@ import type { ComponentType, JSX, ReactNode } from "react";
 
 type MDXComponents = {
     [Key in keyof JSX.IntrinsicElements]?: (props: JSX.IntrinsicElements[Key]) => ReactNode;
-    // MDX custom components can receive arbitrary props from authored content.
+} & {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-} & Record<string, ComponentType<any> | ((props: any) => ReactNode)>;
+    [key: string]: any;
+};
 
 // Helper to create URL-friendly slug from text
 function slugify(text: string): string {

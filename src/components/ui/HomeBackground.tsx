@@ -104,12 +104,12 @@ export default function HomeBackground({ className = '' }: HomeBackgroundProps) 
         frequency={isMobile ? 2.5 : 4.5}
         spread={isMobile ? 0.05 : 0.16}
         taper={isMobile ? 0.25 : 1.0}
-        position={isMobile ? 0.48 : 0.5}
+        position={isMobile ? 0.48 : 0.509}
         fanMode={isMobile ? 'parallel' : 'center'}
-        glow={isMobile ? 0.018 : 0.021}
+        glow={isMobile ? 0.018 : 0.022}
         falloff={isMobile ? 0.75 : 0.65}
-        thickness={isMobile ? 0.65 : 0.85}
-        brightness={isLight ? (isMobile ? 0.30 : 0.4) : (isMobile ? 0.35 : 0.54)}
+        thickness={isMobile ? 0.65 : 0.82}
+        brightness={isLight ? (isMobile ? 0.30 : 0.38) : (isMobile ? 0.35 : 0.52)}
         opacity={isLight ? (isMobile ? 0.45 : 0.7) : (isMobile ? 0.52 : 0.85)}
         mirror={!isMobile}
         shimmer={false}
@@ -133,7 +133,7 @@ export default function HomeBackground({ className = '' }: HomeBackgroundProps) 
         /* Interactive Cursor Light Spotlight (Subtle & Compact) */
         <div
           ref={spotlightRef}
-          className="pointer-events-none absolute inset-0 transition-opacity duration-300 ease-out"
+          className="pointer-events-none absolute inset-0 transition-opacity duration-200 ease-out"
           style={{ opacity: 0 }}
         />
       )}

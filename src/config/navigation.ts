@@ -6,6 +6,7 @@ import {
     InfoIcon,
     NewspaperIcon,
     ShieldIcon,
+    UserIcon,
     type LucideIcon,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
     { icon: HomeIcon, labelKey: "home", href: "/" },
     { icon: NewspaperIcon, labelKey: "posts", href: "/post" },
+    { icon: UserIcon, labelKey: "profile", href: "/profile" },
     { icon: InfoIcon, labelKey: "about", href: "/about" },
     { icon: HelpCircleIcon, labelKey: "faq", href: "/faq" },
     { icon: ShieldIcon, labelKey: "adminWorkspace", href: "/admin", requiresAdmin: true },

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { menuItems } from "@/config/navigation";
 import { useUser } from "@/contexts/UserContext";
+import SpecularButton from "@/components/ui/SpecularButton";
 
 const AUTO_HIDE_DELAY_MS = 2500;
 const LEAVE_HIDE_DELAY_MS = 600;
@@ -15,7 +16,7 @@ interface NavigationPanelProps {
     floating?: boolean;
 }
 
-export default function NavigationPanel({ className = "", floating = false }: NavigationPanelProps = {}) {
+export default function NavigationPanel({ className = "", floating = true }: NavigationPanelProps = {}) {
     const pathname = usePathname();
     const tNav = useTranslations("nav");
     const { user } = useUser();
@@ -31,6 +32,7 @@ export default function NavigationPanel({ className = "", floating = false }: Na
     const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
     const rafRef = useRef<number | null>(null);
     const navRef = useRef<HTMLElement | null>(null);
+    const activeItemRef = useRef<HTMLAnchorElement | null>(null);
 
     const clearHideTimer = useCallback(() => {
         if (hideTimerRef.current) {
@@ -72,6 +74,13 @@ export default function NavigationPanel({ className = "", floating = false }: Na
 
     useEffect(() => {
         hidePanel(0);
+        if (typeof window !== "undefined" && window.innerWidth < 768 && activeItemRef.current) {
+            activeItemRef.current.scrollIntoView({
+                behavior: "smooth",
+                inline: "center",
+                block: "nearest",
+            });
+        }
     }, [pathname, hidePanel]);
 
     useEffect(() => {
@@ -154,7 +163,9 @@ export default function NavigationPanel({ className = "", floating = false }: Na
     return (
         <div
             className={`nav-panel-collapsible ${isOpen ? "is-open" : ""} ${
-                floating ? "md:absolute md:top-full md:left-0 md:right-0 md:z-30 md:shadow-md" : ""
+                floating
+                    ? "px-3 py-1.5 z-[100] md:p-0 md:absolute md:top-full md:left-1/2 md:-translate-x-1/2 md:z-[100] md:w-max md:max-w-[calc(100vw-2rem)] md:pt-2 md:pb-2"
+                    : "z-[100]"
             } ${className}`}
         >
             <div className="min-h-0 overflow-hidden">
@@ -175,30 +186,42 @@ export default function NavigationPanel({ className = "", floating = false }: Na
                             hidePanel(300);
                         }
                     }}
-                    className="border-b border-(--border-color) bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70"
+                    className={
+                        floating
+                            ? "rounded-[14px] border border-(--border-color) bg-background/85 shadow-lg backdrop-blur-md supports-[backdrop-filter]:bg-background/75 px-3 py-2 w-max max-w-full mx-auto"
+                            : "border-b border-(--border-color) bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 px-4 py-1"
+                    }
                 >
-                    <div className="flex w-full overflow-x-auto px-4 py-1 md:px-10">
-                        <div className="flex items-center gap-1 md:mx-auto md:justify-center">
-                            {visible.map((item) => {
-                                const Icon = item.icon;
-                                const active = activeItem?.href === item.href;
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        onClick={() => hidePanel(0)}
-                                        className={`inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${
+                    <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap overflow-x-auto no-scrollbar md:overflow-visible px-0.5">
+                        {visible.map((item) => {
+                            const Icon = item.icon;
+                            const active = activeItem?.href === item.href;
+                            return (
+                                <Link
+                                    key={item.href}
+                                    ref={active ? activeItemRef : undefined}
+                                    href={item.href}
+                                    onClick={() => hidePanel(0)}
+                                    className="inline-flex shrink-0"
+                                >
+                                    <SpecularButton
+                                        size="xs"
+                                        radius={8}
+                                        active={active}
+                                        tint={active ? "var(--accent)" : "currentColor"}
+                                        tintOpacity={active ? 0.18 : 0.05}
+                                        className={`text-xs font-medium transition-colors ${
                                             active
-                                                ? "bg-accent/15 text-accent"
-                                                : "text-foreground/85 hover:bg-foreground/5 hover:text-foreground"
+                                                ? "text-accent font-semibold"
+                                                : "text-foreground/80 hover:text-foreground"
                                         }`}
                                     >
-                                        <Icon className="h-4 w-4" strokeWidth={2.5} />
-                                        {tNav(item.labelKey)}
-                                    </Link>
-                                );
-                            })}
-                        </div>
+                                        <Icon className="h-3.5 w-3.5" strokeWidth={2.5} />
+                                        <span>{tNav(item.labelKey)}</span>
+                                    </SpecularButton>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </nav>
             </div>

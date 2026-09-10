@@ -28,6 +28,8 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     const cfg = bannerConfig || DEFAULT_BANNER_CONFIG;
     const isHomePage = pathname === "/";
     const isPostPage = pathname === "/post";
+    const isPostRoute = isPostPage || pathname.startsWith("/post/");
+    const isProfilePage = pathname === "/profile" || pathname.startsWith("/profile/");
     const [navigationTarget, setNavigationTarget] = useState<string | null>(null);
 
     useEffect(() => {
@@ -104,17 +106,17 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 )}
             </div>
 
-            <div className="relative z-10 flex flex-1 flex-col md:min-h-0">
-                <div className="relative">
+            <div className="relative z-30 flex flex-1 flex-col md:min-h-0">
+                <div className="relative z-[100]">
                     <Header />
-                    <NavigationPanel floating={isHomePage || isPostPage} />
+                    <NavigationPanel floating={true} />
                 </div>
                 <PostFilterProvider>
                     <MobileSearchBar />
                     <div className="relative flex-1 md:min-h-0">
-                        <main className={`h-full overflow-auto ${isHomePage || isPostPage ? "bg-transparent" : "bg-background"}`}>
+                        <main className={`h-full overflow-auto ${isHomePage || isPostRoute || isProfilePage ? "bg-transparent" : "bg-background"}`}>
                             <div className="flex min-h-full flex-col pb-[env(safe-area-inset-bottom)]">
-                                <div className="min-h-0 flex-1">
+                                <div className={`min-h-0 flex-1 ${!isHomePage && !isPostRoute && !isProfilePage ? "pt-3 sm:pt-4 md:pt-8 lg:pt-10" : ""}`}>
                                     {navigationTarget ? <PageLoadingShell /> : children}
                                 </div>
                                 <Footer />

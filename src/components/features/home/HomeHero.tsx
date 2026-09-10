@@ -42,7 +42,7 @@ export default function HomeHero({
                         shuffleDirection="right"
                         duration={0.35}
                         shuffleTimes={2}
-                        className="text-sm sm:text-base md:text-xl font-bold uppercase tracking-[0.28em] text-accent drop-shadow-xs"
+                        className="text-sm sm:text-base md:text-xl font-bold uppercase tracking-[0.28em] text-accent drop-shadow-xs px-2 py-0.5"
                     />
                 </div>
 

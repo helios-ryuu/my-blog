@@ -12,6 +12,7 @@ function categoryFields(category?: DbCategory | null) {
 function toPost(row: DbPostWithRelations, category?: DbCategory | null): Post {
     const date = row.published_at ?? row.created_at;
     return {
+        id: row.id,
         slug: row.slug,
         title: row.title,
         description: row.description,

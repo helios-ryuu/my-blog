@@ -5,6 +5,7 @@ import { Check, Flag, Palette } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useToast } from "@/components/ui/Toast";
+import ElasticSlider from "@/components/ui/ElasticSlider";
 import { DEFAULT_BANNER_CONFIG, type BannerConfig } from "@/config/site";
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -251,19 +252,16 @@ export default function SiteSettingsSection() {
                             </div>
 
                             {/* Background opacity: 60% */}
-                            <div className="flex flex-col gap-1 pt-1">
-                                <div className="flex items-center justify-between text-xs text-foreground/75">
-                                    <span>{t("bannerButtonOpacity")}:</span>
-                                    <span className="font-mono font-semibold text-accent">{bannerDraft.buttonOpacity ?? 100}%</span>
-                                </div>
-                                <input
-                                    type="range"
-                                    min={0}
-                                    max={100}
-                                    step={5}
+                            <div className="flex flex-col gap-1.5 pt-1">
+                                <span className="text-[11px] font-medium text-foreground/75">{t("bannerButtonOpacity")}</span>
+                                <ElasticSlider
                                     value={bannerDraft.buttonOpacity ?? 100}
-                                    onChange={(e) => setBannerDraft({ ...bannerDraft, buttonOpacity: parseInt(e.target.value) })}
-                                    className="w-full accent-accent h-1.5 cursor-pointer"
+                                    startingValue={0}
+                                    maxValue={100}
+                                    isStepped
+                                    stepSize={5}
+                                    unit="%"
+                                    onChange={(v) => setBannerDraft({ ...bannerDraft, buttonOpacity: v })}
                                 />
                             </div>
                         </div>
@@ -271,26 +269,29 @@ export default function SiteSettingsSection() {
                 </div>
 
                 {/* Banner height & Cooldown */}
-                <div className="grid grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
                         <label className="text-xs text-foreground/75">{t("bannerHeight")}</label>
-                        <input
-                            type="number"
-                            min={24}
-                            max={200}
+                        <ElasticSlider
                             value={bannerDraft.height}
-                            onChange={(e) => setBannerDraft({ ...bannerDraft, height: parseInt(e.target.value) || 40 })}
-                            className="h-8 rounded-md border border-(--border-color) bg-background px-2.5 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                            startingValue={24}
+                            maxValue={150}
+                            isStepped
+                            stepSize={2}
+                            unit="px"
+                            onChange={(v) => setBannerDraft({ ...bannerDraft, height: v })}
                         />
                     </div>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1.5">
                         <label className="text-xs text-foreground/75">{t("bannerCooldown")}</label>
-                        <input
-                            type="number"
-                            min={0}
+                        <ElasticSlider
                             value={bannerDraft.cooldownMinutes}
-                            onChange={(e) => setBannerDraft({ ...bannerDraft, cooldownMinutes: parseInt(e.target.value) || 0 })}
-                            className="h-8 rounded-md border border-(--border-color) bg-background px-2.5 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                            startingValue={0}
+                            maxValue={1440}
+                            isStepped
+                            stepSize={15}
+                            unit="m"
+                            onChange={(v) => setBannerDraft({ ...bannerDraft, cooldownMinutes: v })}
                         />
                     </div>
                 </div>
