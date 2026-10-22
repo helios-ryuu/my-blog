@@ -60,19 +60,16 @@ jobs:
           fi
 
           echo "title=${PR_TITLE}" >> "$GITHUB_OUTPUT"
-          EOF_MARKER="RELEASE_BODY_$(date +%s)"
-          {
-            echo "body<<${EOF_MARKER}"
-            echo "${PR_BODY}"
-            echo "${EOF_MARKER}"
-          } >> "$GITHUB_OUTPUT"
+          printf '%s\n' "${PR_BODY}" > /tmp/release_notes.md
 
       - name: Create GitHub Release
         if: steps.meta.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+          RELEASE_TITLE: ${{ steps.meta.outputs.title }}
         run: |
-          gh release create "${{ steps.meta.outputs.tag }}" \
+          gh release create "${RELEASE_TAG}" \
             --target "${{ github.sha }}" \
-            --title "${{ steps.meta.outputs.title }}" \
-            --notes "${{ steps.meta.outputs.body }}"
+            --title "${RELEASE_TITLE}" \
+            --notes-file /tmp/release_notes.md
