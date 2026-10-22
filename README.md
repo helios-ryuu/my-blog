@@ -81,26 +81,39 @@ supabase/
 
 ## Cài đặt & Khởi chạy
 
-### 1. Yêu cầu môi trường
+Dự án hỗ trợ chạy hoàn toàn bằng **Podman (Containerized)**, không yêu cầu cài đặt bất kỳ phiên bản Node.js hay package manager nào lên máy host.
+
+### 1. Khởi chạy bằng Podman (Khuyên dùng - Không cần cài Node)
+
+Yêu cầu máy host đã cài đặt `podman` và `podman-compose`.
+
+```bash
+# Khởi chạy dev server ở chế độ nền
+podman compose up -d
+
+# Xem log hoạt động
+podman compose logs -f web
+
+# Chạy toàn bộ quy trình kiểm tra (typecheck, lint, build)
+podman compose exec web pnpm check
+
+# Dừng môi trường container
+podman compose down
+```
+
+Truy cập website tại: `http://localhost:3456`.
+
+### 2. Khởi chạy trực tiếp (Native / Local)
+
+Nếu máy host có sẵn Node.js và pnpm:
 - **Node.js**: phiên bản 24 trở lên
 - **pnpm**: phiên bản 12 trở lên
 
-### 2. Cài đặt dependency & biến môi trường
-
 ```bash
 pnpm install
-cp .env.example .env
-```
-
-Cấu hình các giá trị cần thiết trong `.env`. Mở **Supabase SQL Editor** và chạy toàn bộ nội dung file [supabase/schema.sql](supabase/schema.sql) để khởi tạo các bảng và dữ liệu mẫu ban đầu.
-
-### 3. Khởi chạy môi trường phát triển
-
-```bash
+cp .env.example .env # nếu chưa có .env
 pnpm dev
 ```
-
-Mở trình duyệt tại: `http://localhost:3456`.
 
 ---
 
