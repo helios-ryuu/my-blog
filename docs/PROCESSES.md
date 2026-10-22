@@ -7,7 +7,9 @@
 3. Tạo Cloudflare R2 API token có quyền Object Read & Write cho bucket `my-blog`.
 4. Tạo `.env` từ `.env.example`.
 5. Cấu hình Supabase keys, R2 credentials, admin credential và session secret.
-6. Chạy `pnpm dev`.
+6. Chạy dev server:
+   - **Bằng Podman (Khuyên dùng)**: `podman compose up -d`
+   - **Hoặc Local**: `pnpm dev`
 
 ## Đăng nhập admin
 
@@ -75,6 +77,10 @@ Khi sửa hoặc xoá, nhập trực tiếp vào field để tìm nhanh. Nút b�
 ## Kiểm tra trước release
 
 ```bash
+# Trong container (không cần cài Node lên host):
+podman compose exec web pnpm check
+
+# Hoặc nếu chạy native:
 pnpm check
 ```
 
@@ -160,3 +166,16 @@ feature      \───●──────────────────
 
   git branch -d hotfix/v2.2.2
   ```
+
+
+## CI/CD & Tự động phát hành (GitHub Actions)
+
+Dự án tích hợp hai luồng tự động hóa trên GitHub Actions tại `.github/workflows/`:
+
+1. **CI Quality Gate (`ci.yml`)**:
+   - Tự động chạy khi có `push` hoặc `pull_request` vào `develop`, `release`, `main`.
+   - Khởi tạo môi trường Node.js 24 + pnpm 12 (kèm bộ nhớ đệm store và `.next/cache`).
+   - Thực thi tuần tự: `pnpm install --frozen-lockfile` → `pnpm typecheck` → `pnpm lint` → `pnpm build` (với biến môi trường fallback an toàn, không lộ Secret nhạy cảm).
+2. **Automated GitHub Release (`release.yml`)**:
+   - Tự động kích hoạt khi nhánh `release` được merge vào `main`.
+   - Tự động đọc số phiên bản từ `package.json`, trích xuất tiêu đề và nội dung mô tả (Release Notes) của Pull Request vừa merge, tạo Git Tag `vX.Y.Z` và phát hành **GitHub Release** chính thức kèm liên kết `Full Changelog`.
