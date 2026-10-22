@@ -42,12 +42,12 @@ Helios Space là không gian blog cá nhân kết hợp hệ quản trị nội 
 | **Framework & Core** | Next.js 16 (App Router, Turbopack/Webpack), React 19, TypeScript |
 | **Styling & Theme** | Tailwind CSS 4, Radix UI, next-themes |
 | **Đồ họa & WebGL** | OGL 1.0 (WebThreads), Three.js & Postprocessing (PixelBlast) |
-| **Animation Suite** | GSAP 3.15, @gsap/react, Framer Motion 13, Motion |
+| **Animation Suite** | GSAP 3.15, @gsap/react, Framer Motion 14, Motion 14 |
 | **Cơ sở dữ liệu & Sơ đồ** | Supabase Postgres (Row Level Security), React Flow (@xyflow/react) |
 | **Lưu trữ Media** | Cloudflare R2 (S3 API via AWS SDK v3) |
 | **Nội dung & MDX** | MDX, Shiki, rehype-pretty-code, remark-gfm |
 | **Đa ngôn ngữ** | next-intl (Tiếng Việt / English) |
-| **Quản lý gói** | pnpm 11 |
+| **Quản lý gói** | pnpm 12 |
 
 ---
 
@@ -83,7 +83,7 @@ supabase/
 
 ### 1. Yêu cầu môi trường
 - **Node.js**: phiên bản 24 trở lên
-- **pnpm**: phiên bản 11 trở lên
+- **pnpm**: phiên bản 12 trở lên
 
 ### 2. Cài đặt dependency & biến môi trường
 
