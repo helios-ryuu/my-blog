@@ -104,7 +104,6 @@ interface DatabaseErDiagramProps {
     tag?: number;
     post_tags?: number;
     site_settings?: number;
-    auth_rate_limits?: number;
   };
 }
 
@@ -199,33 +198,16 @@ export default function DatabaseErDiagram({ counts }: DatabaseErDiagramProps) {
         }
       },
       {
-        id: "auth_rate_limits",
-        type: "tableNode",
-        position: { x: 740, y: 340 },
-        data: {
-          title: "auth_rate_limits",
-          count: counts.auth_rate_limits ?? 0,
-          columns: [
-            { name: "ip", type: "text", isPk: true },
-            { name: "attempt_count", type: "int" },
-            { name: "escalation_level", type: "int" },
-            { name: "locked_until", type: "timestamptz" },
-            { name: "last_attempt_at", type: "timestamptz" },
-            { name: "updated_at", type: "timestamptz" }
-          ]
-        }
-      },
-      {
         id: "site_settings",
         type: "tableNode",
-        position: { x: 740, y: 580 },
+        position: { x: 740, y: 460 },
         data: {
           title: "site_settings",
           count: counts.site_settings ?? 0,
           columns: [
-            { name: "id", type: "text", isPk: true },
-            { name: "accent_color", type: "text" },
-            { name: "banner_config", type: "jsonb" },
+            { name: "key", type: "text", isPk: true },
+            { name: "value", type: "jsonb" },
+            { name: "is_public", type: "bool" },
             { name: "updated_at", type: "timestamptz" }
           ]
         }

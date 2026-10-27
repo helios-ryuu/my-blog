@@ -322,6 +322,7 @@ export default function GradientWaves({
             } catch {}
             gl.getExtension("WEBGL_lose_context")?.loseContext();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -330,7 +331,7 @@ export default function GradientWaves({
         const ctx = ctxMap.get(container);
         if (!ctx) return;
         const { program } = ctx;
-        const u = program.uniforms as Record<string, { value: any }>;
+        const u = program.uniforms as Record<string, { value: unknown }>;
 
         enableMouseRef.current = mouseInteraction;
 

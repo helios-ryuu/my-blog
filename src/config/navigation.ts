@@ -1,4 +1,5 @@
 import {
+    BookOpenIcon,
     DatabaseIcon,
     FolderIcon,
     HelpCircleIcon,
@@ -23,6 +24,7 @@ export const menuItems: MenuItem[] = [
     { icon: UserIcon, labelKey: "profile", href: "/profile" },
     { icon: InfoIcon, labelKey: "about", href: "/about" },
     { icon: HelpCircleIcon, labelKey: "faq", href: "/faq" },
+    { icon: BookOpenIcon, labelKey: "docs", href: "/docs" },
     { icon: ShieldIcon, labelKey: "adminWorkspace", href: "/admin", requiresAdmin: true },
     { icon: FolderIcon, labelKey: "bucket", href: "/admin/bucket", requiresAdmin: true },
     { icon: DatabaseIcon, labelKey: "database", href: "/admin/database", requiresAdmin: true },

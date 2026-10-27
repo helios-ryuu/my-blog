@@ -15,6 +15,7 @@ Helios Space là không gian blog cá nhân kết hợp hệ quản trị nội 
 
 ### Đọc & Xuất bản nội dung (Content & Reading)
 - **Hỗ trợ định dạng MDX**: Soạn thảo và hiển thị bài viết với định dạng Markdown mở rộng, tô màu cú pháp code với Shiki, hỗ trợ các khối thông báo (callouts/alerts) và bảng dữ liệu.
+- **Trang Tài liệu Hệ thống (`Docs` - `/docs`)**: Trung tâm tài liệu trực tuyến tích hợp trên thanh điều hướng (Navbar), tổng hợp chuẩn cú pháp Markdown & MDX của hệ thống kèm ví dụ hiển thị thực tế và nút tải file mẫu `.mdx`.
 - **Mục lục bài viết (Table of Contents)**: Tự động tổng hợp đề mục từ nội dung bài viết và đồng bộ vị trí đọc theo thời gian thực khi cuộn trang.
 - **Phân loại bài viết linh hoạt**: Tổ chức nội dung theo Danh mục (Categories), Thẻ (Tags) và Chuỗi bài viết (Series) có thứ tự rõ ràng.
 - **Chia sẻ & Tải về**: Tạo ảnh card kèm mã QR để chia sẻ bài viết lên mạng xã hội hoặc tải về bản Markdown thô nhanh chóng.
@@ -22,15 +23,16 @@ Helios Space là không gian blog cá nhân kết hợp hệ quản trị nội 
 
 ### Hệ thống Quản trị (CMS & Admin Workspace)
 - **Trình soạn thảo chuyên dụng**: Giao diện viết bài dạng 2 cột toàn màn hình độc lập, tích hợp khung soạn thảo Markdown và panel xem trước kết quả tức thì (Live Preview).
-- **Quản lý nội dung toàn diện**: Quản lý bài viết xuất bản và bản nháp, phân loại theo series, quản lý danh mục và hệ thống tags với các thao tác nhanh.
+- **Upload Post (`.mdx`) & Tải Template**: Hỗ trợ tải lên file `.mdx` (hoặc `.md`) chuẩn bị sẵn, tự động bóc tách YAML Frontmatter (hoặc trích xuất từ nội dung) để chuyển thành **Bản nháp (Draft)** cùng nút tải file mẫu `post-template.mdx`.
+- **Trình chỉnh sửa Tài liệu (`Docs Editor`)**: Cho phép chỉnh sửa trực tiếp nội dung trang `/docs` ngay trong Admin với giao diện 2 cột Live Preview và chèn ảnh Cloudflare R2 tương tự trình sửa bài viết.
+- **Quản lý nội dung chuẩn hóa**: Giao diện quản trị được gom nhóm trực quan theo thực thể (Bài viết & Bản nháp, Danh mục, Chuỗi bài Series, Thẻ Tags và Tài liệu hệ thống).
 - **Sơ đồ quan hệ CSDL (ER Diagram)**: Công cụ trực quan hóa cấu trúc cơ sở dữ liệu tương tác bằng React Flow, hỗ trợ kéo thả và xem chi tiết liên kết giữa các bảng.
 - **Quản lý Media Cloudflare R2**: Tích hợp lưu trữ đám mây chuẩn S3, cho phép tạo thư mục, tải tệp lên, xem trước, thống kê dung lượng và phân phối nhanh qua CDN.
 - **Cài đặt hệ thống**: Tùy chỉnh màu chủ đạo (Accent Color), cấu hình Banner thông báo toàn trang với nội dung đa ngôn ngữ và thanh trượt điều chỉnh trực quan.
 
 ### Bảo mật & Vận hành (Security & Reliability)
-- **Bảo mật đăng nhập đa tầng**: Kiểm soát tần suất đăng nhập (Rate Limiting) theo địa chỉ IP thực tế, tự động khóa tạm thời theo cấp độ khi phát hiện tấn công brute-force.
-- **Bảng theo dõi an ninh**: Quản trị viên có thể theo dõi danh sách IP bị hạn chế và mở khóa ngay trên giao diện quản trị.
-- **Quản lý phiên an toàn**: Xác thực admin với mật khẩu băm SHA-256 và cookie phiên HTTP-only được ký bảo mật bằng HMAC-SHA256.
+- **Quản lý phiên an toàn**: Xác thực admin theo thời gian cố định (constant-time) với mật khẩu băm SHA-256 và cookie phiên HTTP-only được ký bảo mật bằng HMAC-SHA256.
+- **Bộ nhớ đệm điều hướng & Mốc thời gian dữ liệu**: Giữ dữ liệu đã tải trong phiên làm việc khi chuyển đổi giữa các trang trên thanh Navbar (không tải lại cho đến khi reload trang hoặc nhấn Làm mới), đồng thời hiển thị mốc thời gian tải dữ liệu (`HH:mm:ss`) ngay trên nút **Làm mới**.
 - **Đa ngôn ngữ (i18n)**: Hỗ trợ chuyển đổi song ngữ Tiếng Việt và English xuyên suốt giao diện người dùng và nội dung hệ thống.
 
 ---
@@ -57,20 +59,23 @@ Helios Space là không gian blog cá nhân kết hợp hệ quản trị nội 
 src/
 ├── app/
 │   ├── admin/             # CMS Workspace, Database Viewer, Media Library
-│   ├── api/               # Server API routes (Auth, Admin, Settings, Media, Posts)
+│   ├── api/               # Server API routes (Auth, Admin, Settings, Media, Posts, Docs)
+│   ├── docs/              # Trang tài liệu hệ thống (Documentation Hub)
 │   ├── post/              # Danh sách và chi tiết bài viết
 │   ├── profile/           # Trang hồ sơ cá nhân
 │   ├── tag/               # Lọc bài viết theo tag
 │   ├── category/          # Lọc bài viết theo danh mục
 │   └── page.tsx           # Trang chủ với Hero Showcase
 ├── components/
-│   ├── features/admin/    # Giao diện quản trị, SiteSettings, BucketManager
+│   ├── features/admin/    # Giao diện quản trị, UploadPostModal, DocsEditorModal, BucketManager
+│   ├── features/docs/     # Giao diện Documentation Hub (/docs)
 │   ├── features/home/     # HomeHero section & animation controls
 │   ├── features/post/     # Card, list, TOC, meta và QR share popup
 │   ├── layout/            # AppShell, Header, NavigationPanel, Banner, Footer
 │   └── ui/                # UI primitives, WebThreads, PixelBlast, BorderGlow, TextType
-├── contexts/              # UserContext, SiteSettingsContext, PostFilterContext
-├── lib/                   # Database client, Storage R2, Auth, Navigation loading
+├── contexts/              # UserContext, SiteSettingsContext, PostFilterContext, AdminCacheContext
+├── data/                  # Dữ liệu mặc định hệ thống (docs-content.ts)
+├── lib/                   # Database client, Storage R2, Auth, MDX Frontmatter parser
 └── types/                 # Kiểu dữ liệu TypeScript dùng chung
 
 supabase/
@@ -168,6 +173,60 @@ Media manager sử dụng AWS SDK tương thích giao thức S3 của Cloudflare
 | `pnpm typecheck` | Kiểm tra kiểu TypeScript toàn bộ dự án (`tsc --noEmit`) |
 | `pnpm knip` | Quét mã nguồn tìm tệp, dependency và export không dùng đến |
 | `pnpm check` | Chạy toàn bộ quy trình kiểm tra: typecheck, lint và build |
+
+---
+
+## Quy trình sau khi code xong từ nhánh `develop` (Release Workflow)
+
+Sau khi hoàn tất phát triển tính năng hoặc chỉnh sửa trên nhánh `develop`, thực hiện theo 4 bước chuẩn dưới đây để kiểm định chất lượng và phát hành lên Production (`main`):
+
+### Bước 1: Kiểm tra chất lượng mã nguồn (`pnpm check`)
+Đảm bảo toàn bộ kiểm tra kiểu dữ liệu (`typecheck`), quy chuẩn (`lint`) và đóng gói (`build`) đều vượt qua không lỗi:
+
+```bash
+# Nếu đang chạy môi trường container Podman / Docker:
+podman compose exec web pnpm check
+
+# Hoặc chạy trực tiếp trên máy host:
+pnpm check
+```
+
+### Bước 2: Cập nhật phiên bản & Đẩy code lên `develop`
+1. Mở `package.json` và nâng số phiên bản tại trường `"version"` theo chuẩn Semantic Versioning (ví dụ: `"2.2.1"` → `"2.3.0"` cho tính năng mới, hoặc `"2.2.2"` cho bản vá lỗi).
+2. Commit thay đổi và push lên nhánh `develop`:
+
+```bash
+git add -A
+git commit -m "chore(release): bump version to v2.3.0"
+git push origin develop
+```
+
+### Bước 3: Hợp nhất sang nhánh `release` (`develop` → `release`)
+Đồng bộ nhánh `develop` sang nhánh `release` để chạy CI Quality Gate (`ci.yml`) trước khi đưa lên Production:
+
+```bash
+git checkout release
+git pull origin release
+git merge --no-ff develop -m "chore(release): prepare release v2.3.0"
+git push origin release
+```
+*(Hoặc tạo Pull Request từ `develop` → `release` trên giao diện GitHub).*
+
+### Bước 4: Phát hành lên Production (`release` → `main`)
+1. Tạo **Pull Request** từ nhánh `release` vào nhánh `main` trên GitHub:
+   - **Tiêu đề PR**: `Release v2.3.0` (hoặc tên tóm tắt bản phát hành).
+   - **Nội dung mô tả PR**: Danh sách các thay đổi chính (sẽ được dùng làm Release Notes).
+2. Chờ GitHub Actions **CI (`ci.yml`)** báo xanh, sau đó nhấn **Merge Pull Request** vào `main`.
+3. Ngay khi `release` được merge vào `main`:
+   - GitHub Actions **Automated Release (`release.yml`)** sẽ tự động đọc `"version"` trong `package.json`, tạo Git Tag `vX.Y.Z` và xuất bản **GitHub Release** chính thức kèm `Full Changelog`.
+   - Nền tảng hosting (Vercel) tự động lấy bản build mới nhất từ `main` để triển khai lên Production.
+4. Quay lại nhánh `develop` để tiếp tục chu kỳ phát triển tiếp theo:
+
+```bash
+git checkout develop
+git merge main
+git push origin develop
+```
 
 ---
 

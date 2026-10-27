@@ -14,9 +14,10 @@ const SiteSettingsContext = createContext<SiteSettingsContextValue | null>(null)
 
 function applyAccentColor(color: string) {
     const root = document.documentElement;
-    root.style.setProperty("--accent", color);
-    root.style.setProperty("--accent-hover", `color-mix(in srgb, ${color} 84%, white)`);
-    root.style.setProperty("--chart-1", color);
+    root.style.setProperty("--site-accent", color);
+    root.style.removeProperty("--accent");
+    root.style.removeProperty("--accent-hover");
+    root.style.removeProperty("--chart-1");
 }
 
 export function SiteSettingsProvider({

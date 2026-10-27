@@ -7,41 +7,35 @@ import DataTable from "../common/DataTable";
 import { Button } from "../common/Button";
 import { useToast } from "../../../ui/Toast";
 import DatabaseErDiagram from "../database/DatabaseErDiagram";
-
-interface TableData {
-    post: Record<string, unknown>[];
-    category: Record<string, unknown>[];
-    series: Record<string, unknown>[];
-    tag: Record<string, unknown>[];
-    post_tags: Record<string, unknown>[];
-    site_settings: Record<string, unknown>[];
-}
-
-const EMPTY: TableData = { post: [], category: [], series: [], tag: [], post_tags: [], site_settings: [] };
+import { useAdminCache, formatLoadedTime } from "@/contexts/AdminCacheContext";
 
 export default function DatabaseTab() {
     const { showToast } = useToast();
     const t = useTranslations("admin");
     const tCommon = useTranslations("common");
-    const [data, setData] = useState<TableData>(EMPTY);
-    const [isLoading, setIsLoading] = useState(true);
+    const {
+        databaseData: data,
+        isDatabaseLoading,
+        hasLoadedDatabase,
+        databaseLoadedAt,
+        ensureDatabaseLoaded,
+        refreshDatabaseData,
+    } = useAdminCache();
     const [viewMode, setViewMode] = useState<"table" | "diagram">("table");
 
-    const fetchData = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const res = await fetch("/api/admin/data");
-            const json = await res.json();
-            if (json.success) setData(json.data);
-            else showToast("error", json.message || t("loadError"));
-        } catch (e) {
-            showToast("error", e instanceof Error ? e.message : t("loadError"));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [showToast, t]);
+    const isLoading = !hasLoadedDatabase && isDatabaseLoading;
+    const loadedTime = formatLoadedTime(databaseLoadedAt);
+    const refreshLabel = loadedTime
+        ? `${tCommon("refresh")} • ${loadedTime}`
+        : tCommon("refresh");
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+    const handleRefresh = useCallback(() => {
+        void refreshDatabaseData((msg) => showToast("error", msg || t("loadError")));
+    }, [refreshDatabaseData, showToast, t]);
+
+    useEffect(() => {
+        void ensureDatabaseLoaded((msg) => showToast("error", msg || t("loadError")));
+    }, [ensureDatabaseLoaded, showToast, t]);
 
     return (
         <div className="space-y-4">
@@ -78,13 +72,13 @@ export default function DatabaseTab() {
                 <Button
                     variant="utility"
                     size="sm"
-                    onClick={fetchData}
-                    disabled={isLoading}
-                    isLoading={isLoading}
+                    onClick={handleRefresh}
+                    disabled={isDatabaseLoading}
+                    isLoading={isDatabaseLoading}
                     loadingText={tCommon("loading")}
                     icon={<RefreshCw size={14} />}
                 >
-                    {tCommon("refresh")}
+                    {refreshLabel}
                 </Button>
             </div>
 

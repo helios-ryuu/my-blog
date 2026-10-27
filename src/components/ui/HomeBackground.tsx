@@ -61,7 +61,7 @@ export default function HomeBackground({ className = '' }: HomeBackgroundProps) 
           if (spotlightRef.current.style.opacity !== '1') {
             spotlightRef.current.style.opacity = '1';
           }
-          spotlightRef.current.style.background = `radial-gradient(300px circle at ${currPos.current.x}px ${currPos.current.y}px, color-mix(in srgb, ${accentColor || '#1f51ff'} ${resolvedTheme === 'light' ? '6%' : '10%'}, transparent), transparent 70%)`;
+          spotlightRef.current.style.background = `radial-gradient(300px circle at ${currPos.current.x}px ${currPos.current.y}px, color-mix(in srgb, ${accentColor || '#ff6b2b'} ${resolvedTheme === 'light' ? '6%' : '10%'}, transparent), transparent 70%)`;
         }
       }
       rafRef.current = requestAnimationFrame(animate);
@@ -77,7 +77,7 @@ export default function HomeBackground({ className = '' }: HomeBackgroundProps) 
   }, [isMobile, accentColor, resolvedTheme]);
 
   const isLight = mounted && resolvedTheme === 'light';
-  const effectiveAccent = accentColor || '#1f51ff';
+  const effectiveAccent = accentColor || '#ff6b2b';
 
   if (!mounted) {
     return (

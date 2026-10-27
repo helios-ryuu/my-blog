@@ -96,6 +96,9 @@ export default function ConfirmPopup({
 
     return (
         <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
             className="fixed inset-0 z-200 flex items-center justify-center bg-black/70 backdrop-blur-sm"
             onClick={() => !isLoading && onCancel()}
         >

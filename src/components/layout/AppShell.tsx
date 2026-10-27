@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import { ThemeProvider } from "next-themes";
@@ -13,6 +13,7 @@ import PageLoadingShell from "@/components/layout/PageLoadingShell";
 import dynamic from "next/dynamic";
 import { ToastProvider } from "@/components/ui/Toast";
 import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { AdminCacheProvider } from "@/contexts/AdminCacheContext";
 
 const HomeBackground = dynamic(() => import("@/components/ui/HomeBackground"), { ssr: false });
 const PostBackground = dynamic(() => import("@/components/ui/PostBackground"), { ssr: false });
@@ -29,22 +30,47 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     const isHomePage = pathname === "/";
     const isPostPage = pathname === "/post";
     const isPostRoute = isPostPage || pathname.startsWith("/post/");
+    const isDocsRoute = pathname === "/docs" || pathname.startsWith("/docs/");
     const isProfilePage = pathname === "/profile" || pathname.startsWith("/profile/");
     const isPostEditorPage = pathname === "/admin/posts/new" || /^\/admin\/posts\/[^/]+\/edit\/?$/.test(pathname);
     const [navigationTarget, setNavigationTarget] = useState<string | null>(null);
+    const [hasActiveModal, setHasActiveModal] = useState(false);
+    const visitedPathsRef = useRef<Set<string>>(new Set([pathname]));
+
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+        const checkModals = () => {
+            setHasActiveModal(Boolean(document.querySelector('[aria-modal="true"]')));
+        };
+        checkModals();
+        const observer = new MutationObserver(checkModals);
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["aria-modal"],
+        });
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        visitedPathsRef.current.add(pathname);
+        if (navigationTarget === pathname) setNavigationTarget(null);
+    }, [navigationTarget, pathname]);
 
     useEffect(() => {
         const handleNavigationStart = (event: Event) => {
-            setNavigationTarget((event as CustomEvent<string>).detail);
+            const targetPath = (event as CustomEvent<string>).detail;
+            // If this route was already loaded in the current session, switch directly from cache without showing loading skeleton
+            if (visitedPathsRef.current.has(targetPath)) {
+                return;
+            }
+            setNavigationTarget(targetPath);
         };
 
         window.addEventListener(NAVIGATION_START_EVENT, handleNavigationStart);
         return () => window.removeEventListener(NAVIGATION_START_EVENT, handleNavigationStart);
     }, []);
-
-    useEffect(() => {
-        if (navigationTarget === pathname) setNavigationTarget(null);
-    }, [navigationTarget, pathname]);
 
     useEffect(() => {
         if (!navigationTarget) return;
@@ -76,7 +102,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             )}
 
             {!isPostEditorPage && (
-                <div className="relative z-20">
+                <div className={`relative z-20 transition-opacity duration-150 ${hasActiveModal ? "invisible pointer-events-none opacity-0" : ""}`}>
                     {cfg.enabled && (
                         <Banner
                             id="site-banner"
@@ -111,17 +137,20 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
             <div className="relative z-30 flex flex-1 flex-col md:min-h-0">
                 {!isPostEditorPage && (
-                    <div className="relative z-[100]">
+                    <div
+                        id="app-site-header"
+                        className={`relative z-[100] transition-opacity duration-150 ${hasActiveModal ? "invisible pointer-events-none opacity-0" : ""}`}
+                    >
                         <Header />
                         <NavigationPanel floating={true} />
                     </div>
                 )}
                 <PostFilterProvider>
-                    {!isPostEditorPage && <MobileSearchBar />}
+                    {!isPostEditorPage && !hasActiveModal && <MobileSearchBar />}
                     <div className="relative flex-1 md:min-h-0">
-                        <main className={`h-full overflow-auto ${isHomePage || isPostRoute || isProfilePage || isPostEditorPage ? "bg-transparent" : "bg-background"}`}>
+                        <main className={`h-full overflow-auto ${isHomePage || isPostPage || isProfilePage ? "bg-transparent" : "bg-background"}`}>
                             <div className="flex min-h-full flex-col pb-[env(safe-area-inset-bottom)]">
-                                <div className={`min-h-0 flex-1 ${!isHomePage && !isPostRoute && !isProfilePage && !isPostEditorPage ? "pt-3 sm:pt-4 md:pt-8 lg:pt-10" : ""}`}>
+                                <div className={`min-h-0 flex-1 ${!isHomePage && !isPostRoute && !isDocsRoute && !isProfilePage && !isPostEditorPage ? "pt-3 sm:pt-4 md:pt-8 lg:pt-10" : ""}`}>
                                     {navigationTarget ? <PageLoadingShell /> : children}
                                 </div>
                                 {!isPostEditorPage && <Footer />}
@@ -144,11 +173,13 @@ export default function AppShell({
     initialBannerConfig?: BannerConfig;
 }) {
     return (
-        <ThemeProvider attribute="class" defaultTheme="dark" storageKey="helios-blog-theme" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="dark" storageKey="helios-blog-theme" enableSystem={false} enableColorScheme={false}>
             <SiteSettingsProvider initialAccentColor={initialAccentColor} initialBannerConfig={initialBannerConfig}>
                 <UserProvider>
                     <ToastProvider>
-                        <AppShellContent>{children}</AppShellContent>
+                        <AdminCacheProvider>
+                            <AppShellContent>{children}</AppShellContent>
+                        </AdminCacheProvider>
                     </ToastProvider>
                 </UserProvider>
             </SiteSettingsProvider>

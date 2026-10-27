@@ -4,12 +4,14 @@ import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import EditPostForm from "@/components/features/admin/forms/EditPostForm";
 import { useToast } from "@/components/ui/Toast";
+import { useAdminCache } from "@/contexts/AdminCacheContext";
 import { startNavigationLoading } from "@/lib/navigation-loading";
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
     const { showToast } = useToast();
+    const { refreshAdminData } = useAdminCache();
     const initialNumericId = !Number.isNaN(Number(id)) && Number(id) > 0 ? Number(id) : null;
     const [resolvedId, setResolvedId] = useState<number | null>(initialNumericId);
     const [isLoading, setIsLoading] = useState(() => initialNumericId === null);
@@ -70,6 +72,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             postId={resolvedId}
             onShowToast={showToast}
             onSuccess={() => {
+                void refreshAdminData();
                 startNavigationLoading("/admin");
                 router.push("/admin");
             }}

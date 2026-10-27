@@ -49,10 +49,22 @@ export interface AdminPost {
     [key: string]: unknown;
 }
 
+export interface DeleteConfirmData {
+    type: "post" | "tag" | "series";
+    id: number;
+    name: string;
+    slug?: string;
+    category?: string;
+    published?: boolean;
+    tags?: string[];
+    postCount?: number;
+}
+
 export const LEVELS = POST_LEVELS;
 
 export const CHAR_LIMITS = {
     title: 120,
+    slug: 200,
     description: 300,
     content: 50000,
 } as const;
