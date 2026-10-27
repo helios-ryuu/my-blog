@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Eye, Loader2 } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { mdxComponents } from "@/../mdx-components";
@@ -51,25 +51,14 @@ export function PostPreviewPanel({
     mdxSource,
     isRendering,
     className = "",
-    onBackToEdit,
 }: PostPreviewPanelProps) {
     const t = useTranslations("admin");
     const tPost = useTranslations("post");
     return (
         <div className={`min-w-0 h-full flex flex-col bg-background ${className}`}>
-            <div className="flex items-center gap-2 p-4 border-b border-(--border-color) text-foreground/70">
-                {onBackToEdit && (
-                    <button
-                        type="button"
-                        onClick={onBackToEdit}
-                        className="lg:hidden p-1 rounded hover:bg-foreground/10 cursor-pointer text-foreground/60 hover:text-foreground mr-1 transition-colors"
-                        aria-label="Back to editor"
-                    >
-                        <ArrowLeft size={18} />
-                    </button>
-                )}
-                <Eye size={18} />
-                <span className="font-semibold text-lg">{t("previewTitle")}</span>
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-(--border-color) text-foreground/70">
+                <Eye size={16} />
+                <span className="font-semibold text-sm">{t("previewTitle")}</span>
                 {isRendering && (
                     <span className="ml-auto flex items-center gap-1.5 text-xs text-foreground/50">
                         <Loader2 size={12} className="animate-spin" />
@@ -78,9 +67,9 @@ export function PostPreviewPanel({
                 )}
             </div>
             <div className="flex-1 overflow-y-auto p-6">
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">{title || t("previewUntitled")}</h1>
-                    <p className="text-sm mt-2 text-foreground/70">{description || t("previewNoDescription")}</p>
+                <header className="mb-6 border-b border-(--border-color) pb-4">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{title || t("previewUntitled")}</h1>
+                    <p className="text-sm mt-2 text-foreground/70 leading-relaxed">{description || t("previewNoDescription")}</p>
                     <div className="flex flex-wrap items-center gap-2 text-foreground/50 text-sm mt-4 mb-3">
                         {category && (
                             <PostCategoryBadge category={category} name={categoryInfo?.name} icon={categoryInfo?.icon} />
@@ -123,7 +112,7 @@ export function PostPreviewPanel({
                     </div>
                 )}
 
-                <div className="prose prose-invert max-w-none">
+                <div className="prose prose-invert max-w-none pb-8">
                     {mdxSource ? (
                         <MDXRemote {...mdxSource} components={mdxComponents} />
                     ) : (

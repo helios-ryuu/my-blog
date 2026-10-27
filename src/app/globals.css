@@ -8,27 +8,54 @@
   --font-fira-code: "Fira Code", "SFMono-Regular", "Consolas", monospace;
   --background: #101010;
   --background-hover: #2a2a2a;
-  --foreground: #f8f8f8;
-  --accent: #1f51ff;
-  --accent-hover: #4770ff;
+  --foreground: #ebebeb;
+
+  /* Accent Cam: Tone cam hổ phách sáng, rõ nét trên nền dark */
+  --accent: var(--site-accent, #ff6b2b);
+  --accent-hover: color-mix(in srgb, var(--accent) 82%, #ffffff);
+
   --border-color: #343434;
   --border-color-hover: #3a3a3a;
-  --foreground-dim: #666666;
+  --foreground-dim: #888888;
   --post-card: #1c1c1c;
   --post-card-hover: #242424;
-  --code-block: #1e1e1e;
-  --code-block-border: #353535;
+  --code-block: #18181b;
+  --code-block-border: #2e2e33;
   --scrollbar-track: #1c1c1c;
   --scrollbar-thumb: #3d3d3d;
   --scrollbar-thumb-hover: #4d4d4d;
   --radius: 0.625rem;
+
+  /* Alert Tokens - Dark Theme (màu nền đặc 100% opaque trên nền #101010 để tránh bị chớp/xuyên thấu khi chuyển theme) */
+  --alert-note-bg: #152033;
+  --alert-note-border: #233b60;
+  --alert-note-title: #4a98f8;
+
+  --alert-tip-bg: #12231a;
+  --alert-tip-border: #1d422b;
+  --alert-tip-title: #21c95e;
+
+  --alert-important-bg: #20172b;
+  --alert-important-border: #3b2750;
+  --alert-important-title: #9933ff;
+
+  --alert-warning-bg: #271f11;
+  --alert-warning-border: #473616;
+  --alert-warning-title: #fbbf24;
+
+  --alert-caution-bg: #261515;
+  --alert-caution-border: #462222;
+  --alert-caution-title: #fa3d3d;
+
+  --alert-text: #eeeeee;
+
   /* shadcn variables - dark theme values */
   --card: #1e1e1e;
   --card-foreground: #ffffff;
   --popover: #1e1e1e;
   --popover-foreground: #ffffff;
-  --primary: #ffffff;
-  --primary-foreground: #171717;
+  --primary: var(--accent);
+  --primary-foreground: #ffffff;
   --secondary: #2b2b2b;
   --secondary-foreground: #ffffff;
   --muted: #2b2b2b;
@@ -37,9 +64,9 @@
   --destructive: #dc2626;
   --border: #343434;
   --input: #343434;
-  --ring: #666666;
-  --chart-1: #1f51ff;
-  --chart-2: #60a5fa;
+  --ring: var(--accent);
+  --chart-1: var(--accent);
+  --chart-2: #fb923c;
   --chart-3: #10b981;
   --chart-4: #f59e0b;
   --chart-5: #8b5cf6;
@@ -48,18 +75,63 @@
 /* Light theme */
 :root.light {
   --background: #ffffff;
-  --background-hover: #eeeeee;
-  --foreground: #151515;
-  --accent: #1f51ff;
-  --accent-hover: #0b3ee8;
-  --border-color: #d2d2d2;
-  --border-color-hover: #c8c8c8;
-  --foreground-dim: #8f8f8f;
-  --post-card: #f9f9f9;
-  --post-card-hover: #ececec;
-  --scrollbar-track: #f2f2f2;
-  --scrollbar-thumb: #bcbcbc;
-  --scrollbar-thumb-hover: #9c9c9c;
+  --background-hover: #f4f4f5;
+  --foreground: #18181b;
+
+  /* Accent Cam: Tone cam tươi giàu độ bão hòa, pha với cam đậm #ea580c thay vì đen để không bị xỉn */
+  --accent: color-mix(in srgb, var(--site-accent, #ea580c) 75%, #ea580c);
+  --accent-hover: color-mix(in srgb, var(--site-accent, #ea580c) 50%, #c2410c);
+
+  --border-color: #e4e4e7;
+  --border-color-hover: #d4d4d8;
+  --foreground-dim: #71717a;
+  --post-card: #fafafa;
+  --post-card-hover: #f4f4f5;
+  --scrollbar-track: #f4f4f5;
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
+
+  /* Alert Tokens - Light Theme: Sử dụng nền pastel đặc tươi tắn, không dùng rgba trong suốt gây ám xám/đen */
+  --alert-note-bg: #eff6ff;
+  --alert-note-border: #bfdbfe;
+  --alert-note-title: #1d4ed8;
+
+  --alert-tip-bg: #f0fdf4;
+  --alert-tip-border: #bbf7d0;
+  --alert-tip-title: #15803d;
+
+  --alert-important-bg: #faf5ff;
+  --alert-important-border: #e9d5ff;
+  --alert-important-title: #7e22ce;
+
+  --alert-warning-bg: #fffbeb;
+  --alert-warning-border: #fde68a;
+  --alert-warning-title: #b45309;
+
+  --alert-caution-bg: #fef2f2;
+  --alert-caution-border: #fecaca;
+  --alert-caution-title: #b91c1c;
+
+  --alert-text: #27272a;
+
+  /* Giữ code-block màu tối ở Light theme theo chủ đích thiết kế */
+  --code-block: #18181b;
+  --code-block-border: #27272a;
+
+  /* shadcn variables mapping cho light */
+  --card: #fafafa;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: var(--accent);
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: var(--accent);
 }
 
 /* Tailwind theme tokens */
@@ -98,22 +170,49 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --default-transition-duration: 0.2s;
+  --default-transition-timing-function: ease-out;
 }
 
 /* Base styles */
 html {
   height: 100%;
-  transition: background-color 0.2s ease-out;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.2s ease-out, color 0.2s ease-out;
 }
 
 body {
   height: 100%;
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-lexend), sans-serif;
+  transition: background-color 0.2s ease-out, color 0.2s ease-out;
 }
 
-/* Global transitions for theme switching */
+/* Global transitions for theme switching:
+ * - Non-inherited properties (background-color, border-color) transition on all elements (*).
+ * - Inherited `color` ONLY transitions on elements that explicitly set their own color
+ *   (html, body, links, controls, [class*="text-"], [style*="color"]), preventing
+ *   multi-level `color: inherit` cascade lag (which caused white-on-white / black-on-black flash in deep MDX trees).
+ */
 * {
-  transition-property: color, background-color, border-color;
+  transition-property: background-color, border-color, outline-color, fill, stroke;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-out;
+}
+
+html,
+body,
+a,
+button,
+input,
+select,
+textarea,
+[class*="text-"],
+[style*="color"],
+.alert-box {
+  transition-property: color, background-color, border-color, outline-color, fill, stroke;
   transition-duration: 0.2s;
   transition-timing-function: ease-out;
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, Eye, FileEdit, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Check, Eye, FileEdit, Loader2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import AddTagForm from "./AddTagForm";
 import { FormMessage } from "../common/FormFields";
 import { Button } from "../common/Button";
@@ -15,18 +15,20 @@ import SeriesForm from "./SeriesForm";
 
 interface EditPostFormProps {
     postId: number;
+    onClose?: () => void;
     onSuccess?: (post: { id: number; slug: string }) => void;
     onShowToast?: (type: "success" | "error" | "info" | "warning", message: string) => void;
     existingSlugs?: string[];
 }
 
-export default function EditPostForm({ postId, onSuccess, onShowToast, existingSlugs = [] }: EditPostFormProps) {
+export default function EditPostForm({ postId, onClose, onSuccess, onShowToast, existingSlugs = [] }: EditPostFormProps) {
     const t = useTranslations("admin");
     const tCommon = useTranslations("common");
+    const router = useRouter();
     const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
     const [showAddTag, setShowAddTag] = useState(false);
     const [showAddSeries, setShowAddSeries] = useState(false);
-    const { ratio, containerRef, handleMouseDown } = useResizablePanel(0.5, 0.2);
+    const { ratio, containerRef, handleMouseDown } = useResizablePanel(0.5, 0.25);
     const form = usePostForm({
         mode: "edit",
         postId,
@@ -35,145 +37,209 @@ export default function EditPostForm({ postId, onSuccess, onShowToast, existingS
         onSuccess,
     });
 
-    const { formData, setFormData, tags, setTags, categories, series, setSeries, selectedTagIds, setSelectedTagIds, toggleTag, validation, submitted, mdxSource, isRendering, isLoading, isFetching, error, submit } = form;
+    const {
+        formData,
+        setFormData,
+        tags,
+        setTags,
+        categories,
+        series,
+        setSeries,
+        selectedTagIds,
+        setSelectedTagIds,
+        toggleTag,
+        validation,
+        submitted,
+        mdxSource,
+        isRendering,
+        isLoading,
+        isFetching,
+        error,
+        submit,
+    } = form;
 
-    if (isFetching) {
-        return (
-            <div className="fixed inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-background">
-                <Loader2 className="w-8 h-8 animate-spin text-accent" />
-                <p className="text-sm text-foreground/60">{t("loadingPost")}</p>
-            </div>
-        );
-    }
+    const handleClose = () => {
+        if (onClose) {
+            onClose();
+        } else {
+            router.push("/admin");
+        }
+    };
+
+    useEffect(() => {
+        function onKeyDown(e: KeyboardEvent) {
+            if (e.key === "Escape" && !showAddTag && !showAddSeries) {
+                handleClose();
+            }
+        }
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    });
 
     return (
-        <div ref={containerRef} className="fixed inset-0 z-30 flex bg-background">
-            <form
-                onSubmit={(e) => { e.preventDefault(); submit(); }}
-                style={{ "--pane-width": `${ratio * 100}%` } as React.CSSProperties}
-                className={`h-full flex-col border-r border-(--border-color) ${
-                    mobileTab === "edit" ? "flex w-full" : "hidden"
-                } lg:flex lg:w-[var(--pane-width)]`}
-            >
-                <div className="flex items-center justify-between p-4 border-b border-(--border-color)">
-                    <div className="flex items-center gap-3">
-                        <Link
-                            href="/admin"
-                            className="p-1 rounded hover:bg-foreground/10 cursor-pointer text-foreground/60 hover:text-foreground transition-colors"
-                        >
-                            <ArrowLeft size={18} />
-                        </Link>
-                        <h2 className="text-lg font-semibold">{t("editPostTitle")}</h2>
-                    </div>
-
-                    {/* Mobile tab toggle */}
-                    <div className="flex items-center rounded-lg border border-(--border-color) bg-foreground/5 p-0.5 lg:hidden">
-                        <button
-                            type="button"
-                            onClick={() => setMobileTab("edit")}
-                            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                                mobileTab === "edit"
-                                    ? "bg-accent text-accent-foreground shadow-sm"
-                                    : "text-foreground/60 hover:text-foreground"
-                            }`}
-                        >
-                            <FileEdit size={13} />
-                            <span>{t("editorTab")}</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setMobileTab("preview")}
-                            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                                mobileTab === "preview"
-                                    ? "bg-accent text-accent-foreground shadow-sm"
-                                    : "text-foreground/60 hover:text-foreground"
-                            }`}
-                        >
-                            <Eye size={13} />
-                            <span>{t("previewTitle")}</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                    <PostFormBody
-                        formData={formData}
-                        setFormData={setFormData}
-                        tags={tags}
-                        categories={categories}
-                        series={series}
-                        postId={postId}
-                        selectedTagIds={selectedTagIds}
-                        onToggleTag={toggleTag}
-                        onAddNewTag={() => setShowAddTag(true)}
-                        onAddNewSeries={() => setShowAddSeries(true)}
-                        validationErrors={validation.validationErrors}
-                        validationWarnings={validation.validationWarnings}
-                        submitted={submitted}
-                    />
-                    {error && <FormMessage type="error" message={error} />}
-                </div>
-
-                <div className="p-4 border-t border-(--border-color) flex justify-end gap-2">
-                    <Link href="/admin">
-                        <Button type="button" variant="cancel">{tCommon("cancel")}</Button>
-                    </Link>
-                    <Button
-                        type="submit"
-                        variant="save"
-                        isLoading={isLoading}
-                        loadingText={t("savingChanges")}
-                        disabled={validation.hasValidationErrors}
-                    >
-                        {t("saveChanges")}
-                    </Button>
-                </div>
-            </form>
-
-            {/* Drag handle */}
+        <div className="fixed inset-0 z-[105] flex items-center justify-center bg-black/75 p-2 backdrop-blur-sm sm:p-4">
             <div
-                onMouseDown={handleMouseDown}
-                className="hidden lg:block w-1 cursor-col-resize bg-transparent hover:bg-accent/40 active:bg-accent/60 transition-colors flex-shrink-0"
-            />
+                role="dialog"
+                aria-modal="true"
+                aria-label={t("editPostTitle")}
+                className="flex h-[calc(100dvh-16px)] sm:h-[calc(100dvh-32px)] w-full max-w-[1760px] flex-col overflow-hidden rounded-xl border border-(--border-color) bg-background shadow-2xl"
+            >
+                {/* Top Header Bar */}
+                <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-(--border-color) bg-foreground/[0.02] px-4 py-3">
+                    <div className="flex flex-wrap items-center gap-2.5 min-w-0">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
+                            <FileEdit size={17} />
+                        </div>
+                        <h2 className="text-sm sm:text-base font-semibold text-foreground truncate">
+                            {t("editPostTitle")}
+                        </h2>
+                        <div className="h-4 w-px bg-(--border-color)" />
+                        <span className="inline-flex h-7 items-center rounded-md border border-(--border-color) bg-background px-2.5 text-xs font-mono text-foreground/65 truncate max-w-[260px] sm:max-w-[360px]">
+                            {formData.slug ? `/post/${formData.slug}` : `#${postId}`}
+                        </span>
+                    </div>
 
-            <PostPreviewPanel
-                className={`${mobileTab === "preview" ? "flex w-full" : "hidden"} lg:flex lg:flex-1`}
-                onBackToEdit={() => setMobileTab("edit")}
-                title={formData.title}
-                description={formData.description}
-                imageUrl={formData.image_url}
-                category={formData.category}
-                categoryInfo={categories.find((category) => category.slug === formData.category)}
-                level={formData.level}
-                readingTime={formData.reading_time}
-                type={formData.post_type}
-                series={series.find((item) => item.id === formData.series_id)}
-                seriesOrder={formData.series_order}
-                selectedTags={selectedTagIds}
-                tags={tags}
-                mdxSource={mdxSource}
-                isRendering={isRendering}
-            />
+                    <div className="flex flex-wrap items-center gap-2">
+                        {/* Mobile Edit / Preview Toggle */}
+                        <div className="flex items-center rounded-lg border border-(--border-color) bg-foreground/5 p-0.5 lg:hidden">
+                            <button
+                                type="button"
+                                onClick={() => setMobileTab("edit")}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                                    mobileTab === "edit"
+                                        ? "bg-accent text-white"
+                                        : "text-foreground/60 hover:text-foreground"
+                                }`}
+                            >
+                                <FileEdit size={12} />
+                                <span>{t("editorTab")}</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setMobileTab("preview")}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                                    mobileTab === "preview"
+                                        ? "bg-accent text-white"
+                                        : "text-foreground/60 hover:text-foreground"
+                                }`}
+                            >
+                                <Eye size={12} />
+                                <span>{t("previewTitle")}</span>
+                            </button>
+                        </div>
 
-            {showAddTag && (
-                <AddTagForm
-                    onSuccess={(tag) => {
-                        setTags((prev) => [...prev, tag]);
-                        setSelectedTagIds((prev) => [...prev, tag.id]);
-                    }}
-                    onClose={() => setShowAddTag(false)}
-                />
-            )}
+                        <Button type="button" variant="cancel" size="sm" onClick={handleClose}>
+                            {tCommon("cancel")}
+                        </Button>
+                        <Button
+                            type="submit"
+                            form="edit-post-modal-form"
+                            variant="primary"
+                            size="sm"
+                            isLoading={isLoading}
+                            loadingText={t("savingChanges")}
+                            disabled={isFetching || validation.hasValidationErrors}
+                            icon={isLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                        >
+                            {t("saveChanges")}
+                        </Button>
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground/60 hover:bg-foreground/10 hover:text-foreground cursor-pointer"
+                            aria-label={tCommon("close")}
+                        >
+                            <X size={16} />
+                        </button>
+                    </div>
+                </div>
 
-            {showAddSeries && (
-                <SeriesForm
-                    onSuccess={(created) => {
-                        setSeries((previous) => [...previous, { ...created, post_count: 0 }]);
-                        setFormData((previous) => ({ ...previous, post_type: "series", series_id: created.id, series_order: 1 }));
-                    }}
-                    onClose={() => setShowAddSeries(false)}
-                />
-            )}
+                {/* Main Split-View Body */}
+                {isFetching ? (
+                    <div className="flex flex-1 flex-col items-center justify-center gap-3 bg-background">
+                        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                        <p className="text-sm text-foreground/60">{t("loadingPost")}</p>
+                    </div>
+                ) : (
+                    <div ref={containerRef} className="flex min-h-0 flex-1 overflow-hidden">
+                        <form
+                            id="edit-post-modal-form"
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                submit();
+                            }}
+                            style={{ "--pane-width": `${ratio * 100}%` } as React.CSSProperties}
+                            className={`relative h-full flex-col border-r border-(--border-color) ${
+                                mobileTab === "edit" ? "flex w-full" : "hidden"
+                            } lg:flex lg:w-[var(--pane-width)]`}
+                        >
+                            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                                <PostFormBody
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    tags={tags}
+                                    categories={categories}
+                                    series={series}
+                                    postId={postId}
+                                    selectedTagIds={selectedTagIds}
+                                    onToggleTag={toggleTag}
+                                    onAddNewTag={() => setShowAddTag(true)}
+                                    onAddNewSeries={() => setShowAddSeries(true)}
+                                    validationErrors={validation.validationErrors}
+                                    validationWarnings={validation.validationWarnings}
+                                    submitted={submitted}
+                                />
+                                {error && <FormMessage type="error" message={error} />}
+                            </div>
+                        </form>
+
+                        {/* Resizable Divider */}
+                        <div
+                            onMouseDown={handleMouseDown}
+                            className="hidden lg:block w-1.5 cursor-col-resize bg-(--border-color)/60 hover:bg-accent/50 active:bg-accent transition-colors shrink-0"
+                        />
+
+                        <PostPreviewPanel
+                            className={`${mobileTab === "preview" ? "flex w-full" : "hidden"} lg:flex lg:flex-1`}
+                            onBackToEdit={() => setMobileTab("edit")}
+                            title={formData.title}
+                            description={formData.description}
+                            imageUrl={formData.image_url}
+                            category={formData.category}
+                            categoryInfo={categories.find((category) => category.slug === formData.category)}
+                            level={formData.level}
+                            readingTime={formData.reading_time}
+                            type={formData.post_type}
+                            series={series.find((item) => item.id === formData.series_id)}
+                            seriesOrder={formData.series_order}
+                            selectedTags={selectedTagIds}
+                            tags={tags}
+                            mdxSource={mdxSource}
+                            isRendering={isRendering}
+                        />
+                    </div>
+                )}
+
+                {showAddTag && (
+                    <AddTagForm
+                        onSuccess={(tag) => {
+                            setTags((prev) => [...prev, tag]);
+                            setSelectedTagIds((prev) => [...prev, tag.id]);
+                        }}
+                        onClose={() => setShowAddTag(false)}
+                    />
+                )}
+
+                {showAddSeries && (
+                    <SeriesForm
+                        onSuccess={(created) => {
+                            setSeries((previous) => [...previous, { ...created, post_count: 0 }]);
+                            setFormData((previous) => ({ ...previous, post_type: "series", series_id: created.id, series_order: 1 }));
+                        }}
+                        onClose={() => setShowAddSeries(false)}
+                    />
+                )}
+            </div>
         </div>
     );
 }

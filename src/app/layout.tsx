@@ -41,9 +41,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     const [locale, messages, accentColor, bannerConfig] = await Promise.all([getLocale(), getMessages(), getAccentColor(), getBannerConfig()]);
     const accentStyle = {
-        "--accent": accentColor,
-        "--accent-hover": `color-mix(in srgb, ${accentColor} 84%, white)`,
-        "--chart-1": accentColor,
+        "--site-accent": accentColor,
     } as CSSProperties;
 
     return (

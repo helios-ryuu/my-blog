@@ -13,7 +13,9 @@ services:
       - next_cache:/app/.next
     environment:
       - PORT=3456
-      - WATCHPACK_POLLING=true
+      - HOSTNAME=0.0.0.0
+      - WATCHPACK_POLLING=800
+      - CHOKIDAR_USEPOLLING=true
     env_file:
       - .env
     command: sh -c "pnpm install && pnpm dev"

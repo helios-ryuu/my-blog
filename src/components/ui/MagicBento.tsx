@@ -60,7 +60,7 @@ export const BentoParticleCard: React.FC<{
   particleCount = DEFAULT_PARTICLE_COUNT,
   glowColor = DEFAULT_GLOW_COLOR,
   enableTilt = true,
-  clickEffect = false,
+  clickEffect: _clickEffect = false,
   enableMagnetism = false
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);

@@ -21,15 +21,28 @@
 
 Production nên chỉ dùng `ADMIN_PASSWORD_HASH`. Sau khi đặt lại env trên Vercel, xóa `ADMIN_PASSWORD` và redeploy để deployment mới nhận credential.
 
-## Viết và xuất bản
+## Viết, Upload (.mdx) và Xuất bản
 
-1. Admin mở `/admin` và tạo bài mới tại `/admin/posts/new` hoặc chọn sửa bài tại `/admin/posts/[id]/edit`.
+1. Admin mở `/admin` trong nhóm **Bài viết & Bản nháp**:
+   - **Tạo bài viết mới**: mở `/admin/posts/new`.
+   - **Upload Post (`.mdx`)**: nhấn **Upload file .mdx** để tải lên file `.mdx` hoặc `.md` chuẩn bị sẵn — hệ thống tự động bóc tách YAML Frontmatter (hoặc tự trích xuất từ tiêu đề `# H1` đầu tiên) và lưu thành **Bản nháp (Draft)**. Có thể nhấn **Tải Template** để tải file mẫu `post-template.mdx` về máy.
+   - **Tìm kiếm, Chỉnh sửa & Xoá bài viết**: tìm bài viết trực tiếp hoặc mở trình chọn nâng cao để chuyển tới `/admin/posts/[id]/edit` hoặc xoá bài viết.
 2. Không gian soạn thảo hoạt động ở chế độ chuyên dụng toàn màn hình độc lập (tự động ẩn Header, NavigationPanel và Banner để tối ưu diện tích làm việc).
 3. **Trên máy tính (Desktop)**: Giao diện hiển thị dạng 2 cột (split-view) song song giữa khung nhập liệu và panel xem trước (Live Preview), có thanh kéo divider điều chỉnh tỷ lệ độ rộng tùy ý.
 4. **Trên di động (Mobile)**: Tự động chuyển đổi giữa tab "Soạn thảo" và "Xem trước" qua nút chuyển đổi nhanh trên header, đảm bảo không gian thao tác không bị bóp nghẹt.
 5. Nhập title, slug, description, category, level, thời gian đọc, kiểu bài, image (tích hợp Cloudflare R2 picker modal), tag và nội dung MDX.
 6. Lưu nháp để tiếp tục chỉnh sửa hoặc bật xuất bản ngay.
 7. Bài được revalidate tức thì trên homepage, danh sách và trang chi tiết.
+
+## Quản lý Tài liệu Hệ thống (`Docs` - `/docs`)
+
+1. Trang `/docs` được gắn trực tiếp trên thanh điều hướng nổi (Navbar) với biểu tượng quyển sách (`Docs`), hiển thị tài liệu hệ thống và cú pháp Markdown & MDX của Helios Space.
+2. Tại `/admin`, kéo xuống mục **Tài liệu hệ thống (Docs)** và nhấn **Chỉnh sửa tài liệu Docs** (hoặc nhấn nút **Chỉnh sửa Docs** ngay trên trang `/docs` khi đang đăng nhập Admin).
+3. Modal trình soạn thảo **Docs Editor** mở ra với trải nghiệm 2 cột Live Preview giống hệt trình sửa bài viết:
+   - Hỗ trợ chuyển đổi song ngữ `Tiếng Việt` / `English`.
+   - Hỗ trợ thêm/xoá mục tài liệu, chỉnh tiêu đề, mô tả, nội dung MDX, chèn ảnh từ Cloudflare R2 hoặc tải ảnh mới lên ngay tại chỗ.
+   - Có nút **Khôi phục mặc định** để lấy lại tài liệu cú pháp chuẩn bất cứ lúc nào.
+4. Nhấn **Lưu thay đổi**, hệ thống lưu vào `site_settings` (`key = 'docs_config'`) và revalidate `/docs` tức thì.
 
 Category chọn từ danh sách do CMS quản lý. Level chọn cơ bản, trung cấp hoặc nâng cao. Thời gian đọc là số phút do tác giả ước tính thủ công trong khoảng 1–120.
 
