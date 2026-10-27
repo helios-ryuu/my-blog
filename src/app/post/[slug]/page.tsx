@@ -89,13 +89,13 @@ export default async function BlogPostPage({ params }: Props) {
     ]);
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col bg-background">
             {/* Mobile TOC Bar */}
             <div className="shrink-0 z-40">
                 <MobileTocBar title={post.title} content={post.content} />
             </div>
 
-            <div className="flex gap-2 px-4 md:px-0 max-w-dvw mx-auto w-full">
+            <div className="flex gap-2 px-4 md:px-0 max-w-dvw mx-auto w-full bg-background">
                 <aside className="hidden md:block w-68 flex-none border-r border-(--border-color) bg-background">
                     <div className="sticky top-0 h-[calc(100vh-6rem)] overflow-hidden">
                         <TableOfContents content={post.content} />
@@ -103,7 +103,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </aside>
 
                 {/* Main Content */}
-                <article className="flex-1 min-w-0 mx-auto py-6 md:py-4 md:px-12">
+                <article className="flex-1 min-w-0 mx-auto py-6 md:py-4 md:px-12 bg-background">
                     <header className="mb-8">
                         {/* Cover image (FR_POST_03) */}
                         {post.image && (
@@ -117,7 +117,7 @@ export default async function BlogPostPage({ params }: Props) {
                                     unoptimized={shouldBypassImageOptimization(post.image)}
                                     priority
                                 />
-                                <div className="absolute inset-0 bg-linear-to-t from-background/30 via-transparent to-transparent" />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/25 via-transparent to-transparent" />
                             </div>
                         )}
 
@@ -151,7 +151,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </article>
 
                 {/* Related posts panel */}
-                <aside className="hidden xl:block w-72 flex-none pt-6 pb-10 pr-4 xs:px-2">
+                <aside className="hidden xl:block w-72 flex-none pt-6 pb-10 pr-4 xs:px-2 bg-background">
                     <div className="sticky top-0 max-h-[calc(100vh-6rem)] overflow-y-auto">
                         <RelatedPosts posts={relatedPosts} />
                     </div>

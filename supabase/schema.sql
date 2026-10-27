@@ -115,7 +115,7 @@ create table if not exists public.site_settings (
 );
 
 insert into public.site_settings (key, value, is_public)
-values ('accent_color', to_jsonb('#1f51ff'::text), true)
+values ('accent_color', to_jsonb('#ff6b2b'::text), true)
 on conflict (key) do nothing;
 
 create index if not exists idx_post_publication
@@ -212,17 +212,5 @@ create policy "Public site settings are readable"
 
 grant usage on schema public to anon, authenticated;
 grant select on public.post, public.category, public.series, public.tag, public.post_tags, public.site_settings to anon, authenticated;
-
--- Rate Limiting table for auth brute-force protection
-create table if not exists public.auth_rate_limits (
-    ip text primary key,
-    attempt_count int not null default 0,
-    escalation_level int not null default 0,
-    locked_until timestamptz,
-    last_attempt_at timestamptz not null default timezone('utc'::text, now()),
-    updated_at timestamptz not null default timezone('utc'::text, now())
-);
-
-alter table public.auth_rate_limits enable row level security;
 
 commit;

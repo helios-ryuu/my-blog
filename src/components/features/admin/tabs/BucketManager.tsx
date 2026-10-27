@@ -23,6 +23,7 @@ import Image from "next/image";
 import { Button } from "../common/Button";
 import { useToast } from "../../../ui/Toast";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useAdminCache, formatLoadedTime } from "@/contexts/AdminCacheContext";
 
 interface BucketEntry {
     name: string;
@@ -39,19 +40,6 @@ interface BucketFolder {
     path: string;
     size?: number;
     fileCount?: number;
-}
-
-interface BucketListResponse {
-    success: boolean;
-    data?: {
-        bucket: string;
-        prefix: string;
-        folders: BucketFolder[];
-        files: BucketEntry[];
-        totalSize?: number;
-        totalFiles?: number;
-    };
-    message?: string;
 }
 
 interface BucketManagerProps {
@@ -76,10 +64,14 @@ export default function BucketManager({
     const { showToast } = useToast();
     const t = useTranslations("admin");
     const tCommon = useTranslations("common");
+    const {
+        getBucketPrefixCache,
+        totalBucketStats,
+        isBucketLoading,
+        bucketLoadedAt,
+        loadBucketPrefix,
+    } = useAdminCache();
     const [prefix, setPrefix] = useState<string>("");
-    const [folders, setFolders] = useState<BucketFolder[]>([]);
-    const [files, setFiles] = useState<BucketEntry[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [newFolderName, setNewFolderName] = useState("");
@@ -88,8 +80,16 @@ export default function BucketManager({
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [renameState, setRenameState] = useState<{ from: string; to: string; type: "file" | "folder" } | null>(null);
     const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
-    const [totalStats, setTotalStats] = useState<{ totalSize: number; totalFiles: number } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const cachedEntry = getBucketPrefixCache(prefix);
+    const folders = cachedEntry?.folders ?? [];
+    const files = cachedEntry?.files ?? [];
+    const isLoading = !cachedEntry && isBucketLoading;
+    const loadedTime = formatLoadedTime(bucketLoadedAt);
+    const refreshLabel = loadedTime
+        ? `${tCommon("refresh")} • ${loadedTime}`
+        : tCommon("refresh");
 
     useEscapeKey(() => {
         setSelectedFile(null);
@@ -97,32 +97,16 @@ export default function BucketManager({
         setRenameState(null);
     }, Boolean(selectedFile));
 
-    const fetchEntries = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const url = new URL("/api/admin/bucket", window.location.origin);
-            if (prefix) url.searchParams.set("prefix", prefix);
-            const res = await fetch(url.toString());
-            const json: BucketListResponse = await res.json();
-            if (json.success && json.data) {
-                setFolders(json.data.folders);
-                setFiles(json.data.files);
-                if (json.data.totalSize !== undefined && json.data.totalFiles !== undefined) {
-                    setTotalStats({ totalSize: json.data.totalSize, totalFiles: json.data.totalFiles });
-                }
-            } else {
-                showToast("error", json.message || t("loadFilesError"));
-                setFolders([]);
-                setFiles([]);
-            }
-        } catch (e) {
-            showToast("error", e instanceof Error ? e.message : t("loadFilesError"));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [prefix, showToast, t]);
+    const fetchEntries = useCallback(async (force = false) => {
+        await loadBucketPrefix(prefix, {
+            force,
+            onError: (msg) => showToast("error", msg || t("loadFilesError")),
+        });
+    }, [loadBucketPrefix, prefix, showToast, t]);
 
-    useEffect(() => { fetchEntries(); }, [fetchEntries]);
+    useEffect(() => {
+        void fetchEntries(false);
+    }, [fetchEntries]);
 
     function navigateInto(folder: BucketFolder) {
         setPrefix(folder.path);
@@ -152,7 +136,7 @@ export default function BucketManager({
             showToast("success", t("createFolderSuccess"));
             setNewFolderName("");
             setSearchQuery("");
-            await fetchEntries();
+            await fetchEntries(true);
         } catch (e) {
             showToast("error", e instanceof Error ? e.message : t("createFolderError"));
         } finally {
@@ -181,7 +165,7 @@ export default function BucketManager({
                 else showToast("error", json.message || t("uploadFileError", { name: file.name }));
             }
             if (count > 0) showToast("success", t("uploadSuccess", { count }));
-            await fetchEntries();
+            await fetchEntries(true);
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -200,7 +184,7 @@ export default function BucketManager({
                 showToast("success", type === "folder" ? t("folderDeleted") : t("fileDeleted"));
                 setSelectedFile(null);
                 setDeleteConfirm(null);
-                await fetchEntries();
+                await fetchEntries(true);
             } else {
                 showToast("error", json.message || t("deleteFailed"));
             }
@@ -229,7 +213,7 @@ export default function BucketManager({
                 showToast("success", t("renameSuccess"));
                 setRenameState(null);
                 setSelectedFile(null);
-                await fetchEntries();
+                await fetchEntries(true);
             } else {
                 showToast("error", json.message || t("renameFailed"));
             }
@@ -267,9 +251,9 @@ export default function BucketManager({
                         <span className="rounded-sm border border-(--border-color) bg-foreground/5 px-2 py-0.5 text-xs text-foreground/60">
                             Cloudflare R2
                         </span>
-                        {totalStats !== null && (
+                        {totalBucketStats !== null && (
                             <span className="rounded-sm border border-(--border-color) bg-foreground/5 px-2 py-0.5 text-xs text-foreground/60">
-                                {t("totalStorage")}: {formatSize(totalStats.totalSize)} ({totalStats.totalFiles} {t("filesCount")})
+                                {t("totalStorage")}: {formatSize(totalBucketStats.totalSize)} ({totalBucketStats.totalFiles} {t("filesCount")})
                             </span>
                         )}
                     </div>
@@ -278,11 +262,11 @@ export default function BucketManager({
                             type="button"
                             variant="utility"
                             size="sm"
-                            onClick={fetchEntries}
-                            disabled={isLoading}
-                            icon={<RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />}
+                            onClick={() => void fetchEntries(true)}
+                            disabled={isBucketLoading}
+                            icon={<RefreshCw size={14} className={isBucketLoading ? "animate-spin" : ""} />}
                         >
-                            {tCommon("refresh")}
+                            {refreshLabel}
                         </Button>
                         <label className="inline-flex items-center justify-center font-medium rounded-md transition-colors px-3 py-1.5 text-sm gap-1.5 bg-accent text-white hover:bg-accent/90 cursor-pointer">
                             <Upload size={14} />
@@ -340,7 +324,7 @@ export default function BucketManager({
                 </div>
 
                 {mode === "manage" && (
-                    <div className="flex flex-col gap-2 rounded-md border border-(--border-color) bg-foreground/5 p-2 sm:flex-row sm:items-center">
+                    <div className="flex flex-col gap-2 rounded-md border border-(--border-color) bg-foreground/5 py-2 px-6 sm:flex-row sm:items-center">
                         <div className="flex min-w-0 flex-1 items-center gap-2">
                             <FolderPlus size={15} className="shrink-0 text-accent" />
                             <input
