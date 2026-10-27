@@ -44,6 +44,7 @@ jobs:
 
           # Query merged PR associated with current HEAD commit
           PR_JSON=$(gh api "/repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" 2>/dev/null || echo "[]")
+          PR_NUMBER=$(echo "${PR_JSON}" | jq -r '.[0].number // empty')
           PR_TITLE=$(echo "${PR_JSON}" | jq -r '.[0].title // empty')
           PR_BODY=$(echo "${PR_JSON}" | jq -r '.[0].body // empty')
 
@@ -55,8 +56,12 @@ jobs:
             PR_BODY=$(git log -1 --pretty=%b)
           fi
 
+          if [ -n "${PR_NUMBER}" ] && ! echo "${PR_BODY}" | grep -q "Pull Requests gộp vào bản này"; then
+            PR_BODY="${PR_BODY}"$'\n\n---\n\n## 📦 Pull Requests gộp vào bản này\n'"- PR #${PR_NUMBER}: ${PR_TITLE}"
+          fi
+
           if [ -n "${PREV_TAG}" ] && ! echo "${PR_BODY}" | grep -q "Full Changelog:"; then
-            PR_BODY="${PR_BODY}"$'\n\n---\n\n'"Full Changelog: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${TAG}"
+            PR_BODY="${PR_BODY}"$'\n\n'"Full Changelog: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${TAG}"
           fi
 
           echo "title=${PR_TITLE}" >> "$GITHUB_OUTPUT"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FolderOpen, Upload, X, Loader2 } from "lucide-react";
+import { FolderOpen, Upload, X, Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { FormField, FormInput, FormTextarea, FormSelectDropdown } from "../common/FormFields";
 import { TagSelector } from "../common/TagSelector";
 import BucketManager from "../tabs/BucketManager";
@@ -55,6 +55,7 @@ export function PostFormBody({
     const tPost = useTranslations("post");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isPickerOpen, setIsPickerOpen] = useState(false);
+    const [isContentExpanded, setIsContentExpanded] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [touched, setTouched] = useState<Set<string>>(new Set());
@@ -129,35 +130,37 @@ export function PostFormBody({
 
     return (
         <div className="space-y-4">
-            <FormField
-                label={t("fieldTitle")}
-                required
-                error={showError("title")}
-                charCount={{ current: formData.title.length, max: CHAR_LIMITS.title }}
-            >
-                <FormInput
-                    name="title"
-                    value={formData.title}
-                    hasError={showHasError("title")}
-                    onBlur={() => handleBlur("title")}
-                    onChange={(e) => {
-                        handlePostFormChange(e, setFormData);
-                        if (autoSlug) {
-                            setFormData((prev) => ({ ...prev, slug: slugify(e.target.value) }));
-                        }
-                    }}
-                />
-            </FormField>
+            <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                    label={t("fieldTitle")}
+                    required
+                    error={showError("title")}
+                    charCount={{ current: formData.title.length, max: CHAR_LIMITS.title }}
+                >
+                    <FormInput
+                        name="title"
+                        value={formData.title}
+                        hasError={showHasError("title")}
+                        onBlur={() => handleBlur("title")}
+                        onChange={(e) => {
+                            handlePostFormChange(e, setFormData);
+                            if (autoSlug) {
+                                setFormData((prev) => ({ ...prev, slug: slugify(e.target.value) }));
+                            }
+                        }}
+                    />
+                </FormField>
 
-            <FormField label={t("fieldSlug")} required error={showError("slug")} hint={t("slugFieldHint")}>
-                <FormInput
-                    name="slug"
-                    value={formData.slug}
-                    hasError={showHasError("slug")}
-                    onBlur={() => handleBlur("slug")}
-                    onChange={(e) => handlePostFormChange(e, setFormData)}
-                />
-            </FormField>
+                <FormField label={t("fieldSlug")} required error={showError("slug")} hint={t("slugFieldHint")}>
+                    <FormInput
+                        name="slug"
+                        value={formData.slug}
+                        hasError={showHasError("slug")}
+                        onBlur={() => handleBlur("slug")}
+                        onChange={(e) => handlePostFormChange(e, setFormData)}
+                    />
+                </FormField>
+            </div>
 
             <FormField
                 label={t("fieldDescription")}
@@ -320,10 +323,13 @@ export function PostFormBody({
 
             {isPickerOpen && (
                 <div
-                    className="fixed inset-0 z-[110] flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 sm:p-6"
+                    className="fixed inset-0 z-[120] flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 sm:p-6"
                     onClick={() => setIsPickerOpen(false)}
                 >
                     <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={t("pickImageModalTitle")}
                         className="bg-background border border-(--border-color) rounded-lg w-full max-w-5xl h-[80vh] flex flex-col shadow-xl"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -358,24 +364,43 @@ export function PostFormBody({
                 onAddNew={onAddNewTag}
             />
 
-            <FormField
-                label={t("fieldContent")}
-                required
-                error={showError("content")}
-                warning={validationWarnings.content}
-                charCount={{ current: formData.content.length, max: CHAR_LIMITS.content }}
-            >
-                <FormTextarea
-                    name="content"
-                    value={formData.content}
-                    rows={14}
-                    hasError={showHasError("content")}
-                    hasWarning={!!validationWarnings.content}
-                    className="font-mono"
-                    onBlur={() => handleBlur("content")}
-                    onChange={(e) => handlePostFormChange(e, setFormData)}
-                />
-            </FormField>
+            <div className={isContentExpanded ? "absolute inset-0 z-20 flex flex-col bg-background p-5" : ""}>
+                <FormField
+                    label={t("fieldContent")}
+                    required
+                    error={showError("content")}
+                    warning={validationWarnings.content}
+                    charCount={{ current: formData.content.length, max: CHAR_LIMITS.content }}
+                    className={isContentExpanded ? "flex flex-1 flex-col min-h-0" : ""}
+                    labelRight={
+                        <button
+                            type="button"
+                            onClick={() => setIsContentExpanded((prev) => !prev)}
+                            className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium transition-colors cursor-pointer ${
+                                isContentExpanded
+                                    ? "border-accent/50 bg-accent/15 text-accent hover:bg-accent/25"
+                                    : "border-(--border-color) bg-foreground/5 text-foreground/75 hover:border-accent hover:text-accent"
+                            }`}
+                        >
+                            {isContentExpanded ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+                            <span>{isContentExpanded ? t("collapseContent") : t("expandContent")}</span>
+                        </button>
+                    }
+                >
+                    <FormTextarea
+                        name="content"
+                        value={formData.content}
+                        rows={isContentExpanded ? undefined : 22}
+                        hasError={showHasError("content")}
+                        hasWarning={!!validationWarnings.content}
+                        className={`font-mono text-xs sm:text-sm leading-relaxed ${
+                            isContentExpanded ? "flex-1 min-h-0 resize-none" : "min-h-[420px] resize-y"
+                        }`}
+                        onBlur={() => handleBlur("content")}
+                        onChange={(e) => handlePostFormChange(e, setFormData)}
+                    />
+                </FormField>
+            </div>
 
             <label className="flex items-start gap-2 text-sm text-foreground/70 cursor-pointer">
                 <input

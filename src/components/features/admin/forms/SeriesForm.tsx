@@ -50,8 +50,8 @@ export default function SeriesForm({ series, onSuccess, onClose }: SeriesFormPro
     }
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/65 backdrop-blur-sm p-4" onClick={() => !isLoading && onClose()}>
-            <div className="w-full max-w-xl rounded-lg border border-(--border-color) bg-background p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/65 backdrop-blur-sm p-4" onClick={() => !isLoading && onClose()}>
+            <div role="dialog" aria-modal="true" aria-label={series ? t("editSeriesTitle") : t("addSeriesTitle")} className="w-full max-w-xl rounded-lg border border-(--border-color) bg-background p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-lg font-semibold">{series ? t("editSeriesTitle") : t("addSeriesTitle")}</h2>
                     <button type="button" onClick={onClose} disabled={isLoading} aria-label={tCommon("close")} className="text-foreground/60 hover:text-foreground disabled:opacity-50 transition-colors cursor-pointer"><X size={18} /></button>

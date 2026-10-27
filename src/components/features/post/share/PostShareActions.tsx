@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Edit3, Share2 } from "lucide-react";
 import PostCardContextMenu from "../card/PostCardContextMenu";
 import ShareQRPopup from "./PostShareQRPopup";
 import { usePostShareInteractions } from "@/hooks/usePostShareInteractions";
 import { useUser } from "@/contexts/UserContext";
+import { useAdminCache } from "@/contexts/AdminCacheContext";
+import { startNavigationLoading } from "@/lib/navigation-loading";
 import type { Post } from "@/types/post";
 import { useTranslations } from "next-intl";
 
@@ -16,7 +19,9 @@ interface PostShareActionsProps {
 
 export default function PostShareActions({ post }: PostShareActionsProps) {
     const t = useTranslations("post");
+    const router = useRouter();
     const { user } = useUser();
+    const { setPendingEditPostId } = useAdminCache();
     const [postId, setPostId] = useState<number | null>(post?.id ?? null);
 
     useEffect(() => {
@@ -58,7 +63,15 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
 
             {user && (
                 <Link
-                    href={postId ? `/admin/posts/${postId}/edit` : `/admin/posts/${post.slug}/edit`}
+                    href={postId ? `/admin?editPost=${postId}` : `/admin/posts/${post.slug}/edit`}
+                    onClick={(e) => {
+                        if (postId) {
+                            e.preventDefault();
+                            setPendingEditPostId(postId);
+                            startNavigationLoading(`/admin?editPost=${postId}`);
+                            router.push(`/admin?editPost=${postId}`);
+                        }
+                    }}
                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors cursor-pointer text-foreground/70 border border-background-hover/70 bg-background-hover/30 hover:text-foreground hover:bg-yellow-500/10 hover:border-yellow-500/30"
                 >
                     <Edit3 className="w-4 h-4 text-yellow-500" />

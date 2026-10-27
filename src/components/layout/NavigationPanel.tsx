@@ -95,9 +95,16 @@ export default function NavigationPanel({ className = "", floating = true }: Nav
             rafRef.current = requestAnimationFrame(() => {
                 rafRef.current = null;
 
-                const header = document.querySelector("header");
+                if (document.querySelector('[aria-modal="true"]')) {
+                    if (isOpenRef.current) {
+                        hidePanel(0);
+                    }
+                    return;
+                }
+
+                const header = document.querySelector("#app-site-header header") ?? document.querySelector("header");
                 const headerRect = header?.getBoundingClientRect();
-                if (!headerRect) return;
+                if (!headerRect || (headerRect.width === 0 && headerRect.height === 0)) return;
 
                 const navRect = navRef.current?.getBoundingClientRect();
 
@@ -201,6 +208,7 @@ export default function NavigationPanel({ className = "", floating = true }: Nav
                                     key={item.href}
                                     ref={active ? activeItemRef : undefined}
                                     href={item.href}
+                                    prefetch={true}
                                     onClick={() => hidePanel(0)}
                                     className="inline-flex shrink-0"
                                 >

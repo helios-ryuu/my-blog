@@ -1,7 +1,7 @@
 import CodeBlock from "@/components/ui/CodeBlock";
 import Image from "next/image";
 import { Info, Lightbulb, AlertCircle, AlertTriangle, ShieldAlert } from "lucide-react";
-import type { ComponentType, JSX, ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 
 type MDXComponents = {
     [Key in keyof JSX.IntrinsicElements]?: (props: JSX.IntrinsicElements[Key]) => ReactNode;
@@ -21,71 +21,11 @@ function slugify(text: string): string {
 
 // Alert component configuration
 const alertConfig = {
-    note: {
-        icon: Info,
-        title: "Note",
-        bg: "rgba(59, 130, 246, 0.16)",
-        border: "rgba(59, 130, 246, 0.3)",
-        color: "#4d94f8",
-        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
-        darkText: "#e2e8f0",
-        lightBg: "rgba(59, 130, 246, 0.16)",
-        lightBorder: "rgba(59, 130, 246, 0.6)",
-        lightColor: "#2563eb",
-        lightText: "#1e293b",
-    },
-    tip: {
-        icon: Lightbulb,
-        title: "Tip",
-        bg: "rgba(34, 197, 94, 0.16)",
-        border: "rgba(34, 197, 94, 0.3)",
-        color: "#36d36f",
-        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
-        darkText: "#e2e8f0",
-        lightBg: "rgba(34, 197, 94, 0.16)",
-        lightBorder: "rgba(34, 197, 94, 0.6)",
-        lightColor: "#16a34a",
-        lightText: "#1e293b",
-    },
-    important: {
-        icon: AlertCircle,
-        title: "Important",
-        bg: "rgba(168, 85, 247, 0.16)",
-        border: "rgba(168, 85, 247, 0.3)",
-        color: "#b36dfa",
-        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
-        darkText: "#e2e8f0",
-        lightBg: "rgba(168, 85, 247, 0.16)",
-        lightBorder: "rgba(168, 85, 247, 0.6)",
-        lightColor: "#9333ea",
-        lightText: "#1e293b",
-    },
-    warning: {
-        icon: AlertTriangle,
-        title: "Warning",
-        bg: "rgba(245, 158, 11, 0.16)",
-        border: "rgba(245, 158, 11, 0.3)",
-        color: "#f7af18",
-        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
-        darkText: "#e2e8f0",
-        lightBg: "rgba(245, 158, 11, 0.16)",
-        lightBorder: "rgba(245, 158, 11, 0.6)",
-        lightColor: "#d97706",
-        lightText: "#1e293b",
-    },
-    caution: {
-        icon: ShieldAlert,
-        title: "Caution",
-        bg: "rgba(239, 68, 68, 0.16)",
-        border: "rgba(239, 68, 68, 0.3)",
-        color: "#f55a5a",
-        textColor: "color-mix(in srgb, var(--foreground) 88%, transparent)",
-        darkText: "#e2e8f0",
-        lightBg: "rgba(239, 68, 68, 0.16)",
-        lightBorder: "rgba(239, 68, 68, 0.6)",
-        lightColor: "#dc2626",
-        lightText: "#1e293b",
-    },
+    note: { icon: Info, title: "Note", variant: "note" },
+    tip: { icon: Lightbulb, title: "Tip", variant: "tip" },
+    important: { icon: AlertCircle, title: "Important", variant: "important" },
+    warning: { icon: AlertTriangle, title: "Warning", variant: "warning" },
+    caution: { icon: ShieldAlert, title: "Caution", variant: "caution" },
 };
 
 type AlertType = keyof typeof alertConfig;
@@ -98,17 +38,23 @@ function Alert({ type = "note", title, children }: { type?: AlertType; title?: s
 
     return (
         <div
-            className="alert-box my-6 px-4 pt-4 pb-2 rounded-md border"
+            className="alert-box my-6 px-4 pt-3.5 pb-3 rounded-lg border"
             style={{
-                background: `var(--alert-${type}-bg, ${config.bg})`,
-                borderColor: `var(--alert-${type}-border, ${config.border})`,
+                backgroundColor: `var(--alert-${config.variant}-bg)`,
+                borderColor: `var(--alert-${config.variant}-border)`,
             }}
         >
-            <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wide" style={{ color: config.color }}>
-                <Icon size={18} strokeWidth={3} />
+            <div
+                className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider mb-2"
+                style={{ color: `var(--alert-${config.variant}-title)` }}
+            >
+                <Icon size={16} strokeWidth={2.5} />
                 <span>{displayTitle}</span>
             </div>
-            <div className="text-sm leading-relaxed my-2 text-foreground/85" style={{ color: config.textColor }}>
+            <div
+                className="text-sm leading-relaxed"
+                style={{ color: `var(--alert-text)` }}
+            >
                 {children}
             </div>
         </div>
@@ -171,7 +117,7 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
         ul: ({ children, className, ...props }) => (
             <ul
                 className={`text-sm list-inside my-2 ml-4 space-y-2 list-['-_'] ${className || ""}`}
-                style={{ listStyleType: "'- '" }}
+                style={{ listStyleType: "'-  '" }}
                 {...props}
             >
                 {children}
@@ -257,7 +203,7 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
 
             // Regular blockquote
             return (
-                <blockquote className="border-l-4 border-accent pl-4 my-2 italic">
+                <blockquote className="border-l-4 border-accent pl-4 my-3 italic text-foreground/90">
                     {children}
                 </blockquote>
             );

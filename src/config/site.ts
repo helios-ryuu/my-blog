@@ -1,7 +1,7 @@
 export const SITE_NAME = "Helios Space";
 export const SITE_DESCRIPTION = "Knowledge and practical journeys through software, system architecture, and modern technology.";
 export const COPYRIGHT_YEAR = 2026;
-export const DEFAULT_ACCENT_COLOR = "#1f51ff";
+export const DEFAULT_ACCENT_COLOR = "#ff6b2b";
 export const ACCENT_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
 
 export const SOCIAL_LINKS = {
