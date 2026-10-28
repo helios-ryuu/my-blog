@@ -6,11 +6,13 @@ on:
       - develop
       - release
       - main
+      - "hotfix/**"
   pull_request:
     branches:
       - develop
       - release
       - main
+      - "hotfix/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

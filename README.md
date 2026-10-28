@@ -176,11 +176,15 @@ Media manager sử dụng AWS SDK tương thích giao thức S3 của Cloudflare
 
 ---
 
-## Quy trình sau khi code xong từ nhánh `develop` (Release Workflow)
+## Quy trình phát hành & Hotfix (Git Workflows)
 
-Sau khi hoàn tất phát triển tính năng hoặc chỉnh sửa trên nhánh `develop`, thực hiện theo 4 bước chuẩn dưới đây để kiểm định chất lượng và phát hành lên Production (`main`):
+Dự án áp dụng hai quy trình chuẩn để kiểm soát chất lượng mã nguồn, tự động hóa CI Quality Gate (`ci.yml`) và xuất bản GitHub Release (`release.yml`):
 
-### Bước 1: Kiểm tra chất lượng mã nguồn (`pnpm check`)
+### 1. Quy trình phát hành chuẩn từ nhánh `develop` (Release Workflow)
+
+Dành cho các tính năng mới, cải tiến hoặc cập nhật theo chu kỳ:
+
+#### Bước 1: Kiểm tra chất lượng mã nguồn (`pnpm check`)
 Đảm bảo toàn bộ kiểm tra kiểu dữ liệu (`typecheck`), quy chuẩn (`lint`) và đóng gói (`build`) đều vượt qua không lỗi:
 
 ```bash
@@ -191,41 +195,112 @@ podman compose exec web pnpm check
 pnpm check
 ```
 
-### Bước 2: Cập nhật phiên bản & Đẩy code lên `develop`
-1. Mở `package.json` và nâng số phiên bản tại trường `"version"` theo chuẩn Semantic Versioning (ví dụ: `"2.2.1"` → `"2.3.0"` cho tính năng mới, hoặc `"2.2.2"` cho bản vá lỗi).
+#### Bước 2: Cập nhật phiên bản & Đẩy code lên `develop`
+1. Mở `package.json` và nâng số phiên bản tại trường `"version"` theo chuẩn Semantic Versioning (ví dụ: `"3.1.3"` → `"3.2.0"`).
 2. Commit thay đổi và push lên nhánh `develop`:
 
 ```bash
 git add -A
-git commit -m "chore(release): bump version to v2.3.0"
+git commit -m "chore(release): bump version to v3.2.0"
 git push origin develop
 ```
 
-### Bước 3: Hợp nhất sang nhánh `release` (`develop` → `release`)
-Đồng bộ nhánh `develop` sang nhánh `release` để chạy CI Quality Gate (`ci.yml`) trước khi đưa lên Production:
+#### Bước 3: Hợp nhất sang nhánh `release` (`develop` → `release`)
+Đồng bộ nhánh `develop` sang nhánh `release` để kích hoạt CI Quality Gate (`ci.yml`):
 
 ```bash
 git checkout release
 git pull origin release
-git merge --no-ff develop -m "chore(release): prepare release v2.3.0"
+git merge --no-ff develop -m "chore(release): prepare release v3.2.0"
 git push origin release
 ```
 *(Hoặc tạo Pull Request từ `develop` → `release` trên giao diện GitHub).*
 
-### Bước 4: Phát hành lên Production (`release` → `main`)
+#### Bước 4: Phát hành lên Production (`release` → `main`)
 1. Tạo **Pull Request** từ nhánh `release` vào nhánh `main` trên GitHub:
-   - **Tiêu đề PR**: `Release v2.3.0` (hoặc tên tóm tắt bản phát hành).
-   - **Nội dung mô tả PR**: Danh sách các thay đổi chính (sẽ được dùng làm Release Notes).
+   - **Tiêu đề PR**: `Release v3.2.0: <Tóm tắt tính năng>`
+   - **Nội dung mô tả PR**: Danh sách chi tiết các thay đổi (sẽ được tự động trích xuất làm Release Notes).
 2. Chờ GitHub Actions **CI (`ci.yml`)** báo xanh, sau đó nhấn **Merge Pull Request** vào `main`.
 3. Ngay khi `release` được merge vào `main`:
-   - GitHub Actions **Automated Release (`release.yml`)** sẽ tự động đọc `"version"` trong `package.json`, tạo Git Tag `vX.Y.Z` và xuất bản **GitHub Release** chính thức kèm `Full Changelog`.
-   - Nền tảng hosting (Vercel) tự động lấy bản build mới nhất từ `main` để triển khai lên Production.
-4. Quay lại nhánh `develop` để tiếp tục chu kỳ phát triển tiếp theo:
+   - GitHub Actions **Automated Release (`release.yml`)** sẽ tự động đọc `"version"` trong `package.json`, tạo Git Tag `vX.Y.Z`, tự động liên kết số PR và xuất bản **GitHub Release** chính thức kèm `Full Changelog`.
+   - Nền tảng hosting (Vercel) tự động deploy bản build mới nhất từ `main`.
+4. Đồng bộ ngược lại `main` vào `develop` để tiếp tục chu kỳ phát triển:
 
 ```bash
 git checkout develop
 git merge main
 git push origin develop
+```
+
+---
+
+### 2. Quy trình sửa lỗi khẩn cấp trên Production (Hotfix Workflow)
+
+Dành cho các lỗi nghiêm trọng hoặc lỗ hổng bảo mật cần vá ngay lập tức trên Production mà không chờ chu kỳ phát hành thông thường:
+
+```mermaid
+flowchart LR
+    A["main (v3.2.0)"] -->|"checkout -b"| B["hotfix/v3.2.1"]
+    B -->|"Fix & bump version"| B
+    B -->|"PR & CI Check"| C{"CI Quality Gate"}
+    C -->|"Merge PR"| D["main (v3.2.1)"]
+    D -->|"release.yml"| E["GitHub Release & Deploy"]
+    D -->|"Back-merge"| F["develop & release"]
+```
+
+#### Bước 1: Tạo nhánh Hotfix từ `main`
+Luôn bắt đầu từ mã nguồn đang chạy thực tế trên Production (`main`):
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b hotfix/v3.2.1
+```
+
+#### Bước 2: Sửa lỗi & Nâng phiên bản Patch
+1. Tiến hành sửa lỗi và bổ sung kiểm thử cần thiết.
+2. Mở `package.json` và nâng số phiên bản **PATCH** (ví dụ: `"3.2.0"` → `"3.2.1"`).
+3. Kiểm tra chất lượng mã nguồn:
+   ```bash
+   podman compose exec web pnpm check # hoặc pnpm check
+   ```
+4. Commit và push nhánh hotfix lên GitHub:
+   ```bash
+   git add -A
+   git commit -m "fix(hotfix): resolve critical issue on production (v3.2.1)"
+   git push -u origin hotfix/v3.2.1
+   ```
+
+#### Bước 3: Tạo PR trực tiếp vào `main` & Kích hoạt Release
+1. Mở **Pull Request** từ `hotfix/v3.2.1` trực tiếp vào `main`:
+   - **Tiêu đề PR**: `Hotfix v3.2.1: <Tóm tắt lỗi được khắc phục>`
+   - **Nội dung PR**: Mô tả nguyên nhân, giải pháp vá lỗi và tác động (sẽ được trích xuất làm Hotfix Release Notes).
+2. GitHub Actions **CI (`ci.yml`)** sẽ tự động chạy kiểm tra `typecheck`, `lint` và `build` trên nhánh hotfix.
+3. Khi CI báo xanh, tiến hành **Merge Pull Request** vào `main`.
+4. Workflow **Automated Release (`release.yml`)** sẽ tự động chạy ngay trên `main`:
+   - Tạo tag `v3.2.1`.
+   - Tạo **GitHub Release** chính thức với đầy đủ ghi chú phát hành và liên kết PR.
+   - Vercel tự động triển khai bản vá lên Production.
+
+#### Bước 4: Đồng bộ bản vá ngược lại `develop` và `release`
+Để tránh bị mất bản vá ở các lần phát hành sau, đồng bộ `main` về `develop` (và `release` nếu đang có chu kỳ chuẩn bị phát hành dở dang):
+
+```bash
+# Đồng bộ về develop
+git checkout develop
+git pull origin develop
+git merge main
+git push origin develop
+
+# Đồng bộ về release (nếu có)
+git checkout release
+git pull origin release
+git merge main
+git push origin release
+
+# Xoá nhánh hotfix local & remote sau khi hoàn tất
+git branch -d hotfix/v3.2.1
+git push origin --delete hotfix/v3.2.1
 ```
 
 ---

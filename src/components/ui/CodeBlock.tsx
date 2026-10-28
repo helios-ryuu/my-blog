@@ -73,8 +73,7 @@ export default function CodeBlock({ children, className, ...props }: CodeBlockPr
             {/* Code content */}
             <pre
                 ref={preRef}
-                className={`text-sm bg-(--code-block) text-gray-100 py-2 px-4 overflow-x-auto m-0 rounded-none border-0 [&>code]:p-0 [&>code]:bg-transparent ${className || ''}`}
-                style={{ fontFamily: 'var(--font-fira-code), monospace' }}
+                className={`mdx-code-pre py-2.5 px-4 overflow-x-auto m-0 rounded-none border-0 ${className || ''}`}
             >
                 {children}
             </pre>

@@ -84,19 +84,19 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
     return (
         <div className="z-40 bg-background border-b border-(--border-color)">
             {/* Bar */}
-            <div className="flex items-center md:px-2 px-3.5 gap-2">
+            <div className="flex h-10 items-center md:px-2 px-3 gap-2">
                 {/* TOC Button - Mobile only */}
                 <button
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
                     onTouchStart={(e) => e.stopPropagation()}
-                    className="lg:hidden relative z-50 ml-0.5 mr-1 rounded hover:bg-background-hover"
+                    className="relative z-50 flex h-7 w-7 items-center justify-center rounded hover:bg-background-hover shrink-0"
                 >
-                    {isOpen ? <X strokeWidth={2.5} className="w-5 h-5" /> : <Menu strokeWidth={2.5} className="w-5 h-5 text-(--foreground-dim)" />}
+                    {isOpen ? <X strokeWidth={2.5} className="w-4 h-4" /> : <Menu strokeWidth={2.5} className="w-4 h-4 text-(--foreground-dim)" />}
                 </button>
 
                 {/* Breadcrumb - All screens */}
-                <div className="flex items-center gap-1 text-sm md:text-xs overflow-hidden py-1 text-foreground/50">
+                <div className="flex items-center gap-1.5 text-sm md:text-xs overflow-hidden leading-none text-foreground/50">
                     <Link
                         href="/post"
                         className="flex items-center justify-center rounded-sm w-6 h-6 hover:bg-foreground/10 hover:text-foreground transition-colors shrink-0"
@@ -104,11 +104,11 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
                     >
                         <ChevronLeft className="w-4 h-4" strokeWidth={3} />
                     </Link>
-                    <Link href="/post" className="hover:text-foreground shrink-0 pl-1">
+                    <Link href="/post" className="hover:text-foreground shrink-0 leading-none">
                         {t("postLabel")}
                     </Link>
-                    <Slash className="w-3 h-3 text-foreground/30 shrink-0" />
-                    <span className="text-foreground truncate md:whitespace-normal md:overflow-visible font-medium">{title}</span>
+                    <Slash className="w-3.5 h-3.5 text-foreground/30 shrink-0" />
+                    <span className="text-foreground truncate md:whitespace-normal md:overflow-visible font-medium leading-none">{title}</span>
                 </div>
             </div>
 
