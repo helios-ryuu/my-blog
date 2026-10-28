@@ -90,8 +90,8 @@ export default async function BlogPostPage({ params }: Props) {
 
     return (
         <div className="flex flex-col bg-background">
-            {/* Mobile TOC Bar */}
-            <div className="shrink-0 z-40">
+            {/* Mobile TOC Bar - chỉ hiển thị trên màn hình nhỏ dưới md (khi sidebar TOC ẩn) */}
+            <div className="shrink-0 z-40 md:hidden">
                 <MobileTocBar title={post.title} content={post.content} />
             </div>
 
@@ -103,7 +103,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </aside>
 
                 {/* Main Content */}
-                <article className="flex-1 min-w-0 mx-auto py-6 md:py-4 md:px-12 bg-background">
+                <article className="flex-1 min-w-0 mx-auto py-6 md:py-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-background">
                     <header className="mb-8">
                         {/* Cover image (FR_POST_03) */}
                         {post.image && (

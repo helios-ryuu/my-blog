@@ -38,7 +38,7 @@ function Alert({ type = "note", title, children }: { type?: AlertType; title?: s
 
     return (
         <div
-            className="alert-box my-6 px-4 pt-3.5 pb-3 rounded-lg border"
+            className="alert-box my-6 md:mx-2 lg:mx:4 xl:mx-8 px-4 pt-3.5 pb-3 rounded-lg border"
             style={{
                 backgroundColor: `var(--alert-${config.variant}-bg)`,
                 borderColor: `var(--alert-${config.variant}-border)`,
@@ -52,7 +52,7 @@ function Alert({ type = "note", title, children }: { type?: AlertType; title?: s
                 <span>{displayTitle}</span>
             </div>
             <div
-                className="text-sm leading-relaxed"
+                className="text-base leading-relaxed"
                 style={{ color: `var(--alert-text)` }}
             >
                 {children}
@@ -103,7 +103,7 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
             return (
                 <>
                     <hr className="mt-8 border-t border-(--border-color)" />
-                    <h2 id={id} className="text-2xl font-bold mt-4 mb-3 scroll-mt-20">{children}</h2>
+                    <h2 id={id} className="text-2xl font-bold mt-4 mb-5 scroll-mt-20">{children}</h2>
                 </>
             );
         },
@@ -112,11 +112,11 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
             return <h3 id={id} className="text-xl font-semibold mt-4 mb-2 scroll-mt-20">{children}</h3>;
         },
         p: ({ children }) => (
-            <p className="text-sm my-2 leading-relaxed">{children}</p>
+            <p className="text-base mt-4 mb-2 leading-relaxed">{children}</p>
         ),
         ul: ({ children, className, ...props }) => (
             <ul
-                className={`text-sm list-inside my-2 ml-4 space-y-2 list-['-_'] ${className || ""}`}
+                className={`text-base list-inside mb-4 ml-2 space-y-0.5 list-['-_'] ${className || ""}`}
                 style={{ listStyleType: "'-  '" }}
                 {...props}
             >
@@ -124,7 +124,7 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
             </ul>
         ),
         ol: ({ children, className, ...props }) => (
-            <ol className={`text-sm list-decimal list-inside my-2 ml-4 space-y-2 ${className || ""}`} {...props}>
+            <ol className={`text-base list-decimal list-inside mb-4 ml-4 space-y-0.5 ${className || ""}`} {...props}>
                 {children}
             </ol>
         ),
@@ -143,8 +143,8 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
             // Inline code styling
             return (
                 <code
-                    className="bg-(--code-block) text-gray-200 px-1.5 py-0.5 rounded text-xs"
-                    style={{ fontFamily: 'var(--font-fira-code), monospace' }}
+                    className={`mdx-inline-code ${className || ''}`}
+                    {...props}
                 >
                     {children}
                 </code>
@@ -208,6 +208,23 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
                 </blockquote>
             );
         },
+        // Collapsible block: <details> và <summary>
+        details: ({ children, className, ...props }) => (
+            <details
+                className={`group my-4 rounded-lg border border-(--border-color) bg-(--post-card)/60 px-4 py-3 transition-all [&[open]]:bg-(--post-card) ${className || ""}`}
+                {...props}
+            >
+                {children}
+            </details>
+        ),
+        summary: ({ children, className, ...props }) => (
+            <summary
+                className={`cursor-pointer font-medium text-base text-foreground hover:text-accent select-none py-1 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-accent rounded ${className || ""}`}
+                {...props}
+            >
+                {children}
+            </summary>
+        ),
         hr: () => <hr className="mt-8 border-t border-(--border-color)" />,
         table: ({ children }) => (
             <div className="overflow-x-auto my-6">
@@ -226,12 +243,12 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
             <tr className="border-b border-(--border-color)">{children}</tr>
         ),
         th: ({ children, ...props }) => (
-            <th {...props} className="px-4 py-2 text-left font-semibold border-r border-(--border-color) last:border-r-0">
+            <th {...props} className="px-4 py-2 text-left font-semibold text-base border-r border-(--border-color) last:border-r-0">
                 {children}
             </th>
         ),
         td: ({ children, ...props }) => (
-            <td {...props} className="text-sm px-4 py-2 border-r border-(--border-color) last:border-r-0">
+            <td {...props} className="text-base px-4 py-2 border-r border-(--border-color) last:border-r-0">
                 {children}
             </td>
         ),

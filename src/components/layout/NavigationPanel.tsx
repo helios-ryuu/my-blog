@@ -195,7 +195,7 @@ export default function NavigationPanel({ className = "", floating = true }: Nav
                     }}
                     className={
                         floating
-                            ? "rounded-[14px] border border-(--border-color) bg-background/85 shadow-lg backdrop-blur-md supports-[backdrop-filter]:bg-background/75 px-3 py-2 w-max max-w-full mx-auto"
+                            ? "rounded-[14px] border border-(--border-color) bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/75 px-3 py-2 w-max max-w-full mx-auto"
                             : "border-b border-(--border-color) bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 px-4 py-1"
                     }
                 >

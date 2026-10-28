@@ -5,7 +5,11 @@
 /* Dark theme (default) */
 :root {
   --font-lexend: "Lexend", "Avenir Next", "Segoe UI", sans-serif;
-  --font-fira-code: "Fira Code", "SFMono-Regular", "Consolas", monospace;
+  --font-code: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --code-font-family: var(--font-code), monospace;
+  --code-font-size: 0.875rem; /* 14px */
+  --code-font-weight: 500;
+  --code-line-height: 1.625;
   --background: #101010;
   --background-hover: #2a2a2a;
   --foreground: #ebebeb;
@@ -19,7 +23,10 @@
   --foreground-dim: #888888;
   --post-card: #1c1c1c;
   --post-card-hover: #242424;
-  --code-block: #18181b;
+  --details-bg: #151516;
+  --details-bg-hover: #19191b;
+  --details-bg-open: #171718;
+  --code-block: #151518;
   --code-block-border: #2e2e33;
   --scrollbar-track: #1c1c1c;
   --scrollbar-thumb: #3d3d3d;
@@ -27,24 +34,24 @@
   --radius: 0.625rem;
 
   /* Alert Tokens - Dark Theme (màu nền đặc 100% opaque trên nền #101010 để tránh bị chớp/xuyên thấu khi chuyển theme) */
-  --alert-note-bg: #152033;
-  --alert-note-border: #233b60;
+  --alert-note-bg: #131d2e;
+  --alert-note-border: #254068;
   --alert-note-title: #4a98f8;
 
   --alert-tip-bg: #12231a;
-  --alert-tip-border: #1d422b;
+  --alert-tip-border: #224e33;
   --alert-tip-title: #21c95e;
 
   --alert-important-bg: #20172b;
-  --alert-important-border: #3b2750;
+  --alert-important-border: #432d5c;
   --alert-important-title: #9933ff;
 
   --alert-warning-bg: #271f11;
-  --alert-warning-border: #473616;
+  --alert-warning-border: #533f1a;
   --alert-warning-title: #fbbf24;
 
   --alert-caution-bg: #261515;
-  --alert-caution-border: #462222;
+  --alert-caution-border: #532929;
   --alert-caution-title: #fa3d3d;
 
   --alert-text: #eeeeee;
@@ -76,7 +83,7 @@
 :root.light {
   --background: #ffffff;
   --background-hover: #f4f4f5;
-  --foreground: #18181b;
+  --foreground: #27272a;
 
   /* Accent Cam: Tone cam tươi giàu độ bão hòa, pha với cam đậm #ea580c thay vì đen để không bị xỉn */
   --accent: color-mix(in srgb, var(--site-accent, #ea580c) 75%, #ea580c);
@@ -87,36 +94,39 @@
   --foreground-dim: #71717a;
   --post-card: #fafafa;
   --post-card-hover: #f4f4f5;
+  --details-bg: #f4f4f5;
+  --details-bg-hover: #ececee;
+  --details-bg-open: #f1f1f3;
   --scrollbar-track: #f4f4f5;
   --scrollbar-thumb: #d4d4d8;
   --scrollbar-thumb-hover: #a1a1aa;
 
   /* Alert Tokens - Light Theme: Sử dụng nền pastel đặc tươi tắn, không dùng rgba trong suốt gây ám xám/đen */
-  --alert-note-bg: #eff6ff;
-  --alert-note-border: #bfdbfe;
+  --alert-note-bg: #e3eefc;
+  --alert-note-border: #91bef5;
   --alert-note-title: #1d4ed8;
 
-  --alert-tip-bg: #f0fdf4;
-  --alert-tip-border: #bbf7d0;
+  --alert-tip-bg: #e2f8e8;
+  --alert-tip-border: #66e292;
   --alert-tip-title: #15803d;
 
-  --alert-important-bg: #faf5ff;
-  --alert-important-border: #e9d5ff;
+  --alert-important-bg: #f6ecff;
+  --alert-important-border: #d0aaf8;
   --alert-important-title: #7e22ce;
 
-  --alert-warning-bg: #fffbeb;
-  --alert-warning-border: #fde68a;
+  --alert-warning-bg: #fdf7de;
+  --alert-warning-border: rgb(235, 206, 92);
   --alert-warning-title: #b45309;
 
-  --alert-caution-bg: #fef2f2;
-  --alert-caution-border: #fecaca;
+  --alert-caution-bg: #fce7e7;
+  --alert-caution-border: #ffb0b0;
   --alert-caution-title: #b91c1c;
 
   --alert-text: #27272a;
 
   /* Giữ code-block màu tối ở Light theme theo chủ đích thiết kế */
-  --code-block: #18181b;
-  --code-block-border: #27272a;
+  --code-block: #27272a;
+  --code-block-border: #34343a;
 
   /* shadcn variables mapping cho light */
   --card: #fafafa;
@@ -142,6 +152,7 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --font-sans: var(--font-lexend);
+  --font-mono: var(--font-code);
   /* Border radius tokens */
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -319,6 +330,91 @@ aside {
   /* Custom dash marker for unordered lists */
   .prose ul:not([class*="list-decimal"]):not([class*="list-none"]) {
     list-style-type: "- ";
+  }
+
+  /* Styling cho HTML <details> và <summary> trong nội dung MDX / Markdown */
+  .prose details {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.625rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--details-bg);
+    transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+  }
+
+  .prose details:hover {
+    background-color: var(--details-bg-hover);
+    border-color: var(--border-color-hover);
+  }
+
+  .prose details[open] {
+    padding-right: 1.25rem;
+    padding-left: 1.25rem;
+    padding-top: 1rem;
+    padding-bottom: 0.25rem;
+    background-color: var(--details-bg-open);
+    border-color: var(--border-color-hover);
+  }
+
+  .prose details[open]:hover {
+    background-color: var(--details-bg-hover);
+  }
+
+  .prose details > summary {
+    font-weight: 600;
+    font-size: 1rem; /* 16px (text-base) đồng bộ với cỡ chữ text-base bài viết */
+    cursor: pointer;
+    user-select: none;
+    color: var(--foreground);
+    outline: none;
+    transition: color 0.15s ease-out;
+    list-style-position: inside;
+  }
+
+  .prose details > summary:hover {
+    color: var(--accent);
+  }
+
+  .prose details[open] > summary {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--border-color);
+  }
+
+  .prose details > *:not(summary) {
+    margin-top: 0.5rem;
+  }
+
+  /* Tập trung tùy chỉnh Code & CodeBlock trong MDX */
+  .mdx-inline-code {
+    background-color: var(--code-block);
+    color: #e4e4e7;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: var(--code-font-size, 0.875rem);
+    font-weight: var(--code-font-weight, 500);
+    font-family: var(--code-font-family);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .mdx-code-pre {
+    font-family: var(--code-font-family);
+    font-size: var(--code-font-size, 0.875rem);
+    font-weight: var(--code-font-weight, 500);
+    line-height: var(--code-line-height, 1.625);
+    background-color: var(--code-block);
+    color: #f4f4f5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .mdx-code-pre code {
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    background-color: transparent !important;
+    padding: 0 !important;
   }
 }
 
