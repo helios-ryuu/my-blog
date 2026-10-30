@@ -34,7 +34,10 @@ export async function parseIdParam(
 
 export function revalidatePosts(slug?: string): void {
     revalidateTag("posts", "max");
-    if (slug) revalidateTag(`post-${slug}`, "max");
+    if (slug) {
+        revalidateTag(`post-${slug}`, "max");
+        revalidatePath(`/post/${slug}`);
+    }
     revalidatePath("/");
     revalidatePath("/post");
 }

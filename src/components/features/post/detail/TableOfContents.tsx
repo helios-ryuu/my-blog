@@ -212,7 +212,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
 
     return (
         <div ref={containerRef} className="flex flex-col h-full select-none">
-            <h4 className="px-4 text-xs font-semibold text-foreground/70 uppercase tracking-wider border-b border-border/50 py-2 whitespace-nowrap overflow-hidden">
+            <h4 className="px-4 text-xs font-semibold text-foreground/70 uppercase tracking-wider border-b border-(--border-color) py-2 whitespace-nowrap overflow-hidden">
                 {t("onThisPage")}
             </h4>
             <nav ref={navRef} className="pl-4 overflow-y-auto custom-scrollbar flex-1">

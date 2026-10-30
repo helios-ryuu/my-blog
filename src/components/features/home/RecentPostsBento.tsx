@@ -37,7 +37,7 @@ export default function RecentPostsBento({ posts, emptyMessage }: RecentPostsBen
             clickEffect
             particleCount={10}
           >
-            <Link href={`/post/${leadPost.slug}`} className="flex flex-col h-full justify-between gap-5">
+            <Link href={`/post/${leadPost.slug}`} prefetch={true} className="flex flex-col h-full justify-between gap-5">
               <div>
                 {/* Header: Category & Date */}
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -112,7 +112,7 @@ export default function RecentPostsBento({ posts, emptyMessage }: RecentPostsBen
             clickEffect
             particleCount={6}
           >
-            <Link href={`/post/${post.slug}`} className="flex flex-col h-full justify-between gap-4">
+            <Link href={`/post/${post.slug}`} prefetch={true} className="flex flex-col h-full justify-between gap-4">
               <div>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 mb-2.5">

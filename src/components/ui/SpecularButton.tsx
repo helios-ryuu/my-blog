@@ -44,7 +44,7 @@ interface ShaderProps {
   autoAnimate: boolean;
 }
 
-const PAD = 20;
+const PAD = 0;
 
 const SIZES: Record<ButtonSize, string> = {
   xs: "text-[0.8rem] px-2.5 py-1.5",
@@ -300,7 +300,7 @@ const SpecularButton: React.FC<SpecularButtonProps> = ({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={`relative m-0 inline-flex cursor-pointer items-center justify-center overflow-hidden border-none font-medium leading-none tracking-[0.01em] outline-none transition-all duration-150 active:scale-[0.97] disabled:cursor-default disabled:opacity-55 disabled:active:scale-100 ${SIZES[size] || SIZES.sm} ${className}`}
+      className={`relative m-0 inline-flex cursor-pointer items-center justify-center overflow-hidden border-none font-medium leading-none tracking-[0.01em] outline-none transition-transform duration-150 active:scale-[0.97] disabled:cursor-default disabled:opacity-55 disabled:active:scale-100 ${SIZES[size] || SIZES.sm} ${className}`}
       style={
         {
           borderRadius: `${radius}px`,
@@ -309,7 +309,7 @@ const SpecularButton: React.FC<SpecularButtonProps> = ({
             : `color-mix(in srgb, ${tint} calc(${tintOpacity} * 100%), transparent)`,
           border: active
             ? "1px solid color-mix(in srgb, var(--accent) 35%, transparent)"
-            : "1px solid color-mix(in srgb, var(--border-color, currentColor) 25%, transparent)",
+            : "1px solid color-mix(in srgb, var(--border-color) 40%, transparent)",
           backdropFilter: blur > 0 ? `blur(${blur}px)` : undefined,
           color: active ? "var(--accent)" : textColor
         } as CSSProperties
@@ -318,7 +318,7 @@ const SpecularButton: React.FC<SpecularButtonProps> = ({
       <span
         ref={fxRef}
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-5 z-[1] [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full"
+        className="pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-[inherit] [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full"
       />
       <span className="relative z-[2] flex items-center gap-2">{children}</span>
     </button>

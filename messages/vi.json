@@ -21,7 +21,10 @@
         "refresh": "Làm mới",
         "copy": "Sao chép",
         "records": "{count} bản ghi",
-        "noData": "Không có dữ liệu"
+        "noData": "Không có dữ liệu",
+        "tryAgain": "Thử lại",
+        "errorTitle": "Không thể tải trang",
+        "errorDescription": "Đã có lỗi xảy ra khi tải nội dung bài viết. Vui lòng thử lại hoặc quay lại danh sách bài viết."
     },
     "nav": {
         "home": "Trang chủ",

@@ -21,7 +21,10 @@
         "refresh": "Refresh",
         "copy": "Copy",
         "records": "{count} records",
-        "noData": "No data"
+        "noData": "No data",
+        "tryAgain": "Try again",
+        "errorTitle": "This page couldn't load",
+        "errorDescription": "An error occurred while loading post content. Please try again or return to the posts list."
     },
     "nav": {
         "home": "Home",

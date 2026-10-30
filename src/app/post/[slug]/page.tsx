@@ -1,4 +1,4 @@
-import { getPostBySlug, getPublishedSeriesPosts, getRelatedPosts } from "@/lib/posts";
+import { getAllPostsMeta, getPostBySlug, getPublishedSeriesPosts, getRelatedPosts } from "@/lib/posts";
 import { shouldBypassImageOptimization } from "@/lib/images";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -15,7 +15,7 @@ import { getTranslations } from "next-intl/server";
 // Cache post data for faster subsequent loads
 const getCachedPost = unstable_cache(
     async (slug: string) => getPostBySlug(slug),
-    ["post"],
+    ["post-detail"],
     { revalidate: 60, tags: ["posts"] }
 );
 
@@ -29,11 +29,21 @@ interface Props {
     params: Promise<{ slug: string }>;
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+    try {
+        const posts = await getAllPostsMeta();
+        return posts.map((post) => ({ slug: post.slug }));
+    } catch {
+        return [];
+    }
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const [post, t] = await Promise.all([getPostBySlug(slug), getTranslations("notFound")]);
+    const [post, t] = await Promise.all([getCachedPost(slug), getTranslations("notFound")]);
 
     if (!post) {
         return {
@@ -95,15 +105,15 @@ export default async function BlogPostPage({ params }: Props) {
                 <MobileTocBar title={post.title} content={post.content} />
             </div>
 
-            <div className="flex gap-2 px-4 md:px-0 max-w-dvw mx-auto w-full bg-background">
-                <aside className="hidden md:block w-68 flex-none border-r border-(--border-color) bg-background">
+            <div className="flex gap-2 px-4 md:px-0 max-w-dvw mx-auto w-full">
+                <aside className="hidden md:block w-68 flex-none border-r border-(--border-color)">
                     <div className="sticky top-0 h-[calc(100vh-6rem)] overflow-hidden">
                         <TableOfContents content={post.content} />
                     </div>
                 </aside>
 
                 {/* Main Content */}
-                <article className="flex-1 min-w-0 mx-auto py-6 md:py-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-background">
+                <article className="flex-1 min-w-0 mx-auto py-6 md:py-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
                     <header className="mb-8">
                         {/* Cover image (FR_POST_03) */}
                         {post.image && (
@@ -151,7 +161,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </article>
 
                 {/* Related posts panel */}
-                <aside className="hidden xl:block w-72 flex-none pt-6 pb-10 pr-4 xs:px-2 bg-background">
+                <aside className="hidden xl:block w-72 flex-none pt-6 pb-10 pr-4 xs:px-2">
                     <div className="sticky top-0 max-h-[calc(100vh-6rem)] overflow-y-auto">
                         <RelatedPosts posts={relatedPosts} />
                     </div>

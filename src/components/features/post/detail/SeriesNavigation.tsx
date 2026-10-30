@@ -30,13 +30,13 @@ export default function SeriesNavigation({ currentSlug, posts }: SeriesNavigatio
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
                 {previous ? (
-                    <Link href={`/post/${previous.slug}`} className="group rounded-md border border-(--border-color) p-3 transition-colors hover:border-accent/60">
+                    <Link href={`/post/${previous.slug}`} prefetch={true} className="group rounded-md border border-(--border-color) p-3 transition-colors hover:border-accent/60">
                         <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-foreground/45"><ArrowLeft className="h-3 w-3" />{t("seriesPrevious")}</span>
                         <span className="mt-1 block line-clamp-2 text-sm font-medium group-hover:text-accent">{previous.title}</span>
                     </Link>
                 ) : <div />}
                 {next && (
-                    <Link href={`/post/${next.slug}`} className="group rounded-md border border-(--border-color) p-3 text-right transition-colors hover:border-accent/60">
+                    <Link href={`/post/${next.slug}`} prefetch={true} className="group rounded-md border border-(--border-color) p-3 text-right transition-colors hover:border-accent/60">
                         <span className="flex items-center justify-end gap-1 text-[10px] font-semibold uppercase tracking-wider text-foreground/45">{t("seriesNext")}<ArrowRight className="h-3 w-3" /></span>
                         <span className="mt-1 block line-clamp-2 text-sm font-medium group-hover:text-accent">{next.title}</span>
                     </Link>

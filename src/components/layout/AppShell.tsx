@@ -55,8 +55,8 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         visitedPathsRef.current.add(pathname);
-        if (navigationTarget === pathname) setNavigationTarget(null);
-    }, [navigationTarget, pathname]);
+        setNavigationTarget(null);
+    }, [pathname]);
 
     useEffect(() => {
         const handleNavigationStart = (event: Event) => {
@@ -74,7 +74,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (!navigationTarget) return;
-        const timeout = window.setTimeout(() => setNavigationTarget(null), 30_000);
+        const timeout = window.setTimeout(() => setNavigationTarget(null), 5_000);
         return () => window.clearTimeout(timeout);
     }, [navigationTarget]);
 
