@@ -38,6 +38,10 @@ export default function PostListItem({
         handleCloseMenu, handleCopyLink, handleOpenQRPopup, handleCloseQRPopup, handleDownloadMarkdown,
     } = usePostShareInteractions(slug);
 
+    const handlePrefetch = useCallback(() => {
+        router.prefetch(`/post/${slug}`);
+    }, [router, slug]);
+
     const handleClick = useCallback(() => {
         if (!contextMenu) {
             startNavigationLoading(`/post/${slug}`);
@@ -62,8 +66,12 @@ export default function PostListItem({
                 draggable={true}
                 onDragStart={handleDragStart}
                 onClick={handleClick}
+                onMouseEnter={handlePrefetch}
                 onContextMenu={handleContextMenu}
-                onTouchStart={handleTouchStart}
+                onTouchStart={(e) => {
+                    handlePrefetch();
+                    handleTouchStart(e);
+                }}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 className={`

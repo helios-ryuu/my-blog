@@ -53,7 +53,7 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
                     flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors cursor-pointer
                     ${contextMenu
                         ? "text-foreground bg-accent/20 border border-accent-hover/60"
-                        : "text-foreground/70 border border-background-hover/70 bg-background-hover/30 hover:text-foreground hover:bg-accent/10 hover:border-accent/20"
+                        : "text-foreground/70 border border-background-hover/70 bg-background-hover/30 hover:text-foreground hover:bg-accent/25 hover:border-accent/50"
                     }
                 `}
             >
@@ -72,7 +72,7 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
                             router.push(`/admin?editPost=${postId}`);
                         }
                     }}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors cursor-pointer text-foreground/70 border border-background-hover/70 bg-background-hover/30 hover:text-foreground hover:bg-yellow-500/10 hover:border-yellow-500/30"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors cursor-pointer text-foreground/70 border border-background-hover/70 bg-background-hover/30 hover:text-foreground hover:bg-yellow-500/20 hover:border-yellow-500/40"
                 >
                     <Edit3 className="w-4 h-4 text-yellow-500" />
                     {t("editThisPost")}

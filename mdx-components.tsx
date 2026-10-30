@@ -52,7 +52,7 @@ function Alert({ type = "note", title, children }: { type?: AlertType; title?: s
                 <span>{displayTitle}</span>
             </div>
             <div
-                className="text-base leading-relaxed"
+                className="text-sm leading-relaxed"
                 style={{ color: `var(--alert-text)` }}
             >
                 {children}
@@ -234,7 +234,7 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
             </div>
         ),
         thead: ({ children }) => (
-            <thead className="text-md bg-(--post-card)">{children}</thead>
+            <thead className="text-md">{children}</thead>
         ),
         tbody: ({ children }) => (
             <tbody>{children}</tbody>
@@ -243,7 +243,7 @@ function createMDXComponents(components: MDXComponents = {}): MDXComponents {
             <tr className="border-b border-(--border-color)">{children}</tr>
         ),
         th: ({ children, ...props }) => (
-            <th {...props} className="px-4 py-2 text-left font-semibold text-base border-r border-(--border-color) last:border-r-0">
+            <th {...props} className="px-4 py-2 text-left font-semibold text-base border-r border-(--border-color) last:border-r-0 bg-(--post-card) transition-colors">
                 {children}
             </th>
         ),

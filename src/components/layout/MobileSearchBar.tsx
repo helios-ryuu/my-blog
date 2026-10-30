@@ -29,12 +29,12 @@ export default function MobileSearchBar() {
                         type="button"
                         onClick={handleFilterClick}
                         aria-label="Toggle filters"
-                        className={`group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border transition-colors duration-200 ${isMobileFilterOpen
+                        className={`group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border transition-colors ${isMobileFilterOpen
                             ? "border-accent/50 bg-accent/15"
                             : "border-(--border-color) bg-background-hover hover:border-(--border-color-hover)"
                         }`}
                     >
-                        <SlidersHorizontal className={`h-4 w-4 shrink-0 transition-colors duration-200 ease-out ${isMobileFilterOpen ? "text-accent" : "text-foreground group-hover:text-accent"}`} />
+                        <SlidersHorizontal className={`h-4 w-4 shrink-0 transition-colors ease-out ${isMobileFilterOpen ? "text-accent" : "text-foreground group-hover:text-accent"}`} />
                     </button>
                 )}
                 <div className="w-full max-w-md flex-1">

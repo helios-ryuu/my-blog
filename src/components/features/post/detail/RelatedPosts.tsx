@@ -15,7 +15,7 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
     if (posts.length === 0) return null;
 
     return (
-        <aside className="sticky">
+        <div className="sticky">
             <h4 className="text-sm font-semibold text-foreground/70 my-4 uppercase tracking-wider">
                 {t("relatedPosts")}
             </h4>
@@ -24,6 +24,7 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
                     <Link
                         key={post.slug}
                         href={`/post/${post.slug}`}
+                        prefetch={true}
                         className="block group"
                     >
                         <article className="flex gap-3">
@@ -50,6 +51,6 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
                     </Link>
                 ))}
             </div>
-        </aside>
+        </div>
     );
 }

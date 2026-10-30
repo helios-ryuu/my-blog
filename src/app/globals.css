@@ -3,7 +3,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /* Dark theme (default) */
-:root {
+:root,
+:root.dark {
   --font-lexend: "Lexend", "Avenir Next", "Segoe UI", sans-serif;
   --font-code: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --code-font-family: var(--font-code), monospace;
@@ -181,7 +182,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  --default-transition-duration: 0.2s;
+  --default-transition-duration: 0.25s;
   --default-transition-timing-function: ease-out;
 }
 
@@ -190,7 +191,7 @@ html {
   height: 100%;
   background-color: var(--background);
   color: var(--foreground);
-  transition: background-color 0.2s ease-out, color 0.2s ease-out;
+  transition: background-color 0.25s ease-out, color 0.25s ease-out;
 }
 
 body {
@@ -198,18 +199,20 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-lexend), sans-serif;
-  transition: background-color 0.2s ease-out, color 0.2s ease-out;
+  transition: background-color 0.25s ease-out, color 0.25s ease-out;
 }
 
 /* Global transitions for theme switching:
- * - Non-inherited properties (background-color, border-color) transition on all elements (*).
+ * - Non-inherited properties (background-color, border-color) transition on all elements (*, ::before, ::after).
  * - Inherited `color` ONLY transitions on elements that explicitly set their own color
  *   (html, body, links, controls, [class*="text-"], [style*="color"]), preventing
  *   multi-level `color: inherit` cascade lag (which caused white-on-white / black-on-black flash in deep MDX trees).
  */
-* {
+*,
+*::before,
+*::after {
   transition-property: background-color, border-color, outline-color, fill, stroke;
-  transition-duration: 0.2s;
+  transition-duration: 0.25s;
   transition-timing-function: ease-out;
 }
 
@@ -224,13 +227,8 @@ textarea,
 [style*="color"],
 .alert-box {
   transition-property: color, background-color, border-color, outline-color, fill, stroke;
-  transition-duration: 0.2s;
+  transition-duration: 0.25s;
   transition-timing-function: ease-out;
-}
-
-/* Side panel width transition */
-aside {
-  transition: width 0.2s ease-out, transform 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
 }
 
 /* Custom scrollbar */
@@ -319,8 +317,14 @@ aside {
 /* .dark class inherits from :root which is already dark theme */
 
 @layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--border-color);
+  }
+
   * {
-    @apply border-border outline-ring/50;
+    @apply outline-ring/50;
   }
 
   body {
@@ -340,7 +344,7 @@ aside {
     border-radius: 0.625rem;
     border: 1px solid var(--border-color);
     background-color: var(--details-bg);
-    transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+    transition: background-color 0.25s ease-out, border-color 0.25s ease-out;
   }
 
   .prose details:hover {
@@ -368,7 +372,7 @@ aside {
     user-select: none;
     color: var(--foreground);
     outline: none;
-    transition: color 0.15s ease-out;
+    transition: color 0.25s ease-out;
     list-style-position: inside;
   }
 
